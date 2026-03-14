@@ -1,0 +1,6 @@
+@DormPaymentSystem.API_HostAddress = http://localhost:5277
+
+GET {{DormPaymentSystem.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
