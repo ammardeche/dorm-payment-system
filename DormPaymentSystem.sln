@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DormPaymentSystem.API", "DormPaymentSystem.API\DormPaymentSystem.API.csproj", "{375D2DD1-79A3-41C7-94D4-5975C19C45AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DormPaymentSystem.Core", "DormPaymentSystem.Core\DormPaymentSystem.Core.csproj", "{4393C377-F442-43BE-8045-EEBD6DC968FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DormPaymentSystem.Data", "DormPaymentSystem.Data\DormPaymentSystem.Data.csproj", "{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,30 @@ Global
 		{375D2DD1-79A3-41C7-94D4-5975C19C45AD}.Release|x64.Build.0 = Release|Any CPU
 		{375D2DD1-79A3-41C7-94D4-5975C19C45AD}.Release|x86.ActiveCfg = Release|Any CPU
 		{375D2DD1-79A3-41C7-94D4-5975C19C45AD}.Release|x86.Build.0 = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|x64.Build.0 = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|x64.Build.0 = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{4393C377-F442-43BE-8045-EEBD6DC968FC}.Release|x86.Build.0 = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|x64.Build.0 = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Debug|x86.Build.0 = Debug|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|x64.ActiveCfg = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|x64.Build.0 = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|x86.ActiveCfg = Release|Any CPU
+		{922322A1-DBF9-45BE-8FA3-8DBE299A78D5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
