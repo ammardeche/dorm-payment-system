@@ -13,6 +13,9 @@ namespace DormPaymentSystem.Core.Entities
 
         public decimal Amount { get; set; }
 
+        public string ReceiptNumber { get; set; } = null!;    // Required
+
+
         public DateTime PaymentDate { get; set; } = DateTime.Now;
         public DateTime DueDate { get; set; }
 
