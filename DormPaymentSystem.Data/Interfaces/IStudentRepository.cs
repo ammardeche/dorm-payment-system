@@ -8,12 +8,29 @@ namespace DormPaymentSystem.Data.Interfaces
 {
     public interface IStudentRepository
     {
-        public Task<IEnumerable<Student>> getAllStudents();
+        // READ
+        Task<IEnumerable<Student>> GetAllStudents();
+        Task<Student> GetStudentById(int id);
+        Task<Student> GetStudentByNumber(string studentNumber);
 
-        public Task<Student> GetStudentById(int id);
-        public Task<Student> CreateStudent(Student student);
+        // FILTER
+        Task<IEnumerable<Student>> GetStudentsByRoom(int roomId);
+        Task<IEnumerable<Student>> GetActiveStudents();
 
-        public Task<Student> DeleteStudent(int id);
-        public Task<Student> UpdateStudent(Student student);
+        // CREATE
+        Task<Student> CreateStudent(Student student);
+
+        // UPDATE
+        Task<Student> UpdateStudent(Student student);
+
+        // DELETE
+        Task<bool> DeleteStudent(int id);
+
+        // CHECK
+        Task<bool> StudentExists(int id);
+        Task<bool> StudentNumberExists(string studentNumber);
+
+        // SAVE
+        Task SaveChanges();
     }
 }

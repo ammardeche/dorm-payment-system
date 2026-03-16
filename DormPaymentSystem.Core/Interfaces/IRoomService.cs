@@ -7,6 +7,6 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IRoomService
     {
-        
+
     }
 }
