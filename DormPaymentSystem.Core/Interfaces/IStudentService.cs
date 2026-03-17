@@ -8,24 +8,13 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IStudentService
     {
-        // READ - What controllers/other services need
-        Task<IEnumerable<Student>> GetAllStudents();
-        Task<Student> GetStudentById(int id);
-        Task<Student> GetStudentByNumber(string studentNumber);
-
-        // CREATE
+        // BUSINESS OPERATIONS (Keep in Service)
         Task<Student> CreateStudent(Student student);
-
-        // UPDATE
         Task<Student> UpdateStudent(Student student);
-
-        // DELETE
         Task<bool> DeleteStudent(int id);
 
-        // VALIDATION HELPERS
-        Task<bool> StudentExists(int id);
-        Task<bool> StudentNumberExists(string studentNumber);
-        Task<bool> CanDeleteStudent(int id);  // Check if has unpaid payments
+        // VALIDATION HELPERS (Keep in Service)
+        Task<bool> CanDeleteStudent(int id);
 
     }
 }

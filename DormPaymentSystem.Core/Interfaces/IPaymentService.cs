@@ -20,5 +20,7 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<bool> PaymentExistsAsync(int id);
         Task<bool> CanDeletePaymentAsync(int id);
 
+
+
     }
 }
