@@ -1,17 +1,26 @@
 using DormPaymentSystem.API.Configurations;
+using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Data.Seeders;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
 builder.Services.AddApplicationService();
 builder.Services.AddAuthenticationConfiguration(builder.Configuration);
 builder.Services.AddDataConfiguration(builder.Configuration);
 builder.Services.AddCorsConfiguration();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<User>>();
+    await AdminSeeder.SeedAdmin(userManager);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
