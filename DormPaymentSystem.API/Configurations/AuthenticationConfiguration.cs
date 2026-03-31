@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Data.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -15,17 +17,19 @@ namespace DormPaymentSystem.API.Configurations
             this IServiceCollection services,
             IConfiguration configuration)
         {
+
+            // Add Identity
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<DormPaymentDbContext>()
+                .AddDefaultTokenProviders();
+
+
             // JWT Settings
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings.GetValue<string>("SecretKey");
             var issuer = jwtSettings.GetValue<string>("Issuer");
             var audience = jwtSettings.GetValue<string>("Audience");
             var expiryMinutes = jwtSettings.GetValue<int>("ExpiryMinutes");
-
-            // Add Identity
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                // .AddEntityFrameworkStores<DormPaymentSystemDbContext>()
-                .AddDefaultTokenProviders();
 
             // Add JWT Bearer Authentication
             services.AddAuthentication(options =>

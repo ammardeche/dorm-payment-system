@@ -11,9 +11,10 @@ namespace DormPaymentSystem.Core.Entities
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
 
-        public string Role { get; set; } = null!;
         public DateTime? LastLogin { get; set; }
 
         public string FullName => $"{FirstName} {LastName}";
+
+        public ICollection<Payment> ReceivedPayments { get; set; } = new List<Payment>();
     }
 }

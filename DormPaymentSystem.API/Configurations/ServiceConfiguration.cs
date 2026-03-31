@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.Interfaces;
+using DormPaymentSystem.Core.Services;
+using DormPaymentSystem.Data.Interfaces;
+using DormPaymentSystem.Data.Repositories;
 
 namespace DormPaymentSystem.API.Configurations
 {
@@ -10,7 +14,23 @@ namespace DormPaymentSystem.API.Configurations
         public static IServiceCollection AddApplicationService(this IServiceCollection _service)
         {
 
-            // provide services here
+
+            // register services and repositories 
+
+            // floor 
+            _service.AddScoped<IFloorService, FloorService>();
+            _service.AddScoped<IFloorRepository, FloorRepository>();
+
+            // room 
+
+            // payment
+
+            // student 
+
+            // user
+
+
+            // provide services 
 
             return _service;
         }

@@ -19,7 +19,7 @@ namespace DormPaymentSystem.Core.Entities
         public DateTime PaymentDate { get; set; } = DateTime.Now;
         public DateTime DueDate { get; set; }
 
-        public PaymentStatus Status = PaymentStatus.Pending;
+        public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
 
         public PaymentMethod? Method { get; set; }
 
@@ -27,6 +27,20 @@ namespace DormPaymentSystem.Core.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
+
+        // navigation and foreign key for the who received the payment
+
+        public string? ReceivedById { get; set; }
+        public User? ReceivedBy { get; set; }
+
+        // track which month this payment for 
+
+        public int PaymentMonth { get; set; }
+        public int PaymentYear { get; set; }
+
+        // days late if student pay after due date  
+
+        public int DaysLate { get; set; }
 
         public int StudentId { get; set; }
         public Student? Student { get; set; }

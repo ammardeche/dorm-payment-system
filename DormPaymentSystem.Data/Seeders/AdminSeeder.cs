@@ -15,7 +15,7 @@ namespace DormPaymentSystem.Data.Seeders
 
             string Email = "admin@dorm.com";
 
-            var adminUser = await _userManager.FindByIdAsync(Email);
+            var adminUser = await _userManager.FindByEmailAsync(Email);
 
             if (adminUser == null)
             {
@@ -24,7 +24,7 @@ namespace DormPaymentSystem.Data.Seeders
                     UserName = Email,
                     Email = Email,
                     FirstName = "Admin",
-                    LastName = "User"
+                    LastName = "User",
                 };
 
                 var result = await _userManager.CreateAsync(user, "Admin@123");

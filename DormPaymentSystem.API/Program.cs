@@ -1,14 +1,18 @@
 using DormPaymentSystem.API.Configurations;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Data.Seeders;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+
 
 builder.Services.AddOpenApi();
 builder.Services.AddApplicationService();
 builder.Services.AddAuthenticationConfiguration(builder.Configuration);
+builder.Services.AddAuthorization();
 builder.Services.AddDataConfiguration(builder.Configuration);
 builder.Services.AddCorsConfiguration();
 
@@ -25,7 +29,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 app.UseAuthentication();

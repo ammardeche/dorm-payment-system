@@ -8,13 +8,16 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IStudentService
     {
-        // BUSINESS OPERATIONS (Keep in Service)
-        Task<Student> CreateStudent(Student student);
-        Task<Student> UpdateStudent(Student student);
-        Task<bool> DeleteStudent(int id);
+        // READ - simple pass through, no logic needed
+        Task<IEnumerable<Student>> GetAllStudentsAsync();
+        Task<Student?> GetStudentByIdAsync(int id);          // throws if not found
+        Task<Student?> GetStudentByNumberAsync(string studentNumber);
+        Task<IEnumerable<Student>> GetStudentsByRoomAsync(int roomId);
+        Task<IEnumerable<Student>> GetActiveStudentsAsync();
 
-        // VALIDATION HELPERS (Keep in Service)
-        Task<bool> CanDeleteStudent(int id);
-
+        // WRITE - has business logic
+        Task<Student> CreateStudentAsync(Student student);   // check duplicate number
+        Task<Student> UpdateStudentAsync(Student student);   // check exists
+        Task<bool> DeleteStudentAsync(int id);               // check can delete
     }
 }
