@@ -16,8 +16,26 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<IEnumerable<Student>> GetActiveStudentsAsync();
 
         // WRITE - has business logic
-        Task<Student> CreateStudentAsync(Student student);   // check duplicate number
-        Task<Student> UpdateStudentAsync(Student student);   // check exists
+        Task<Student> CreateStudentAsync(
+            string firstName,
+            string lastName,
+            string email,
+            string studentNumber,
+            string? phoneNumber,
+            DateTime enrollmentDate,
+            int roomId
+          );   // check duplicate number
+        Task<Student> UpdateStudentAsync(
+             int id,
+            string firstName,
+            string lastName,
+            string email,
+            string? phoneNumber,
+            int roomId
+        );   // check exists
+        Task<bool> CanStudentLeaveAsync(int studentId);  // checks all months paid
+        Task<bool> DeactivateStudentAsync(int studentId, string? departureNote); // receptionist
+
         Task<bool> DeleteStudentAsync(int id);               // check can delete
     }
 }

@@ -24,6 +24,8 @@ namespace DormPaymentSystem.Data.Data
         public DbSet<Room> Rooms { get; set; }
 
         public DbSet<Floor> Floors { get; set; }
+        public DbSet<Invitation> Invitations { get; set; }
+        public DbSet<Guest> Guests { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
 

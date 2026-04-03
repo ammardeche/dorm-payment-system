@@ -15,21 +15,21 @@ namespace DormPaymentSystem.Core.Exceptions
             StatusCode = statusCode;
         }
 
-        public class NotFoundException : AppException
+        public class AppNotFoundException : AppException
         {
-            public NotFoundException(string message) : base(message, 404)
+            public AppNotFoundException(string message) : base(message, 404)
             {
             }
         }
 
-        public class ConflictException : AppException
+        public class AppConflictException : AppException
         {
-            public ConflictException(string message) : base(message, 409) { }
+            public AppConflictException(string message) : base(message, 409) { }
         }
 
-        public class ValidationException : AppException
+        public class AppValidationException : AppException
         {
-            public ValidationException(string message)
+            public AppValidationException(string message)
                 : base(message, 422) { }
         }
 

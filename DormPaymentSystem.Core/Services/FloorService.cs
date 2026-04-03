@@ -25,17 +25,17 @@ namespace DormPaymentSystem.Core.Services
             // need to check if floor number less than 0 
 
             if (floorNumber <= 0)
-                throw new ValidationException("Floor number must be greater than 0.");
+                throw new AppValidationException("Floor number must be greater than 0.");
             if (totalRooms <= 0)
             {
-                throw new ValidationException("floor must be have at least one room.");
+                throw new AppValidationException("floor must be have at least one room.");
             }
 
             var existingFloor = await IsFloorExistsAsync(floorNumber);
 
             if (existingFloor)
             {
-                throw new ConflictException($"Floor with number {floorNumber} already exists.");
+                throw new AppConflictException($"Floor with number {floorNumber} already exists.");
             }
 
             var floor = new Floor
@@ -53,7 +53,7 @@ namespace DormPaymentSystem.Core.Services
 
             if (existingFloor == null)
             {
-                throw new NotFoundException($"Floor with number {floorNumber} not found.");
+                throw new AppNotFoundException($"Floor with number {floorNumber} not found.");
             }
 
             await _floorRepo.DeleteFloor(existingFloor);
@@ -67,17 +67,17 @@ namespace DormPaymentSystem.Core.Services
 
             if (floorNumber <= 0)
             {
-                throw new ValidationException($" the floor number{floorNumber} must be greater than 0");
+                throw new AppValidationException($" the floor number{floorNumber} must be greater than 0");
             }
 
             if (totalRooms <= 0)
             {
-                throw new ValidationException($" the floor number{totalRooms} must be greater than 0");
+                throw new AppValidationException($" the floor number{totalRooms} must be greater than 0");
             }
 
             if (existingFloor == null)
             {
-                throw new NotFoundException($"Floor with number {floorNumber} not found");
+                throw new AppNotFoundException($"Floor with number {floorNumber} not found");
             }
 
 

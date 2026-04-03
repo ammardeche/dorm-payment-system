@@ -54,7 +54,7 @@ namespace DormPaymentSystem.API.Controller
             var updatedFloor = await _floorService.UpdateFloorAsync(floorNumber, req.TotalRooms);
             return Ok(new FloorResponse(updatedFloor));
         }
-    
+
     }
 
 }

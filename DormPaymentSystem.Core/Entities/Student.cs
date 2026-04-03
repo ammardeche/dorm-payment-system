@@ -13,11 +13,13 @@ namespace DormPaymentSystem.Core.Entities
         public string LastName { get; set; } = null!;
         public string StudentNumber { get; set; } = null!;
 
-        public string Email { get; set; } = null!;
+        public string? Email { get; set; }
 
         public string? PhoneNumber { get; set; }
+        public string? DepartureNote { get; set; }
 
         public DateTime EnrollmentDate { get; set; } = DateTime.Now;
+        public DateTime? DepartureDate { get; set; }
 
         public bool IsActive { get; set; } = true;
 
