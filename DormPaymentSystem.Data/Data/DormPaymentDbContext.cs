@@ -41,6 +41,12 @@ namespace DormPaymentSystem.Data.Data
             .HasForeignKey(p => p.StudentId)
             .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Payment>().
+            HasOne(p => p.Guest)
+            .WithMany(p => p.Payments)
+            .HasForeignKey(p => p.GuestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Payment>()
                  .HasOne(p => p.ReceivedBy)
                  .WithMany(u => u.ReceivedPayments)

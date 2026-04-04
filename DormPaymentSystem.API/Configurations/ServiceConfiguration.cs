@@ -22,7 +22,8 @@ namespace DormPaymentSystem.API.Configurations
             _service.AddScoped<IFloorRepository, FloorRepository>();
 
             // room 
-
+            _service.AddScoped<IRoomRepository, RoomRepository>();
+            _service.AddScoped<IRoomService, RoomService>();
             // payment
 
             // student 

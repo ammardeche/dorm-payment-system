@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using DormPaymentSystem.API.Configurations;
 using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.Entities;
@@ -6,7 +7,11 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+   .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 
 builder.Services.AddOpenApi();
