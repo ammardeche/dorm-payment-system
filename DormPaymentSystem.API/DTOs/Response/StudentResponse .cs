@@ -8,6 +8,7 @@ namespace DormPaymentSystem.API.DTOs.Response
 {
     public class StudentResponse
     {
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
@@ -19,6 +20,7 @@ namespace DormPaymentSystem.API.DTOs.Response
 
         public StudentResponse(Student student)
         {
+            Id = student.Id;
             FirstName = student.FirstName;
             LastName = student.LastName;
             StudentNumber = student.StudentNumber;

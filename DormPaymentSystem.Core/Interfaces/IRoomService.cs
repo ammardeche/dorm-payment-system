@@ -14,7 +14,7 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<Room?> GetRoomById(int id);
         // WRITE
         Task<Room> CreateRoom(int roomNumber, int capacity, int floorId);
-        Task<Room> UpdateRoom(int id, int roomNumber, int capacity, RoomStatus status);
+        Task<Room> UpdateRoom(int id, int? roomNumber, int capacity, RoomStatus status);
         Task<bool> DeleteRoom(int id);
         // BUSINESS LOGIC
         Task<bool> IsRoomAvailable(int roomId);        // checks capacity

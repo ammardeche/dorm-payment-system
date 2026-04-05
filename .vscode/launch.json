@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug DormPaymentSystem.API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/DormPaymentSystem.API/bin/Debug/net9.0/DormPaymentSystem.API.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/DormPaymentSystem.API",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5001;https://localhost:5002"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "sourceFileMap": {
+        "${workspaceFolder}/DormPaymentSystem.API": "${workspaceFolder}/DormPaymentSystem.API"
+      }
+    }
+  ]
+}

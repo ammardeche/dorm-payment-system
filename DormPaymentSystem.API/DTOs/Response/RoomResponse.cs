@@ -10,6 +10,7 @@ namespace DormPaymentSystem.API.DTOs.Response
     public class RoomResponse
     {
 
+        public int Id { get; set; }
         public int? RoomNumber { get; set; }
         public int Capacity { get; set; }
         public int CurrentOccupancy { get; set; }
@@ -21,6 +22,7 @@ namespace DormPaymentSystem.API.DTOs.Response
 
         public RoomResponse(Room room)
         {
+            Id = room.Id;
             RoomNumber = room.RoomNumber;
             Capacity = room.Capacity;
 

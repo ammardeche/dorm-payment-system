@@ -8,12 +8,14 @@ namespace DormPaymentSystem.API.DTOs
 {
     public class FloorResponse
     {
+        public int Id { get; set; }
         public int FloorNumber { get; set; }
         public int TotalRooms { get; set; }
         public IEnumerable<FloorRoomResponse> Rooms { get; set; }
 
         public FloorResponse(Floor floor)
         {
+            Id = floor.Id;
             FloorNumber = floor.FloorNumber;
             TotalRooms = floor.TotalRooms;
             Rooms = floor.Rooms.Select(r => new FloorRoomResponse

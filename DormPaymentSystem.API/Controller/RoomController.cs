@@ -42,7 +42,7 @@ namespace DormPaymentSystem.API.Controller
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest req)
         {
-            var room = await _roomService.CreateRoom(req.RoomNumber, req.Capacity, req.FloorId);
+            await _roomService.CreateRoom(req.RoomNumber, req.Capacity, req.FloorId);
             return Ok("room created successfully");
         }
 
@@ -50,15 +50,15 @@ namespace DormPaymentSystem.API.Controller
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateRoom(int id, [FromBody] UpdateRoomRequest req)
         {
-            var room = await _roomService.UpdateRoom(id, req.RoomNumber, req.Capacity, req.Status);
-            return Ok("room created successfully");
+            await _roomService.UpdateRoom(id, req.RoomNumber, req.Capacity, req.Status);
+            return Ok("room has updated  successfully");
         }
 
         // DELETE: api/rooms/delete/{id}
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
-            var room = await _roomService.DeleteRoom(id);
+            await _roomService.DeleteRoom(id);
 
             return Ok("the room removed successfully ");
         }

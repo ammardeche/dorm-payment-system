@@ -45,6 +45,8 @@ namespace DormPaymentSystem.Core.Services
             if (capacity <= 0)
                 throw new AppValidationException("Capacity must be at least 1.");
 
+
+
             var room = new Room
             {
                 RoomNumber = roomNumber,
@@ -56,7 +58,7 @@ namespace DormPaymentSystem.Core.Services
             return await _roomRepository.CreateRoom(room);
         }
 
-        public async Task<Room> UpdateRoom(int id, int roomNumber, int capacity, RoomStatus status)
+        public async Task<Room> UpdateRoom(int id, int? roomNumber, int capacity, RoomStatus status)
         {
             var room = await _roomRepository.GetRoomById(id);
             if (room == null)
