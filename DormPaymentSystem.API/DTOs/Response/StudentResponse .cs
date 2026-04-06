@@ -13,7 +13,7 @@ namespace DormPaymentSystem.API.DTOs.Response
         public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
         public string StudentNumber { get; set; }
-
+        public DateTime EnrollmentDate { get; set; }
         public IEnumerable<StudentPaymentResponse> Payments { get; set; }
         public StudentRoomResponse? Room { get; set; }
 
@@ -25,6 +25,7 @@ namespace DormPaymentSystem.API.DTOs.Response
             LastName = student.LastName;
             StudentNumber = student.StudentNumber;
             PhoneNumber = student.PhoneNumber;
+            EnrollmentDate = student.EnrollmentDate;
             Payments = student.Payments.Select(p => new StudentPaymentResponse
             {
                 Amount = p.Amount,
@@ -32,6 +33,7 @@ namespace DormPaymentSystem.API.DTOs.Response
             });
             Room = student.Room != null ? new StudentRoomResponse
             {
+                Id = student.Room.Id,
                 RoomNumber = student.Room.RoomNumber ?? 0
             } : null;
         }
@@ -46,6 +48,7 @@ namespace DormPaymentSystem.API.DTOs.Response
 
     public class StudentRoomResponse
     {
+        public int Id { get; set; }
         public int RoomNumber { get; set; }
 
     }

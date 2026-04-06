@@ -16,18 +16,18 @@ namespace DormPaymentSystem.Core.Services
     {
         private readonly IStudentRepository _studentRepository;
         private readonly IRoomRepository _roomRepository;
-        private readonly IRoomService _roomService;
-        public StudentService(IStudentRepository studentRepository, IRoomRepository roomRepository, IRoomService roomService)
+
+        public StudentService(IStudentRepository studentRepository, IRoomRepository roomRepository)
         {
             _studentRepository = studentRepository;
             _roomRepository = roomRepository;
-            _roomService = roomService;
+
         }
 
 
-        public async Task<IEnumerable<Student>> GetAllStudentsAsync()
+        public async Task<IEnumerable<Student>> GetAllStudentsAsync(int? roomId, bool? isActive, string? studentNumber)
         {
-            return await _studentRepository.GetAllStudents();
+            return await _studentRepository.GetAllStudents(roomId, isActive, studentNumber);
         }
 
         public async Task<Student?> GetStudentByIdAsync(int id)
@@ -38,23 +38,6 @@ namespace DormPaymentSystem.Core.Services
             return student;
         }
 
-        public async Task<Student?> GetStudentByNumberAsync(string studentNumber)
-        {
-            var student = await _studentRepository.GetStudentByNumber(studentNumber);
-            if (student == null)
-                throw new AppNotFoundException($"Student with number '{studentNumber}' not found.");
-            return student;
-        }
-
-        public async Task<IEnumerable<Student>> GetStudentsByRoomAsync(int roomId)
-        {
-            return await _studentRepository.GetStudentsByRoom(roomId);
-        }
-
-        public async Task<IEnumerable<Student>> GetActiveStudentsAsync()
-        {
-            return await _studentRepository.GetActiveStudents();
-        }
 
         public async Task<Student> CreateStudentAsync(
          string firstName,
@@ -83,7 +66,7 @@ namespace DormPaymentSystem.Core.Services
                 if (room == null)
                     throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var studentsInRoom = await _studentRepository.GetStudentsByRoom(roomId);
+                var studentsInRoom = await _studentRepository.GetAllStudents(roomId: roomId);
                 var activeCount = studentsInRoom.Count(s => s.IsActive);
 
                 if (activeCount >= room.Capacity)
@@ -109,7 +92,7 @@ namespace DormPaymentSystem.Core.Services
             if (roomId != 0)
             {
                 var room = await _roomRepository.GetRoomById(roomId);
-                var updatedStudents = await _studentRepository.GetStudentsByRoom(roomId);
+                var updatedStudents = await _studentRepository.GetAllStudents(roomId: roomId);
                 var updatedCount = updatedStudents.Count(s => s.IsActive);
 
                 room.Status = updatedCount >= room.Capacity
@@ -124,9 +107,9 @@ namespace DormPaymentSystem.Core.Services
 
         public async Task<Student> UpdateStudentAsync(
             int id,
-            string firstName,
-            string lastName,
-            string email,
+            string? firstName,
+            string? lastName,
+            string? email,
             string? phoneNumber,
             int roomId)
         {
@@ -143,10 +126,12 @@ namespace DormPaymentSystem.Core.Services
                 if (room == null)
                     throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var studentsInRoom = await _studentRepository.GetStudentsByRoom(roomId);
+                var studentsInRoom = await _studentRepository.GetAllStudents(roomId: roomId);
                 if (studentsInRoom.Count() >= room.Capacity)
                     throw new AppValidationException($"Room '{roomId}' is already full.");
+
             }
+
 
             student.FirstName = firstName;
             student.LastName = lastName;

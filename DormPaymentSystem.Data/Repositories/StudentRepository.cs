@@ -21,37 +21,29 @@ namespace DormPaymentSystem.Data.Repositories
 
 
 
-        public async Task<Student> CreateStudent(Student student)
+        // one method replaces GetAllStudents, GetActiveStudents, GetStudentsByRoom
+        public async Task<IEnumerable<Student>> GetAllStudents(
+       int? roomId = null,
+       bool? isActive = null,
+       string? studentNumber = null
+            )
         {
-            await _context.Students.AddAsync(student);
-            await SaveChanges();
-            return student;
-        }
-
-        public async Task<bool> DeleteStudent(Student student)
-        {
-            _context.Students.Remove(student);
-            await SaveChanges();
-            return true;
-        }
-
-        public async Task<IEnumerable<Student>> GetActiveStudents()
-        {
-            return await _context.Students
-                .AsNoTracking()
-                .Where(s => s.IsActive)
-                .Include(s => s.Payments)
-                .Include(s => s.Room)
-                .ToListAsync();
-        }
-
-        public async Task<IEnumerable<Student>> GetAllStudents()
-        {
-            return await _context.Students
+            var query = _context.Students
                 .AsNoTracking()
                 .Include(s => s.Payments)
                 .Include(s => s.Room)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (roomId.HasValue)
+                query = query.Where(s => s.RoomId == roomId.Value);
+
+            if (isActive.HasValue)
+                query = query.Where(s => s.IsActive == isActive.Value);
+
+            if (!string.IsNullOrWhiteSpace(studentNumber))
+                query = query.Where(s => s.StudentNumber == studentNumber);
+
+            return await query.ToListAsync();
         }
 
         public async Task<Student?> GetStudentById(int id)
@@ -62,22 +54,25 @@ namespace DormPaymentSystem.Data.Repositories
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<Student?> GetStudentByNumber(string studentNumber)
+        public async Task<Student> CreateStudent(Student student)
         {
-            return await _context.Students
-                .Include(s => s.Payments)
-                .Include(s => s.Room)
-                .FirstOrDefaultAsync(s => s.StudentNumber == studentNumber);
+            await _context.Students.AddAsync(student);
+            await SaveChanges();
+            return student;
         }
 
-        public async Task<IEnumerable<Student>> GetStudentsByRoom(int roomId)
+        public async Task<Student> UpdateStudent(Student student)
         {
-            return await _context.Students
-                .AsNoTracking()
-                .Where(s => s.RoomId == roomId)
-                .Include(s => s.Payments)
-                .Include(s => s.Room)
-                .ToListAsync();
+            _context.Students.Update(student);
+            await SaveChanges();
+            return student;
+        }
+
+        public async Task<bool> DeleteStudent(Student student)
+        {
+            _context.Students.Remove(student);
+            await SaveChanges();
+            return true;
         }
 
         public async Task<bool> StudentExists(int id)
@@ -90,17 +85,11 @@ namespace DormPaymentSystem.Data.Repositories
             return await _context.Students.AnyAsync(s => s.StudentNumber == studentNumber);
         }
 
-        public async Task<Student> UpdateStudent(Student student)
-        {
-            _context.Students.Update(student);
-            await SaveChanges();
-            return student;
-        }
-
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
         }
+
 
     }
 }

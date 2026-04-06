@@ -9,13 +9,8 @@ namespace DormPaymentSystem.Data.Interfaces
     public interface IStudentRepository
     {
         // READ
-        Task<IEnumerable<Student>> GetAllStudents();
+        Task<IEnumerable<Student>> GetAllStudents(int? roomId = null, bool? isActive = null, string? studentNumber = null);
         Task<Student?> GetStudentById(int id);
-        Task<Student?> GetStudentByNumber(string studentNumber);
-
-        // FILTER
-        Task<IEnumerable<Student>> GetStudentsByRoom(int roomId);
-        Task<IEnumerable<Student>> GetActiveStudents();
 
         // CREATE
         Task<Student> CreateStudent(Student student);

@@ -9,11 +9,8 @@ namespace DormPaymentSystem.Core.Interfaces
     public interface IStudentService
     {
         // READ - simple pass through, no logic needed
-        Task<IEnumerable<Student>> GetAllStudentsAsync();
+        Task<IEnumerable<Student>> GetAllStudentsAsync(int? roomId = null, bool? isActive = null, string? studentNumber = null);
         Task<Student?> GetStudentByIdAsync(int id);          // throws if not found
-        Task<Student?> GetStudentByNumberAsync(string studentNumber);
-        Task<IEnumerable<Student>> GetStudentsByRoomAsync(int roomId);
-        Task<IEnumerable<Student>> GetActiveStudentsAsync();
 
         // WRITE - has business logic
         Task<Student> CreateStudentAsync(
@@ -26,10 +23,10 @@ namespace DormPaymentSystem.Core.Interfaces
             int roomId
           );   // check duplicate number
         Task<Student> UpdateStudentAsync(
-             int id,
-            string firstName,
-            string lastName,
-            string email,
+            int id,
+            string? firstName,
+            string? lastName,
+            string? email,
             string? phoneNumber,
             int roomId
         );   // check exists
