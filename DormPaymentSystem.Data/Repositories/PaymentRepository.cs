@@ -66,6 +66,7 @@ namespace DormPaymentSystem.Data.Repositories
             if (dueToday.HasValue && dueToday.Value)
                 query = query.Where(p => p.DueDate.Date == DateTime.UtcNow.Date);
 
+
             return await query.ToListAsync();
         }
 

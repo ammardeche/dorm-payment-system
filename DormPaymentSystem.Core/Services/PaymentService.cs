@@ -152,6 +152,10 @@ namespace DormPaymentSystem.Core.Services
 
         public async Task<decimal> GetTotalCollectedAsync(DateTime startDate, DateTime endDate)
         {
+            if (startDate >= endDate)
+            {
+                throw new AppValidationException("startDate should be less than end date ");
+            }
             var payments = await _paymentRepository.GetAllPayments(
                 startDate: startDate,
                 endDate: endDate,
