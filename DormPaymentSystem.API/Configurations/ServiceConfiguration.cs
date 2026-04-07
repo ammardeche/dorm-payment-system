@@ -20,16 +20,15 @@ namespace DormPaymentSystem.API.Configurations
             // floor 
             _service.AddScoped<IFloorService, FloorService>();
             _service.AddScoped<IFloorRepository, FloorRepository>();
-
             // room 
             _service.AddScoped<IRoomRepository, RoomRepository>();
             _service.AddScoped<IRoomService, RoomService>();
             // payment
-
+            _service.AddScoped<IPaymentRepository, PaymentRepository>();
+            _service.AddScoped<IPaymentService, PaymentService>();
             // student 
             _service.AddScoped<IStudentService, StudentService>();
             _service.AddScoped<IStudentRepository, StudentRepository>();
-
             // user
 
 

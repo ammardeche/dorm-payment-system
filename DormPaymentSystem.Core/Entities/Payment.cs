@@ -27,6 +27,12 @@ namespace DormPaymentSystem.Core.Entities
         public int PaymentYear { get; set; }
         public int DaysLate { get; set; }
 
+        // soft delete
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+        public string? DeletedById { get; set; }
+        public User? DeletedBy { get; set; }
+
         // one of these will be set, the other null
         public int? StudentId { get; set; }
         public Student? Student { get; set; }
