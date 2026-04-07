@@ -29,6 +29,7 @@ namespace DormPaymentSystem.API.DTOs.Response
             Payments = student.Payments.Select(p => new StudentPaymentResponse
             {
                 Amount = p.Amount,
+                PaidMonth = $"{p.PaymentMonth}/ {p.PaymentYear}",
                 PaymentDate = p.PaymentDate
             });
             Room = student.Room != null ? new StudentRoomResponse
@@ -43,6 +44,7 @@ namespace DormPaymentSystem.API.DTOs.Response
     public class StudentPaymentResponse
     {
         public decimal Amount { get; set; }
+        public string? PaidMonth { get; set; }
         public DateTime PaymentDate { get; set; }
     }
 
