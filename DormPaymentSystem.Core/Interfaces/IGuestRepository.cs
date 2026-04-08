@@ -9,11 +9,13 @@ namespace DormPaymentSystem.Core.Interfaces
     public interface IGuestRepository
     {
         // READ
-        Task<IEnumerable<Guest>> GetAllGuests();
-        Task<Guest?> GetGuestById(int id);
-        Task<Guest?> GetGuestByNationalId(string nationalId);
-        Task<IEnumerable<Guest>> GetGuestsByRoom(int roomId);
-        Task<IEnumerable<Guest>> GetActiveGuests();
+        // READ (with filters)
+        Task<IEnumerable<Guest>> GetGuests(
+            int? id = null,
+            string? nationalId = null,
+            int? roomId = null,
+            bool? isActive = null
+        );
 
         // WRITE
         Task<Guest> CreateGuest(Guest guest);
