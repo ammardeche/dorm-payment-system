@@ -11,20 +11,22 @@ namespace DormPaymentSystem.Core.Interfaces
         // READ
         // READ (with filters)
         Task<IEnumerable<Guest>> GetGuests(
-            int? id = null,
             string? nationalId = null,
             int? roomId = null,
             bool? isActive = null
         );
+        Task<Guest?> GetGuestById(int id);
 
         // WRITE
         Task<Guest> CreateGuest(Guest guest);
         Task<Guest> UpdateGuest(Guest guest);
-        Task<bool> DeleteGuest(int id);
+        Task<bool> DeleteGuest(Guest guest);
 
         // CHECK
         Task<bool> GuestExists(int id);
 
-        Task SaveChanges();
+        Task<Guest?> CheckGuestByNationalIdAsync(string nationalId);
+
+
     }
 }

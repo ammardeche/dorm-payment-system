@@ -1,0 +1,29 @@
+I have a .NET 8 Entity Framework Core repository class called StudentRepository that implements IStudentRepository.
+It uses constructor injection with DormPaymentDbContext _context.
+
+The Student entity has these navigation properties:
+
+Room (single object)
+Payments (collection)
+And these properties:
+
+int Id
+int RoomId
+bool IsActive
+string StudentNumber
+I need you to write ONLY the method body for this signature:
+
+public async Task<IEnumerable<Student>> GetAllStudents(
+    int? roomId = null,
+    bool? isActive = null,
+    string? studentNumber = null
+)
+
+Requirements:
+
+Include Room and Payments navigation properties
+Only apply each filter if the parameter has a value
+Optimize for read-only (no tracking needed)
+Build the query dynamically, don't execute until the end
+Follow EF Core best practices for performance
+Write only the method body, no explanation

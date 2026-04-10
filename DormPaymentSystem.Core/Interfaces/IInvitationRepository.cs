@@ -8,11 +8,15 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IInvitationRepository
     {
-        // READ
-        Task<IEnumerable<Invitation>> GetAllInvitations();
-        Task<Invitation?> GetInvitationById(int id);
-        Task<IEnumerable<Invitation>> GetInvitationsByRoom(int roomId);
-        Task<IEnumerable<Invitation>> GetInvitationsByStudent(int studentId);
+
+        // READ — one flexible method replaces GetAll, ByRoom, ByStudent, ById
+        Task<IEnumerable<Invitation>> GetInvitations(
+            int? id = null,
+            int? roomId = null,
+            int? studentId = null,
+            int? month = null,
+            int? year = null
+        );
 
         // WRITE
         Task<Invitation> CreateInvitation(Invitation invitation);
@@ -21,6 +25,5 @@ namespace DormPaymentSystem.Core.Interfaces
         // CHECK — the key rule
         Task<bool> RoomHasInvitationThisMonth(int roomId, int month, int year);
 
-        Task SaveChanges();
     }
 }

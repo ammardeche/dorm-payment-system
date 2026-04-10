@@ -9,15 +9,25 @@ namespace DormPaymentSystem.Core.Interfaces
     public interface IGuestService
     {
         // READ
-        Task<IEnumerable<Guest>> GetAllGuestsAsync();
+        Task<IEnumerable<Guest>> GetAllGuestsAsync(
+        int? roomId = null,
+        string? nationalId = null,
+        bool? isActive = null);
+
         Task<Guest?> GetGuestByIdAsync(int id);
-        Task<IEnumerable<Guest>> GetGuestsByRoomAsync(int roomId);
 
         // WRITE
-        Task<Guest> CheckInGuestAsync();    // creates guest + snaps rate add a parameter to dto if needed
-        Task<Guest> CheckOutGuestAsync(int guestId);          // calculates total, triggers payment
+        Task<Guest> CheckInGuestAsync(
+            string fullName,
+            string nationalId,
+            int roomId,
+            decimal ratePerNight,
+           int? nightsStayed = null
 
-        // BUSINESS LOGIC
-        Task<decimal> CalculateTotalAmountAsync(int guestId); // NightsStayed × RatePerNight
+            );    // receptionist enters price from form
+
+        Task<Guest> CheckOutGuestAsync(int guestId);  // calculates total on checkout
+
+        Task<Guest?> CheckGuestByNationalIdAsync(string nationalId);
     }
 }

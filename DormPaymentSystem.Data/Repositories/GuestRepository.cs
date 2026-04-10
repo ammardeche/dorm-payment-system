@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace DormPaymentSystem.Data.Repositories
 {
@@ -16,34 +17,80 @@ namespace DormPaymentSystem.Data.Repositories
         {
             _context = context;
         }
-        public Task<Guest> CreateGuest(Guest guest)
+
+
+        public async Task<IEnumerable<Guest>> GetGuests(
+        string? nationalId = null,
+        int? roomId = null,
+        bool? isActive = null
+        )
         {
-            throw new NotImplementedException();
+            var query = _context.Guests
+               .AsNoTracking()
+               .Include(g => g.Room)
+               .Include(g => g.Payments)
+               .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(nationalId))
+                query = query.Where(g => g.NationalId == nationalId);
+
+            if (roomId.HasValue)
+                query = query.Where(g => g.RoomId == roomId.Value);
+
+            // active = still checked in = no checkout date
+            if (isActive.HasValue)
+                query = isActive.Value
+                    ? query.Where(g => g.CheckOutDate == null)
+                    : query.Where(g => g.CheckOutDate != null);
+
+            return await query.ToListAsync();
+
         }
 
-        public Task<bool> DeleteGuest(int id)
+        public async Task<Guest> CreateGuest(Guest guest)
         {
-            throw new NotImplementedException();
+            await _context.Guests.AddAsync(guest);
+            await SaveChanges();
+            return guest;
         }
 
-        public Task<IEnumerable<Guest>> GetGuests(int? id = null, string? nationalId = null, int? roomId = null, bool? isActive = null)
+        public async Task<Guest> UpdateGuest(Guest guest)
         {
-            throw new NotImplementedException();
+            _context.Guests.Update(guest);
+            await SaveChanges();
+            return guest;
         }
 
-        public Task<bool> GuestExists(int id)
+        public async Task<bool> DeleteGuest(Guest guest)
         {
-            throw new NotImplementedException();
+            _context.Guests.Remove(guest);
+            await SaveChanges();
+            return true;
         }
 
-        public Task SaveChanges()
+        public async Task<bool> GuestExists(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Guests.AnyAsync(g => g.Id == id);
         }
 
-        public Task<Guest> UpdateGuest(Guest guest)
+        public async Task<Guest?> GetGuestById(int id)
         {
-            throw new NotImplementedException();
+            var guest = await _context.Guests.FindAsync(id);
+
+            return guest;
+        }
+
+
+        private async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Guest?> CheckGuestByNationalIdAsync(string nationalId)
+        {
+            return await _context.Guests.FirstOrDefaultAsync(g => g.NationalId == nationalId);
         }
     }
 }
+
+

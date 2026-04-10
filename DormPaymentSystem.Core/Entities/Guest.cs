@@ -20,6 +20,7 @@ namespace DormPaymentSystem.Core.Entities
         public decimal RatePerNight { get; set; }
         public decimal TotalAmount { get; set; }
 
+
         public int? RoomId { get; set; }
         public Room? Room { get; set; }
 
