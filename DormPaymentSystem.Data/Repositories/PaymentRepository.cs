@@ -118,6 +118,10 @@ namespace DormPaymentSystem.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-
+        public async Task<bool> PaymentExistsForGuest(int guestId)
+        {
+            return await _context.Payments
+                .AnyAsync(p => p.GuestId == guestId && p.Status == PaymentStatus.Paid);
+        }
     }
 }

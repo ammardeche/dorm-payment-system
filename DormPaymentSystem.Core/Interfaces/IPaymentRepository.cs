@@ -29,6 +29,8 @@ namespace DormPaymentSystem.Data.Repositories
 
         // CHECK
         Task<bool> PaymentExists(int id);
+        Task<bool> PaymentExistsForGuest(int guestId);
+
         Task<bool> PaymentExistsForMonth(int studentId, int month, int year);
 
         Task SaveChanges();

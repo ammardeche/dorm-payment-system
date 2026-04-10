@@ -24,10 +24,11 @@ namespace DormPaymentSystem.Core.Interfaces
 
         // WRITE
         Task<Payment> ProcessPaymentAsync(
-            int studentId,
+            int? GuestId,
+            int? studentId,
             decimal amount,
-            int month,
-            int year,
+            int? month,
+            int? year,
             PaymentMethod method,
             string receivedByUserId);
 
@@ -47,6 +48,8 @@ namespace DormPaymentSystem.Core.Interfaces
 
         // VALIDATION
         Task<bool> PaymentExistsAsync(int id);
+        Task<bool> PaymentExistsForGuest(int guestId);
+
         Task<bool> HasPaidForMonthAsync(int studentId, int month, int year);
 
     }

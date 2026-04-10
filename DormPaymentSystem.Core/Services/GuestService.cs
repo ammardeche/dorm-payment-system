@@ -16,10 +16,15 @@ namespace DormPaymentSystem.Core.Services
         private readonly IGuestRepository _guestRepository;
         private readonly IRoomRepository _roomRepository;
 
-        public GuestService(IGuestRepository guestRepository, IRoomRepository roomRepository)
+
+        public GuestService(IGuestRepository guestRepository,
+        IRoomRepository roomRepository
+    )
         {
+
             _guestRepository = guestRepository;
             _roomRepository = roomRepository;
+
         }
 
         public async Task<Guest?> CheckGuestByNationalIdAsync(string nationalId)
@@ -77,6 +82,8 @@ namespace DormPaymentSystem.Core.Services
                 NightsStayed = nights,
                 TotalAmount = total,
             };
+
+
 
             return await _guestRepository.CreateGuest(guest);
         }
