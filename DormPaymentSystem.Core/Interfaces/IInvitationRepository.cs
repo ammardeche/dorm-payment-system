@@ -20,10 +20,12 @@ namespace DormPaymentSystem.Core.Interfaces
 
         // WRITE
         Task<Invitation> CreateInvitation(Invitation invitation);
-        Task<bool> DeleteInvitation(int id);
+        Task<bool> DeleteInvitation(Invitation invitation);
 
         // CHECK — the key rule
         Task<bool> RoomHasInvitationThisMonth(int roomId, int month, int year);
+
+
 
     }
 }

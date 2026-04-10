@@ -33,9 +33,11 @@ namespace DormPaymentSystem.API.Configurations
             // guest 
             _service.AddScoped<IGuestService, GuestService>();
             _service.AddScoped<IGuestRepository, GuestRepository>();
+            // invitation
+            _service.AddScoped<IInvitationService, InvitationService>();
+            _service.AddScoped<IInvitationRepository, InvitationRepository>();
             // user
 
-            // invitation
 
             return _service;
         }

@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
-    [Route("api/users")]
-    public class UserController : ControllerBase
+    [Route("api/auth")]
+    public class AuthController : ControllerBase
     {
 
     }
