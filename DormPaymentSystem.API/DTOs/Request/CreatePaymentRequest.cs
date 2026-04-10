@@ -13,6 +13,6 @@ namespace DormPaymentSystem.API.DTOs.Request
         public int Month { get; set; }
         public int Year { get; set; }
         public PaymentMethod Method { get; set; }
-        public string ReceivedByUserId { get; set; }
+
     }
 }

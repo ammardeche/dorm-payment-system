@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
@@ -59,13 +60,14 @@ namespace DormPaymentSystem.API.Controller
         [HttpPost]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest dto)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var payment = await _paymentService.ProcessPaymentAsync(
                 dto.StudentId,
                 dto.Amount,
                 dto.Month,
                 dto.Year,
                 dto.Method,
-                dto.ReceivedByUserId
+               receivedByUserId: currentUserId!
             );
 
             return CreatedAtAction(nameof(GetPaymentById), new { id = payment.Id }, new PaymentResponse(payment));

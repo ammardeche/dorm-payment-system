@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Infrastructure;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Core.Services;
@@ -36,7 +37,12 @@ namespace DormPaymentSystem.API.Configurations
             // invitation
             _service.AddScoped<IInvitationService, InvitationService>();
             _service.AddScoped<IInvitationRepository, InvitationRepository>();
-            // user
+            // auth 
+            _service.AddScoped<IAuthService, AuthService>();
+            // user 
+            _service.AddScoped<IUserService, UserService>();
+            // token
+            _service.AddScoped<ITokenService, TokenService>();
 
 
             return _service;
