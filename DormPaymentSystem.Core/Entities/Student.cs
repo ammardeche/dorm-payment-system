@@ -18,14 +18,14 @@ namespace DormPaymentSystem.Core.Entities
         public string? PhoneNumber { get; set; }
         public string? DepartureNote { get; set; }
 
-        public DateTime EnrollmentDate { get; set; } = DateTime.Now;
+        public DateTime EnrollmentDate { get; set; }
         public DateTime? DepartureDate { get; set; }
 
         public bool IsActive { get; set; } = true;
 
         public int? RoomId { get; set; }
 
-        public Room? Room { get; set; } = null!;
+        public Room? Room { get; set; }
 
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 

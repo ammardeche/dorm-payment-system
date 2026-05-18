@@ -7,6 +7,7 @@ namespace DormPaymentSystem.Core.Entities
 {
     public class Floor
     {
+        // canceled 
         public int Id { get; set; }
 
         public int FloorNumber { get; set; }

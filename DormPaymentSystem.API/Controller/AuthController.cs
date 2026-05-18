@@ -21,27 +21,6 @@ namespace DormPaymentSystem.API.Controller
             _authService = authService;
         }
 
-        // POST: api/auth/register
-        // Only admin can create new receptionists
-        [HttpPost("register")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            var user = await _authService.Register(
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.Password,
-                request.ConfirmPassword,
-                "Receptionist"
-            );
-
-            return CreatedAtAction(
-                nameof(Register),
-                new UserResponse(user)
-            );
-        }
-
         // POST: api/auth/login
         // Anyone can login
         [HttpPost("login")]

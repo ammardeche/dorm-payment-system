@@ -7,8 +7,6 @@ namespace DormPaymentSystem.API.DTOs.Request
 {
     public class DeactivateStudentRequest
     {
-
-        public string DepartureDate { get; set; } = null!;
-
+        public string? DepartureNote { get; set; }
     }
 }

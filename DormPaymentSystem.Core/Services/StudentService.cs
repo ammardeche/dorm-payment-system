@@ -45,7 +45,6 @@ namespace DormPaymentSystem.Core.Services
          string email,
          string studentNumber,
          string? phoneNumber,
-         DateTime enrollmentDate,
          int roomId)
         {
             // 1. validate cheap things first
@@ -81,7 +80,7 @@ namespace DormPaymentSystem.Core.Services
                 Email = email,
                 StudentNumber = studentNumber,
                 PhoneNumber = phoneNumber,
-                EnrollmentDate = enrollmentDate,
+                EnrollmentDate = DateTime.UtcNow,
                 IsActive = true,
                 RoomId = roomId
             };

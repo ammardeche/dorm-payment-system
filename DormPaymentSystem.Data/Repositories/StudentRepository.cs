@@ -18,9 +18,6 @@ namespace DormPaymentSystem.Data.Repositories
             _context = context;
         }
 
-
-
-
         // one method replaces GetAllStudents, GetActiveStudents, GetStudentsByRoom
         public async Task<IEnumerable<Student>> GetAllStudents(
        int? roomId = null,

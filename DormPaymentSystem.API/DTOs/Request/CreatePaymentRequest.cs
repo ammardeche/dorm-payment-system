@@ -8,7 +8,9 @@ namespace DormPaymentSystem.API.DTOs.Request
 {
     public class CreatePaymentRequest
     {
+
         public int StudentId { get; set; }
+        public int GuestId { get; set; }
         public decimal Amount { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }

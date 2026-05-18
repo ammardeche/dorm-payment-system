@@ -19,7 +19,7 @@ namespace DormPaymentSystem.Core.Interfaces
             string email,
             string studentNumber,
             string? phoneNumber,
-            DateTime enrollmentDate,
+
             int roomId
           );   // check duplicate number
         Task<Student> UpdateStudentAsync(

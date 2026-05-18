@@ -39,7 +39,7 @@ namespace DormPaymentSystem.API.Controller
                 req.Email,
                 req.StudentNumber,
                 req.PhoneNumber,
-                req.EnrollmentDay,
+
                 req.RoomId
             );
             if (!ModelState.IsValid)
@@ -88,7 +88,7 @@ namespace DormPaymentSystem.API.Controller
         [HttpPost("deactivate/{id}")]
         public async Task<IActionResult> DeactivateStudent(int id, DeactivateStudentRequest req)
         {
-            await _studentService.DeactivateStudentAsync(id, req.DepartureDate);
+            await _studentService.DeactivateStudentAsync(id, req.DepartureNote);
 
             return Ok("student no longer active ");
         }

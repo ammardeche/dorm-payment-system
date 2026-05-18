@@ -7,6 +7,7 @@ namespace DormPaymentSystem.Core.Entities
 {
     public class Guest
     {
+        // 
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
         public string NationalId { get; set; } = null!;
@@ -17,7 +18,7 @@ namespace DormPaymentSystem.Core.Entities
         public int NightsStayed { get; set; }
 
         // snapshot of price at time of stay
-        public decimal RatePerNight { get; set; }
+        public decimal RatePerNight { get; set; }  // 
         public decimal TotalAmount { get; set; }
 
 

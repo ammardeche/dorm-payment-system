@@ -218,6 +218,8 @@ namespace DormPaymentSystem.Core.Services
 
 
 
+
+        // helpers 
         private async Task<string> GenerateStudentReceiptNumber(int studentId)
         {
             var student = await _studentRepository.GetStudentById(studentId);

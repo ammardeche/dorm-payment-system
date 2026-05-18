@@ -62,6 +62,7 @@ namespace DormPaymentSystem.API.Controller
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var payment = await _paymentService.ProcessPaymentAsync(
+                dto.GuestId,
                 dto.StudentId,
                 dto.Amount,
                 dto.Month,

@@ -20,7 +20,7 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required]
         public string StudentNumber { get; set; } = null!;
         [Required]
-        public DateTime EnrollmentDay { get; set; }
+        public DateTime EnrollmentDate { get; set; }
         [Required]
         public int RoomId { get; set; }
 
