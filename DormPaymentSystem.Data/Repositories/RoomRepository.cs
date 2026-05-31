@@ -24,8 +24,8 @@ namespace DormPaymentSystem.Data.Repositories
             var query = _context.Rooms
            .AsNoTracking()
            .Include(r => r.Students)
-           .Include(r => r.Floor)
-           .Include(r => r.Guests)
+
+
            .Include(r => r.Invitations)
            .AsQueryable();
 
@@ -34,18 +34,16 @@ namespace DormPaymentSystem.Data.Repositories
             {
                 query = query.Where(r => r.Status == status);
             }
-            if (floorId.HasValue)
-            {
-                query = query.Where(r => r.FloorId == floorId);
-            }
+
+
             return await query.ToListAsync();
         }
         public async Task<Room?> GetRoomById(int id)
         {
             return await _context.Rooms
                   .Include(r => r.Students)
-                 .Include(r => r.Floor)
-              .Include(r => r.Guests)
+
+
            .Include(r => r.Invitations)
                 .FirstOrDefaultAsync(r => r.Id == id);
         }

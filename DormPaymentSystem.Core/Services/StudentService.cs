@@ -25,9 +25,19 @@ namespace DormPaymentSystem.Core.Services
         }
 
 
-        public async Task<IEnumerable<Student>> GetAllStudentsAsync(int? roomId, bool? isActive, string? studentNumber)
+        public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(
+      int? roomId = null,
+      bool? isActive = null,
+      string? studentNumber = null,
+      int pageIndex = 1,
+      int pageSize = 10)
         {
-            return await _studentRepository.GetAllStudents(roomId, isActive, studentNumber);
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            return await _studentRepository.GetAllStudents(
+                roomId, isActive, studentNumber, pageIndex, pageSize);
         }
 
         public async Task<Student?> GetStudentByIdAsync(int id)

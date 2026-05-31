@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Data.Data;
 using DormPaymentSystem.Data.Interfaces;
@@ -18,17 +19,18 @@ namespace DormPaymentSystem.Data.Repositories
             _context = context;
         }
 
-        // one method replaces GetAllStudents, GetActiveStudents, GetStudentsByRoom
-        public async Task<IEnumerable<Student>> GetAllStudents(
-       int? roomId = null,
-       bool? isActive = null,
-       string? studentNumber = null
-            )
+        public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudents(
+            int? roomId = null,
+            bool? isActive = null,
+            string? studentNumber = null,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
             var query = _context.Students
                 .AsNoTracking()
-                .Include(s => s.Payments)
                 .Include(s => s.Room)
+                .Include(s => s.Reservations)
+                    .ThenInclude(r => r.Payments)
                 .AsQueryable();
 
             if (roomId.HasValue)
@@ -40,15 +42,33 @@ namespace DormPaymentSystem.Data.Repositories
             if (!string.IsNullOrWhiteSpace(studentNumber))
                 query = query.Where(s => s.StudentNumber == studentNumber);
 
-            return await query.ToListAsync();
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(s => s.LastName)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Student?> GetStudentById(int id)
         {
             return await _context.Students
-                .Include(s => s.Payments)
                 .Include(s => s.Room)
+                .Include(s => s.Reservations)
+                    .ThenInclude(r => r.Payments)
                 .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        public async Task<Student?> GetStudentByUserId(string userId)
+        {
+            return await _context.Students
+                .Include(s => s.Room)
+                .Include(s => s.Reservations)
+                    .ThenInclude(r => r.Payments)
+                .FirstOrDefaultAsync(s => s.UserId == userId);
         }
 
         public async Task<Student> CreateStudent(Student student)
@@ -86,7 +106,6 @@ namespace DormPaymentSystem.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
-
-
     }
+
 }

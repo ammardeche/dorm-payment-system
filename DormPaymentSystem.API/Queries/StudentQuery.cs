@@ -10,9 +10,13 @@ namespace DormPaymentSystem.API.Queries
 
     public class StudentQuery
     {
-        public int? RoomId { get; set; } = null;
-        public bool? IsActive { get; set; } = null;
-        public string? StudentNumber { get; set; } = null;
+        public int? RoomId { get; set; }
+        public bool? IsActive { get; set; }
+        public string? StudentNumber { get; set; }
+
+        // pagination
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
     }
 
 

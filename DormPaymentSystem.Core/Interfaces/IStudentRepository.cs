@@ -2,30 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Entities;
 
 namespace DormPaymentSystem.Data.Interfaces
 {
     public interface IStudentRepository
     {
-        // READ
-        Task<IEnumerable<Student>> GetAllStudents(int? roomId = null, bool? isActive = null, string? studentNumber = null);
+        Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudents(
+       int? roomId = null,
+       bool? isActive = null,
+       string? studentNumber = null,
+       int pageIndex = 1,
+       int pageSize = 10);
+
         Task<Student?> GetStudentById(int id);
+        Task<Student?> GetStudentByUserId(string userId);
 
-        // CREATE
         Task<Student> CreateStudent(Student student);
-
-        // UPDATE
         Task<Student> UpdateStudent(Student student);
-
-        // DELETE
         Task<bool> DeleteStudent(Student student);
 
-        // CHECK
         Task<bool> StudentExists(int id);
         Task<bool> StudentNumberExists(string studentNumber);
 
-        // SAVE
         Task SaveChanges();
     }
 }

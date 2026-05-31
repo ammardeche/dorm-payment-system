@@ -10,15 +10,14 @@ namespace DormPaymentSystem.Core.Entities
     {
         public int Id { get; set; }
         public int? RoomNumber { get; set; }
+        public int FloorNumber { get; set; }  // replaces Floor entity
         public int Capacity { get; set; }
         public int CurrentOccupancy { get; set; }
         public RoomStatus Status { get; set; } = RoomStatus.Available;
 
-        public int FloorId { get; set; }
-        public Floor Floor { get; set; } = null!;
-
+        // navigation
         public ICollection<Student> Students { get; set; } = new List<Student>();
-        public ICollection<Guest> Guests { get; set; } = new List<Guest>();
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
         public ICollection<Invitation> Invitations { get; set; } = new List<Invitation>();
     }
 }

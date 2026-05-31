@@ -20,10 +20,7 @@ namespace DormPaymentSystem.Data.Data
 
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Student> Students { get; set; }
-
         public DbSet<Room> Rooms { get; set; }
-
-        public DbSet<Floor> Floors { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<Guest> Guests { get; set; }
 

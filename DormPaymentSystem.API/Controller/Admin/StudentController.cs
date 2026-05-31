@@ -2,17 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Queries;
+using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
-    [Route("api/students")]
-    public class StudentController : ControllerBase
+    public class StudentController : AdminControllerBase
     {
 
         private readonly IStudentService _studentService;
@@ -23,12 +24,22 @@ namespace DormPaymentSystem.API.Controller
         }
 
 
+
+
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllStudents([FromQuery] StudentQuery q)
         {
-            var students = await _studentService.GetAllStudentsAsync(q.RoomId, q.IsActive, q.StudentNumber);
-            return Ok(students.Select(p => new StudentResponse(p)));
+            var (items, totalCount) = await _studentService.GetAllStudents(
+                q.RoomId, q.IsActive, q.StudentNumber, q.PageIndex, q.PageSize);
+
+            var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
+
+            return Ok(new Response<IEnumerable<StudentResponse>>(
+                items.Select(s => new StudentResponse(s)),
+                pagination));
         }
+
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentRequest req)

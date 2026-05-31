@@ -8,7 +8,7 @@ using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DormPaymentSystem.API.Controller
+namespace DormPaymentSystem.API.Controllers
 {
     [ApiController]
     [Route("api/auth")]
