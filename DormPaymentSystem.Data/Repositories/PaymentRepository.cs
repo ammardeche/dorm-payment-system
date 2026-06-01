@@ -35,7 +35,7 @@ namespace DormPaymentSystem.Data.Repositories
 
         }
 
-        public async Task<IEnumerable<Payment>> GetAllPayments(int? studentId = null, 
+        public async Task<IEnumerable<Payment>> GetAllPayments(int? studentId = null,
         int? guestId = null, PaymentStatus? status = null, DateTime? startDate = null, DateTime? endDate = null, string? receivedById = null, bool? dueToday = null)
         {
             var query = _context.Payments

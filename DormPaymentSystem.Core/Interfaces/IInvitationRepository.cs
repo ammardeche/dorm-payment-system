@@ -18,12 +18,15 @@ namespace DormPaymentSystem.Core.Interfaces
             int? year = null
         );
 
-        // WRITE
+
         Task<Invitation> CreateInvitation(Invitation invitation);
         Task<bool> DeleteInvitation(Invitation invitation);
 
-        // CHECK — the key rule
+
         Task<bool> RoomHasInvitationThisMonth(int roomId, int month, int year);
+
+        Task<Invitation?> GetInvitationById(int id);
+        Task<Invitation> UpdateInvitation(Invitation invitation);
 
 
 

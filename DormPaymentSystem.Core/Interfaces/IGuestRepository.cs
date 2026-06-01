@@ -8,24 +8,20 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IGuestRepository
     {
-        // READ
-        // READ (with filters)
-        Task<IEnumerable<Guest>> GetGuests(
-            string? nationalId = null,
-            int? roomId = null,
-            bool? isActive = null
-        );
-        Task<Guest?> GetGuestById(int id);
+        Task<(IEnumerable<Guest> Items, int TotalCount)> GetGuests(
+           string? nationalId = null,
+           string? fullName = null,
+           int pageIndex = 1,
+           int pageSize = 10);
 
-        // WRITE
+        Task<Guest?> GetGuestById(int id);
+        Task<Guest?> GetGuestByNationalId(string nationalId);
+
         Task<Guest> CreateGuest(Guest guest);
         Task<Guest> UpdateGuest(Guest guest);
         Task<bool> DeleteGuest(Guest guest);
-
-        // CHECK
         Task<bool> GuestExists(int id);
-
-        Task<Guest?> CheckGuestByNationalIdAsync(string nationalId);
+        Task SaveChanges();
 
 
     }

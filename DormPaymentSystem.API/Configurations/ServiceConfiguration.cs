@@ -40,7 +40,11 @@ namespace DormPaymentSystem.API.Configurations
             _service.AddScoped<IUserService, UserService>();
             // token
             _service.AddScoped<ITokenService, TokenService>();
-
+            // reservation
+            _service.AddScoped<IReservationRepository, ReservationRepository>();
+            _service.AddScoped<IReservationService, ReservationService>();
+            // dormitory settings
+            _service.AddScoped<IDormitorySettingsRepository, DormitorySettingsRepository>();
 
             return _service;
         }

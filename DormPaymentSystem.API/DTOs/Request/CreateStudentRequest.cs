@@ -9,20 +9,13 @@ namespace DormPaymentSystem.API.DTOs.Request
 {
     public class CreateStudentRequest
     {
-
-        [Required]
         public string FirstName { get; set; } = null!;
-        [Required]
-
         public string LastName { get; set; } = null!;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        [Required]
+        public string Email { get; set; } = null!;
         public string StudentNumber { get; set; } = null!;
-        [Required]
-        public DateTime EnrollmentDate { get; set; }
-        [Required]
-        public int RoomId { get; set; }
+        public string? PhoneNumber { get; set; }
+        public int? RoomId { get; set; }
+        public string UserId { get; set; } = null!;  // NEW
 
     }
 }

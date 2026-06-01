@@ -12,134 +12,105 @@ namespace DormPaymentSystem.Core.Services
 {
     public class GuestService : IGuestService
     {
-
         private readonly IGuestRepository _guestRepository;
-        private readonly IRoomRepository _roomRepository;
 
-
-        public GuestService(IGuestRepository guestRepository,
-        IRoomRepository roomRepository
-    )
+        // no longer needs IRoomRepository — room is handled by ReservationService
+        public GuestService(IGuestRepository guestRepository)
         {
-
             _guestRepository = guestRepository;
-            _roomRepository = roomRepository;
-
         }
 
-        public async Task<Guest?> CheckGuestByNationalIdAsync(string nationalId)
+        public async Task<(IEnumerable<Guest> Items, int TotalCount)> GetAllGuestsAsync(
+            string? nationalId = null,
+            string? fullName = null,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
-            var guest = await _guestRepository.CheckGuestByNationalIdAsync(nationalId);
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            return await _guestRepository.GetGuests(
+                nationalId, fullName, pageIndex, pageSize);
+        }
+
+        public async Task<Guest?> GetGuestByIdAsync(int id)
+        {
+            var guest = await _guestRepository.GetGuestById(id);
+            if (guest == null)
+                throw new AppNotFoundException($"Guest with id '{id}' not found.");
             return guest;
         }
 
-        public async Task<Guest> CheckInGuestAsync(
-        string fullName,
-        string nationalId,
-        int roomId,
-        decimal ratePerNight,
-        int? nightsStayed = null
-        )
+        public async Task<Guest?> GetGuestByNationalIdAsync(string nationalId)
         {
-            var existingGuest = await _guestRepository.CheckGuestByNationalIdAsync(nationalId);
-            if (existingGuest != null)
-            {
-                throw new AppConflictException($"{fullName} already exists.");
-            }
-            // 1. validate cheap things first
+            return await _guestRepository.GetGuestByNationalId(nationalId);
+        }
+
+        public async Task<Guest> RegisterGuestAsync(string fullName, string nationalId)
+        {
+            // validate
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new AppValidationException("Full name cannot be empty.");
 
             if (string.IsNullOrWhiteSpace(nationalId))
                 throw new AppValidationException("National ID cannot be empty.");
 
-            if (ratePerNight <= 0)
-                throw new AppValidationException("Rate per night must be greater than 0.");
+            // check duplicate national ID
+            var existing = await _guestRepository.GetGuestByNationalId(nationalId);
+            if (existing != null)
+                throw new AppConflictException(
+                    $"A guest with national ID '{nationalId}' already exists.");
 
-            // if you get the value of stayed nights 
-            var nights = nightsStayed ?? 0;
-            var total = nights * ratePerNight;
-
-            // 2. check room exists
-            var room = await _roomRepository.GetRoomById(roomId);
-            if (room == null)
-                throw new AppNotFoundException($"Room with id '{roomId}' not found.");
-
-            // 3. check room is not full
-            var activeStudents = room.Students.Count(s => s.IsActive);
-            if (activeStudents >= room.Capacity)
-                throw new AppConflictException("Room is already full.");
-
-            // 4. create guest
             var guest = new Guest
             {
                 FullName = fullName,
-                NationalId = nationalId,
-                RoomId = roomId,
-                RatePerNight = ratePerNight,
-                CheckInDate = DateTime.UtcNow,
-                CheckOutDate = null,
-                NightsStayed = nights,
-                TotalAmount = total,
+                NationalId = nationalId
             };
-
-
 
             return await _guestRepository.CreateGuest(guest);
         }
 
-        public async Task<Guest> CheckOutGuestAsync(int guestId)
+        public async Task<Guest> UpdateGuestAsync(int id, string? fullName, string? nationalId)
         {
-            var guest = await _guestRepository.GetGuestById(guestId);
-
+            var guest = await _guestRepository.GetGuestById(id);
             if (guest == null)
-                throw new AppNotFoundException($"Guest with id '{guestId}' not found.");
+                throw new AppNotFoundException($"Guest with id '{id}' not found.");
 
-            // check not already checked out
-            if (guest.CheckOutDate != null)
-                throw new AppValidationException("Guest has already checked out.");
+            if (!string.IsNullOrWhiteSpace(fullName)) guest.FullName = fullName;
 
-            // set checkout date
-            guest.CheckOutDate = DateTime.UtcNow;
-
-            // if nights were not set on check in — calculate now
-            if (guest.NightsStayed == 0)
+            if (!string.IsNullOrWhiteSpace(nationalId))
             {
-                // calculate nights stayed
-                var nights = (int)Math.Ceiling(
-                    (guest.CheckOutDate.Value - guest.CheckInDate).TotalDays);
+                // make sure new nationalId is not taken by another guest
+                var existing = await _guestRepository.GetGuestByNationalId(nationalId);
+                if (existing != null && existing.Id != id)
+                    throw new AppConflictException(
+                        $"National ID '{nationalId}' is already used by another guest.");
 
-                // at least 1 night
-                guest.NightsStayed = nights == 0 ? 1 : nights;
-
-                // calculate total using stored rate
-                guest.TotalAmount = guest.NightsStayed * guest.RatePerNight;
+                guest.NationalId = nationalId;
             }
 
             return await _guestRepository.UpdateGuest(guest);
         }
 
-        public async Task<IEnumerable<Guest>> GetAllGuestsAsync(int? roomId = null, string? nationalId = null, bool? isActive = null)
-        {
-            var guests = await _guestRepository.GetGuests(
-                roomId: roomId,
-                nationalId: nationalId,
-                isActive: isActive
-            );
-            return guests;
-        }
-
-        public async Task<Guest?> GetGuestByIdAsync(int id)
+        public async Task<bool> DeleteGuestAsync(int id)
         {
             var guest = await _guestRepository.GetGuestById(id);
-
             if (guest == null)
-            {
-                throw new AppNotFoundException("guest doesn't exist");
-            }
+                throw new AppNotFoundException($"Guest with id '{id}' not found.");
 
-            return guest;
+            // block delete if guest has active reservations
+            var hasActiveReservation = guest.Reservations
+                .Any(r => r.Status == Core.Enums.ReservationStatus.Active);
+
+            if (hasActiveReservation)
+                throw new AppValidationException(
+                    "Cannot delete a guest with an active reservation.");
+
+            await _guestRepository.DeleteGuest(guest);
+            return true;
         }
     }
 
 }
+

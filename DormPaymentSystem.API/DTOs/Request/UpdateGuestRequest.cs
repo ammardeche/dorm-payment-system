@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace DormPaymentSystem.API.DTOs.Request
 {
-    public class CreateFloorRequest
+    public class UpdateGuestRequest
     {
-
-        public int FloorNumber { get; set; }
-
-        public int TotalRooms { get; set; }
-
+        public string? FullName { get; set; }
+        public string? NationalId { get; set; }
     }
 }

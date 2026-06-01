@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.Core.Interfaces;
@@ -11,9 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
-    [Route("api/users")]
-    [Authorize(Roles = "Admin")]
-    public class UserController : ControllerBase
+    public class UserController : AdminControllerBase
     {
         private readonly IUserService _userService;
 

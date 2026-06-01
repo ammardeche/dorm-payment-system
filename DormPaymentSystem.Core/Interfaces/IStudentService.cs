@@ -9,12 +9,12 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IStudentService
     {
-        Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudents(
-       int? roomId = null,
-       bool? isActive = null,
-       string? studentNumber = null,
-       int pageIndex = 1,
-       int pageSize = 10);
+        Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(  // add Async
+      int? roomId = null,
+      bool? isActive = null,
+      string? studentNumber = null,
+      int pageIndex = 1,
+      int pageSize = 10);
 
         Task<Student?> GetStudentByIdAsync(int id);
         Task<Student?> GetStudentByUserIdAsync(string userId);
@@ -25,7 +25,7 @@ namespace DormPaymentSystem.Core.Interfaces
             string email,
             string studentNumber,
             string? phoneNumber,
-            int roomId,
+            int? roomId,            // change int → int?
             string userId);
 
         Task<Student> UpdateStudentAsync(

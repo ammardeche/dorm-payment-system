@@ -51,7 +51,7 @@ namespace DormPaymentSystem.Core.Services
             {
                 RoomNumber = roomNumber,
                 Capacity = capacity,
-                FloorId = floorId,
+
                 Status = RoomStatus.Available
             };
 

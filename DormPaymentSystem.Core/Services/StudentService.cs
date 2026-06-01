@@ -14,23 +14,24 @@ namespace DormPaymentSystem.Core.Services
 {
     public class StudentService : IStudentService
     {
+
         private readonly IStudentRepository _studentRepository;
         private readonly IRoomRepository _roomRepository;
 
-        public StudentService(IStudentRepository studentRepository, IRoomRepository roomRepository)
+        public StudentService(
+            IStudentRepository studentRepository,
+            IRoomRepository roomRepository)
         {
             _studentRepository = studentRepository;
             _roomRepository = roomRepository;
-
         }
 
-
         public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(
-      int? roomId = null,
-      bool? isActive = null,
-      string? studentNumber = null,
-      int pageIndex = 1,
-      int pageSize = 10)
+            int? roomId = null,
+            bool? isActive = null,
+            string? studentNumber = null,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
             if (pageIndex < 1) pageIndex = 1;
             if (pageSize < 1) pageSize = 10;
@@ -48,41 +49,51 @@ namespace DormPaymentSystem.Core.Services
             return student;
         }
 
+        public async Task<Student?> GetStudentByUserIdAsync(string userId)
+        {
+            var student = await _studentRepository.GetStudentByUserId(userId);
+            if (student == null)
+                throw new AppNotFoundException("Student profile not found.");
+            return student;
+        }
 
         public async Task<Student> CreateStudentAsync(
-         string firstName,
-         string lastName,
-         string email,
-         string studentNumber,
-         string? phoneNumber,
-         int roomId)
+            string firstName,
+            string lastName,
+            string email,
+            string studentNumber,
+            string? phoneNumber,
+            int? roomId,
+            string userId)          // NEW — link to Identity account
         {
-            // 1. validate cheap things first
             if (string.IsNullOrWhiteSpace(studentNumber))
                 throw new AppValidationException("Student number cannot be empty.");
 
             if (string.IsNullOrWhiteSpace(email))
                 throw new AppValidationException("Email cannot be empty.");
 
-            // 2. check duplicate student number
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new AppValidationException("UserId cannot be empty.");
+
             if (await _studentRepository.StudentNumberExists(studentNumber))
                 throw new AppValidationException($"Student number '{studentNumber}' already exists.");
 
-            // 3. check room exists and block if full
-            if (roomId != 0)
+            // FIX 1 — unpack tuple correctly
+            if (roomId.HasValue)
             {
-                var room = await _roomRepository.GetRoomById(roomId);
+                var room = await _roomRepository.GetRoomById(roomId.Value);
                 if (room == null)
                     throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var studentsInRoom = await _studentRepository.GetAllStudents(roomId: roomId);
+                var (studentsInRoom, _) = await _studentRepository.GetAllStudents(
+                    roomId: roomId.Value);
                 var activeCount = studentsInRoom.Count(s => s.IsActive);
 
                 if (activeCount >= room.Capacity)
                     throw new AppValidationException($"Room '{roomId}' is already full.");
             }
 
-            // 4. create student
+            // FIX 2 — include UserId
             var student = new Student
             {
                 FirstName = firstName,
@@ -92,16 +103,18 @@ namespace DormPaymentSystem.Core.Services
                 PhoneNumber = phoneNumber,
                 EnrollmentDate = DateTime.UtcNow,
                 IsActive = true,
-                RoomId = roomId
+                RoomId = roomId,
+                UserId = userId
             };
 
             await _studentRepository.CreateStudent(student);
 
-            // 5. update room status AFTER student is added
-            if (roomId != 0)
+            // update room occupancy after student is added
+            if (roomId.HasValue)
             {
-                var room = await _roomRepository.GetRoomById(roomId);
-                var updatedStudents = await _studentRepository.GetAllStudents(roomId: roomId);
+                var room = await _roomRepository.GetRoomById(roomId.Value);
+                var (updatedStudents, _) = await _studentRepository.GetAllStudents(
+                    roomId: roomId.Value);
                 var updatedCount = updatedStudents.Count(s => s.IsActive);
 
                 room.Status = updatedCount >= room.Capacity
@@ -120,7 +133,7 @@ namespace DormPaymentSystem.Core.Services
             string? lastName,
             string? email,
             string? phoneNumber,
-            int roomId)
+            int? roomId)
         {
             var student = await _studentRepository.GetStudentById(id);
             if (student == null)
@@ -129,24 +142,27 @@ namespace DormPaymentSystem.Core.Services
             if (!student.IsActive)
                 throw new AppValidationException("Cannot update a deactivated student.");
 
-            if (roomId != 0 && roomId != student.RoomId)
+            // FIX 3 — only update if value was actually passed, never wipe with null
+            if (!string.IsNullOrWhiteSpace(firstName)) student.FirstName = firstName;
+            if (!string.IsNullOrWhiteSpace(lastName)) student.LastName = lastName;
+            if (!string.IsNullOrWhiteSpace(email)) student.Email = email;
+            if (!string.IsNullOrWhiteSpace(phoneNumber)) student.PhoneNumber = phoneNumber;
+
+            if (roomId.HasValue && roomId.Value != student.RoomId)
             {
-                var room = await _roomRepository.GetRoomById(roomId);
+                var room = await _roomRepository.GetRoomById(roomId.Value);
                 if (room == null)
                     throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var studentsInRoom = await _studentRepository.GetAllStudents(roomId: roomId);
-                if (studentsInRoom.Count() >= room.Capacity)
+                var (studentsInRoom, _) = await _studentRepository.GetAllStudents(
+                    roomId: roomId.Value);
+                var activeCount = studentsInRoom.Count(s => s.IsActive);
+
+                if (activeCount >= room.Capacity)
                     throw new AppValidationException($"Room '{roomId}' is already full.");
 
+                student.RoomId = roomId.Value;
             }
-
-
-            student.FirstName = firstName;
-            student.LastName = lastName;
-            student.Email = email;
-            student.PhoneNumber = phoneNumber;
-            student.RoomId = roomId;
 
             await _studentRepository.UpdateStudent(student);
             return student;
@@ -158,20 +174,29 @@ namespace DormPaymentSystem.Core.Services
             if (student == null)
                 throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
-            var current = new DateTime(student.EnrollmentDate.Year,
-                                       student.EnrollmentDate.Month, 1);
-            var today = new DateTime(DateTime.UtcNow.Year,
-                                     DateTime.UtcNow.Month, 1);
+            // FIX 4 — go through Reservations → Payments
+            // student.Payments no longer exists
+            var allPayments = student.Reservations
+                .Where(r => r.Type == ReservationType.StudentStay)
+                .SelectMany(r => r.Payments)
+                .ToList();
+
+            var current = new DateTime(
+                student.EnrollmentDate.Year,
+                student.EnrollmentDate.Month, 1);
+
+            var today = new DateTime(
+                DateTime.UtcNow.Year,
+                DateTime.UtcNow.Month, 1);
 
             while (current <= today)
             {
-                var paymentForMonth = student.Payments.FirstOrDefault(p =>
+                var paid = allPayments.Any(p =>
                     p.PaymentYear == current.Year &&
                     p.PaymentMonth == current.Month &&
                     p.Status == PaymentStatus.Paid);
 
-                if (paymentForMonth == null)
-                    return false;
+                if (!paid) return false;
 
                 current = current.AddMonths(1);
             }
@@ -215,4 +240,6 @@ namespace DormPaymentSystem.Core.Services
         }
 
     }
+
 }
+

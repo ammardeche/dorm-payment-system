@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Queries;
@@ -12,7 +13,7 @@ namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
     [Route("api/rooms")]
-    public class RoomController : ControllerBase
+    public class RoomController : AdminControllerBase
     {
 
         private readonly IRoomService _roomService;

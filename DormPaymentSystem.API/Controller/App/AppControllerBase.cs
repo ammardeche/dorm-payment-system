@@ -22,6 +22,7 @@ namespace DormPaymentSystem.API.Controller.AuthController
                 throw new Exception("User ID not found in claims.");
             }
             return userId;
+
         }
     }
 }

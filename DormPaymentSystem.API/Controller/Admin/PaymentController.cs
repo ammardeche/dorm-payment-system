@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Queries;
@@ -13,7 +14,7 @@ namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
     [Route("api/payments")]
-    public class PaymentController : ControllerBase
+    public class PaymentController : AdminControllerBase
     {
 
 

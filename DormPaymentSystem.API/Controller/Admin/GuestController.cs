@@ -2,17 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Queries;
+using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
-    [Route("api/guests")]
-    public class GuestController : ControllerBase
+    public class GuestController : AdminControllerBase
     {
+
 
         private readonly IGuestService _guestService;
 
@@ -20,46 +24,54 @@ namespace DormPaymentSystem.API.Controller
         {
             _guestService = guestService;
         }
-        [HttpGet]
-        public async Task<IActionResult> GetAllGuests(
-           [FromQuery] int? roomId = null,
-           [FromQuery] string? nationalId = null,
-           [FromQuery] bool? isActive = null)
+
+
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllGuests([FromQuery] GuestQuery q)
         {
-            var guests = await _guestService.GetAllGuestsAsync(roomId, nationalId, isActive);
-            var response = guests.Select(g => new GuestResponse(g));
-            return Ok(response);
+            var (items, totalCount) = await _guestService.GetAllGuestsAsync(
+                q.NationalId, q.FullName, q.PageIndex, q.PageSize);
+
+            var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
+
+            return Ok(new Response<IEnumerable<GuestResponse>>(
+                items.Select(g => new GuestResponse(g)),
+                pagination));
         }
 
-        // GET api/guests/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetGuestById(int id)
         {
             var guest = await _guestService.GetGuestByIdAsync(id);
-            return Ok(new GuestResponse(guest));
+            return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 
-        // POST api/guests/checkin
-        [HttpPost("checkin")]
-        public async Task<IActionResult> CheckIn([FromBody] CheckInRequest request)
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterGuest([FromBody] RegisterGuestRequest req)
         {
-            var existingGuest = await _guestService.CheckGuestByNationalIdAsync(request.NationalId);
-            var guest = await _guestService.CheckInGuestAsync(
-                request.FullName,
-                request.NationalId,
-                request.RoomId,
-                request.RatePerNight,
-                request.NightsStayed
-            );
-            return CreatedAtAction(nameof(GetGuestById), new { id = guest.Id }, new GuestResponse(guest));
+            if (!ModelState.IsValid)
+                return BadRequest(new Response(new AppValidationException("Fill all required fields.")));
+
+            var guest = await _guestService.RegisterGuestAsync(req.FullName, req.NationalId);
+            return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 
-        // POST api/guests/{id}/checkout
-        [HttpPost("{id}/checkout")]
-        public async Task<IActionResult> CheckOut(int id)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateGuest(int id, [FromBody] UpdateGuestRequest req)
         {
-            var guest = await _guestService.CheckOutGuestAsync(id);
-            return Ok(new GuestResponse(guest));
+            var guest = await _guestService.UpdateGuestAsync(id, req.FullName, req.NationalId);
+            return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteGuest(int id)
+        {
+            await _guestService.DeleteGuestAsync(id);
+            return Ok(new Response<string>("Guest removed successfully."));
         }
     }
+
 }
+
+
+

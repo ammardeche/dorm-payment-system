@@ -18,11 +18,13 @@ namespace DormPaymentSystem.Data.Data
 
         }
 
-        public DbSet<Payment> Payments { get; set; }
         public DbSet<Student> Students { get; set; }
-        public DbSet<Room> Rooms { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<Guest> Guests { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<DormitorySettings> DormitorySettings { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
 
@@ -32,28 +34,7 @@ namespace DormPaymentSystem.Data.Data
 
             RoleSeeder.SeedRoles(modelBuilder);
 
-            modelBuilder.Entity<Payment>().
-            HasOne(p => p.Student)
-            .WithMany(p => p.Payments)
-            .HasForeignKey(p => p.StudentId)
-            .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Payment>().
-            HasOne(p => p.Guest)
-            .WithMany(p => p.Payments)
-            .HasForeignKey(p => p.GuestId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Payment>()
-                 .HasOne(p => p.ReceivedBy)
-                 .WithMany(u => u.ReceivedPayments)
-                 .HasForeignKey(p => p.ReceivedById)
-                 .OnDelete(DeleteBehavior.SetNull); // if user deleted, don't delete payment
-
-            // ✅ Add - decimal precision
-            modelBuilder.Entity<Payment>()
-                .Property(p => p.Amount)
-                .HasPrecision(18, 2);
         }
     }
 }
