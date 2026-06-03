@@ -9,14 +9,16 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IRoomService
     {
-        // READ
-        Task<IEnumerable<Room>> GetAllRooms(RoomStatus? status, int? floorId);
-        Task<Room?> GetRoomById(int id);
-        // WRITE
-        Task<Room> CreateRoom(int roomNumber, int capacity, int floorId);
-        Task<Room> UpdateRoom(int id, int? roomNumber, int capacity, RoomStatus status);
-        Task<bool> DeleteRoom(int id);
-        // BUSINESS LOGIC
-        Task<bool> IsRoomAvailable(int roomId);        // checks capacity
+        Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRoomsAsync(
+            RoomStatus? status = null,
+            int? floorNumber = null,
+            int pageIndex = 1,
+            int pageSize = 10);
+
+        Task<Room?> GetRoomByIdAsync(int id);
+        Task<Room> CreateRoomAsync(int roomNumber, int capacity, int floorNumber);
+        Task<Room> UpdateRoomAsync(int id, int? roomNumber, int? capacity, RoomStatus? status);
+        Task<bool> DeleteRoomAsync(int id);
+        Task<bool> IsRoomAvailableAsync(int roomId);
     }
 }

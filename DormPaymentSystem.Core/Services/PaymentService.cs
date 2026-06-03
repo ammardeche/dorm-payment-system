@@ -16,167 +16,106 @@ namespace DormPaymentSystem.Core.Services
     {
 
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IStudentRepository _studentRepository;
-        private readonly IGuestRepository _guestRepository;
+        private readonly IReservationRepository _reservationRepository;
 
+        // no longer needs IStudentRepository or IGuestRepository
+        // payment only knows its ReservationId
         public PaymentService(
             IPaymentRepository paymentRepository,
-            IStudentRepository studentRepository,
-            IGuestRepository guestRepository
-             )
+            IReservationRepository reservationRepository)
         {
             _paymentRepository = paymentRepository;
-            _studentRepository = studentRepository;
-            _guestRepository = guestRepository;
+            _reservationRepository = reservationRepository;
         }
-        public async Task<IEnumerable<Payment>> GetAllPaymentsAsync(int? studentId = null,
-        int? guestId = null, PaymentStatus? status = null, DateTime?
-        startDate = null, DateTime? endDate = null, string? receivedById = null, bool? dueToday = null)
-        {
-            var payment = await _paymentRepository.GetAllPayments(
-                 studentId: studentId,
-                 guestId: guestId,
-                 status: status,
-                 startDate: startDate,
-                 endDate: endDate,
-                 receivedById: receivedById,
-                 dueToday: dueToday
-             );
 
-            return payment;
+        public async Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllPaymentsAsync(
+            int? reservationId = null,
+            PaymentStatus? status = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? receivedById = null,
+            bool? dueToday = null,
+            int pageIndex = 1,
+            int pageSize = 10)
+        {
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            return await _paymentRepository.GetAllPayments(
+                reservationId, status, startDate,
+                endDate, receivedById, dueToday,
+                pageIndex, pageSize);
         }
 
         public async Task<Payment?> GetPaymentByIdAsync(int id)
         {
             var payment = await _paymentRepository.GetPaymentById(id);
-
             if (payment == null)
-            {
-                throw new AppNotFoundException("Payment doesn't exist");
-            }
-
+                throw new AppNotFoundException("Payment not found.");
             return payment;
         }
 
         public async Task<Payment?> GetPaymentByReceiptNumberAsync(string receiptNumber)
         {
             var payment = await _paymentRepository.GetPaymentByReceiptNumber(receiptNumber);
-
             if (payment == null)
-            {
-                throw new AppNotFoundException($"Payment {receiptNumber} was not found.");
-            }
-
+                throw new AppNotFoundException($"Payment '{receiptNumber}' not found.");
             return payment;
         }
 
-        public async Task<Payment> ProcessPaymentAsync(int? guestId, int? studentId, decimal amount, int? month, int? year, PaymentMethod method, string receivedByUserId)
+        // receptionist marks an existing pending payment as paid
+        // payments are created by ReservationService — not here
+        public async Task<Payment> MarkAsPaidAsync(
+            int paymentId,
+            PaymentMethod method,
+            string receivedByUserId)
         {
-            // we need to use to flow for the student and for the guest , 
-            // need to check at least one of them is not null
-            if (studentId == null && guestId == null)
-                throw new AppValidationException("Either studentId or GuestId must be provided.");
-
-            if (studentId != null && guestId != null)
-                throw new AppValidationException("Payment cannot be assigned to both a student and a guest.");
-
-            // Shared validation
-            if (amount <= 0)
-                throw new AppValidationException("Amount must be greater than 0.");
-
-            string receiptNumber;
-            // '''' student flow ''''' 
-
-            if (studentId != null)
-            {
-
-                var studentExists = await _studentRepository.StudentExists(studentId.Value);
-                if (!studentExists)
-                    throw new AppNotFoundException("Student doesn't exist.");
-
-                if (month == null || year == null)
-                    throw new AppValidationException("Month and year are required for student payments.");
-
-                if (month < 1 || month > 12 || year < 2010)
-                    throw new AppValidationException("Month must be 1–12 and year must be after 2010.");
-
-                var alreadyPaid = await HasPaidForMonthAsync(studentId.Value, month.Value, year.Value);
-                if (alreadyPaid)
-                    throw new AppConflictException($"Payment for {month}/{year} already exists.");
-
-                receiptNumber = await GenerateStudentReceiptNumber(studentId.Value);
-            }
-
-            else
-            {
-                var guest = await _guestRepository.GetGuestById(guestId.Value);
-                if (guest == null)
-                    throw new AppNotFoundException("Guest doesn't exist.");
-
-                if (guest.CheckOutDate == null)
-                    throw new AppValidationException("Guest must be checked out before payment.");
-
-                var alreadyPaid = await _paymentRepository.PaymentExistsForGuest(guestId.Value);
-                if (alreadyPaid)
-                    throw new AppConflictException("Payment for this guest already exists.");
-
-
-                receiptNumber = GenerateGuestReceiptNumber(guest.NationalId);
-            }
-
-            // ── CREATE PAYMENT ────────────────────────────────────────
-            var payment = new Payment
-            {
-                StudentId = studentId,        // null if guest
-                GuestId = guestId,            // null if student
-                Amount = amount,
-                PaymentMonth = month.Value,         // null if guest
-                PaymentYear = year.Value,           // null if guest
-                Method = method,
-                ReceivedById = receivedByUserId,
-                Status = PaymentStatus.Paid,
-                CreatedAt = DateTime.UtcNow,
-                ReceiptNumber = receiptNumber
-            };
-
-            return await _paymentRepository.CreatePayment(payment);
-
-        }
-
-
-        public async Task<Payment> UpdatePaymentAsync(int id, decimal amount, int month, int year, PaymentMethod method, PaymentStatus status, string? note)
-        {
-            // 1. Get existing payment
-            var payment = await _paymentRepository.GetPaymentById(id);
+            var payment = await _paymentRepository.GetPaymentById(paymentId);
             if (payment == null)
-                throw new AppNotFoundException("Payment not found");
+                throw new AppNotFoundException("Payment not found.");
 
-            // 2. Validate amount
-            if (amount <= 0)
-                throw new AppValidationException("Amount must be greater than 0");
+            if (payment.Status == PaymentStatus.Paid)
+                throw new AppConflictException("Payment is already paid.");
 
-            // 3. Validate month/year
-            if (month < 1 || month > 12 || year < 2010)
-                throw new AppValidationException("Invalid month or year");
+            // calculate days late
+            var daysLate = (int)Math.Max(
+                0, (DateTime.UtcNow - payment.DueDate).TotalDays);
 
-            // 4. Prevent duplicate month/year for same student
-            if (payment.PaymentMonth != month || payment.PaymentYear != year)
-            {
-                var exists = await HasPaidForMonthAsync(payment.StudentId.Value, month, year);
-                if (exists)
-                    throw new AppConflictException($"Payment for {month}/{year} already exists");
-            }
-
-            // 5. Update fields
-            payment.Amount = amount;
-            payment.PaymentMonth = month;
-            payment.PaymentYear = year;
+            payment.Status = PaymentStatus.Paid;
             payment.Method = method;
-            payment.Status = status;
-            payment.Note = note;
+            payment.ReceivedById = receivedByUserId;
+            payment.PaymentDate = DateTime.UtcNow;
+            payment.DaysLate = daysLate;
             payment.UpdatedAt = DateTime.UtcNow;
 
-            // 6. Save
+            return await _paymentRepository.UpdatePayment(payment);
+        }
+
+        public async Task<Payment> UpdatePaymentAsync(
+            int id,
+            decimal? amount,
+            PaymentMethod? method,
+            PaymentStatus? status,
+            string? note)
+        {
+            var payment = await _paymentRepository.GetPaymentById(id);
+            if (payment == null)
+                throw new AppNotFoundException("Payment not found.");
+
+            if (amount.HasValue)
+            {
+                if (amount.Value <= 0)
+                    throw new AppValidationException("Amount must be greater than 0.");
+                payment.Amount = amount.Value;
+            }
+
+            if (method.HasValue) payment.Method = method.Value;
+            if (status.HasValue) payment.Status = status.Value;
+            if (note != null) payment.Note = note;
+
+            payment.UpdatedAt = DateTime.UtcNow;
+
             return await _paymentRepository.UpdatePayment(payment);
         }
 
@@ -184,7 +123,10 @@ namespace DormPaymentSystem.Core.Services
         {
             var payment = await _paymentRepository.GetPaymentById(id);
             if (payment == null)
-                throw new AppNotFoundException("Payment not found");
+                throw new AppNotFoundException("Payment not found.");
+
+            if (payment.Status == PaymentStatus.Paid)
+                throw new AppValidationException("Cannot delete a paid payment.");
 
             payment.DeletedById = deletedById;
             return await _paymentRepository.DeletePayment(payment);
@@ -193,16 +135,15 @@ namespace DormPaymentSystem.Core.Services
         public async Task<decimal> GetTotalCollectedAsync(DateTime startDate, DateTime endDate)
         {
             if (startDate >= endDate)
-            {
-                throw new AppValidationException("startDate should be less than end date ");
-            }
-            var payments = await _paymentRepository.GetAllPayments(
+                throw new AppValidationException("Start date must be before end date.");
+
+            var (payments, _) = await _paymentRepository.GetAllPayments(
                 startDate: startDate,
                 endDate: endDate,
-                status: PaymentStatus.Paid
-            );
+                status: PaymentStatus.Paid,
+                pageSize: 100);
 
-            return payments.Sum(x => x.Amount);
+            return payments.Sum(p => p.Amount);
         }
 
         public async Task<bool> PaymentExistsAsync(int id)
@@ -210,39 +151,12 @@ namespace DormPaymentSystem.Core.Services
             return await _paymentRepository.PaymentExists(id);
         }
 
-        public async Task<bool> HasPaidForMonthAsync(int studentId, int month, int year)
+        public async Task<bool> HasPaidForMonthAsync(int reservationId, int month, int year)
         {
-            var paymentExist = await _paymentRepository.PaymentExistsForMonth(studentId, month, year);
-            return paymentExist;
-        }
-
-
-
-
-        // helpers 
-        private async Task<string> GenerateStudentReceiptNumber(int studentId)
-        {
-            var student = await _studentRepository.GetStudentById(studentId);
-
-            string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
-            string studentPart = $"STD{student?.StudentNumber}";
-            string randomPart = new Random().Next(1000, 9999).ToString();
-            return $"RCPT-{datePart}-{studentPart}-{randomPart}";
-        }
-
-        private string GenerateGuestReceiptNumber(string nationalId)
-        {
-            string datePart = DateTime.UtcNow.ToString("yyyyMMdd");
-            string randomPart = new Random().Next(1000, 9999).ToString();
-            return $"RCPT-{datePart}-GST{nationalId}-{randomPart}";
-        }
-
-        public Task<bool> PaymentExistsForGuest(int guestId)
-        {
-            return _paymentRepository.PaymentExistsForGuest(guestId);
+            return await _paymentRepository.PaymentExistsForMonth(
+                reservationId, month, year);
         }
     }
-
 
 
 }

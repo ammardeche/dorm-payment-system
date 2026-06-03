@@ -9,6 +9,8 @@ namespace DormPaymentSystem.API.Queries
     public class RoomQuery
     {
         public RoomStatus? Status { get; set; }
-        public int? FloorId { get; set; }
+        public int? FloorNumber { get; set; }   // replaces FloorId
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
     }
 }

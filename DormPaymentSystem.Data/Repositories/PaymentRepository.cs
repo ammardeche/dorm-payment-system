@@ -17,40 +17,29 @@ namespace DormPaymentSystem.Data.Repositories
         {
             _context = context;
         }
-        public async Task<Payment> CreatePayment(Payment payment)
-        {
-            await _context.Payments.AddAsync(payment);
-            await SaveChanges();
-            return payment;
-        }
 
-        public async Task<bool> DeletePayment(Payment payment)
-        {
-            // soft delete — never remove from DB
-            payment.IsDeleted = true;
-            payment.DeletedAt = DateTime.UtcNow;
-            _context.Payments.Update(payment);
-            await SaveChanges();
-            return true;
-
-        }
-
-        public async Task<IEnumerable<Payment>> GetAllPayments(int? studentId = null,
-        int? guestId = null, PaymentStatus? status = null, DateTime? startDate = null, DateTime? endDate = null, string? receivedById = null, bool? dueToday = null)
+        public async Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllPayments(
+            int? reservationId = null,
+            PaymentStatus? status = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? receivedById = null,
+            bool? dueToday = null,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
             var query = _context.Payments
-           .AsNoTracking()
-           .Include(p => p.Student)
-           .Include(p => p.Guest)
-           .Include(p => p.ReceivedBy)
-           .Where(p => p.IsDeleted == false)
-           .AsQueryable();
+                .AsNoTracking()
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Student)
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Guest)
+                .Include(p => p.ReceivedBy)
+                .Where(p => !p.IsDeleted)
+                .AsQueryable();
 
-            if (studentId.HasValue)
-                query = query.Where(p => p.StudentId == studentId.Value);
-
-            if (guestId.HasValue)
-                query = query.Where(p => p.GuestId == guestId.Value);
+            if (reservationId.HasValue)
+                query = query.Where(p => p.ReservationId == reservationId.Value);
 
             if (status.HasValue)
                 query = query.Where(p => p.Status == status.Value);
@@ -67,45 +56,45 @@ namespace DormPaymentSystem.Data.Repositories
             if (dueToday.HasValue && dueToday.Value)
                 query = query.Where(p => p.DueDate.Date == DateTime.UtcNow.Date);
 
+            var totalCount = await query.CountAsync();
 
-            return await query.ToListAsync();
+            var items = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Payment?> GetPaymentById(int id)
         {
             return await _context.Payments
-             .Include(p => p.Student)
-             .Include(p => p.Guest)
-             .Include(p => p.ReceivedBy)
-             .FirstOrDefaultAsync(p => p.Id == id && p.IsDeleted == false);
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Student)
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Guest)
+                .Include(p => p.ReceivedBy)
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
         }
 
         public async Task<Payment?> GetPaymentByReceiptNumber(string receiptNumber)
         {
             return await _context.Payments
-             .Include(p => p.Student)
-             .Include(p => p.Guest)
-             .Include(p => p.ReceivedBy)
-             .FirstOrDefaultAsync(p => p.ReceiptNumber == receiptNumber && p.IsDeleted == false);
-
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Student)
+                .Include(p => p.Reservation)
+                    .ThenInclude(r => r.Guest)
+                .Include(p => p.ReceivedBy)
+                .FirstOrDefaultAsync(p => p.ReceiptNumber == receiptNumber && !p.IsDeleted);
         }
 
-        public async Task<bool> PaymentExists(int id)
+        public async Task<Payment> CreatePayment(Payment payment)
         {
-            return await _context.Payments
-           .AnyAsync(p => p.Id == id && p.IsDeleted == false);
+            await _context.Payments.AddAsync(payment);
+            await SaveChanges();
+            return payment;
         }
-
-        public async Task<bool> PaymentExistsForMonth(int studentId, int month, int year)
-        {
-            return await _context.Payments
-           .AnyAsync(p =>
-               p.StudentId == studentId &&
-               p.PaymentMonth == month &&
-               p.PaymentYear == year &&
-               p.IsDeleted == false);
-        }
-
 
         public async Task<Payment> UpdatePayment(Payment payment)
         {
@@ -114,15 +103,35 @@ namespace DormPaymentSystem.Data.Repositories
             return payment;
         }
 
+        public async Task<bool> DeletePayment(Payment payment)
+        {
+            payment.IsDeleted = true;
+            payment.DeletedAt = DateTime.UtcNow;
+            _context.Payments.Update(payment);
+            await SaveChanges();
+            return true;
+        }
+
+        public async Task<bool> PaymentExists(int id)
+        {
+            return await _context.Payments
+                .AnyAsync(p => p.Id == id && !p.IsDeleted);
+        }
+
+        // now checks by reservationId instead of studentId
+        public async Task<bool> PaymentExistsForMonth(int reservationId, int month, int year)
+        {
+            return await _context.Payments
+                .AnyAsync(p =>
+                    p.ReservationId == reservationId &&
+                    p.PaymentMonth == month &&
+                    p.PaymentYear == year &&
+                    !p.IsDeleted);
+        }
+
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<bool> PaymentExistsForGuest(int guestId)
-        {
-            return await _context.Payments
-                .AnyAsync(p => p.GuestId == guestId && p.Status == PaymentStatus.Paid);
         }
     }
 }

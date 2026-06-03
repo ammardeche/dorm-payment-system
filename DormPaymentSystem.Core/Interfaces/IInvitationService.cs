@@ -9,25 +9,23 @@ namespace DormPaymentSystem.Core.Interfaces
     public interface IInvitationService
     {
 
-        Task<IEnumerable<Invitation>> GetInvitationsAsync(
-            int? id = null,
-            int? roomId = null,
-            int? studentId = null,
-            int? month = null,
-            int? year = null
-        );
+        Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitationsAsync(
+           int? studentId = null,
+           int? guestId = null,
+           int? month = null,
+           int? year = null,
+           int pageIndex = 1,
+           int pageSize = 10);
 
-        // WRITE
+        Task<Invitation?> GetInvitationByIdAsync(int id);
+
         Task<Invitation> CreateInvitationAsync(
-            string guestName,
-            string guestIdentityId,
-            int roomId,
-            int invitedByStudentId
-        );
+            int invitedByStudentId,
+            int guestId);            // guest record must exist first
+
         Task<bool> DeleteInvitationAsync(int id);
 
-        // BUSINESS LOGIC — the core rule
-        Task<bool> CanRoomInviteThisMonthAsync(int roomId);
+        Task<bool> CanStudentInviteThisMonthAsync(int studentId);
 
     }
 }

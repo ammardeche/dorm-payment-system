@@ -3,32 +3,48 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 
 namespace DormPaymentSystem.API.DTOs.Response
 {
     public class GuestResponse
     {
+
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public string NationalId { get; set; }
-        public int RoomId { get; set; }
-        public decimal RatePerNight { get; set; }
-        public DateTime CheckInDate { get; set; }
-        public DateTime? CheckOutDate { get; set; }
-        public int NightsStayed { get; set; }
-        public decimal TotalAmount { get; set; }
+        public string FullName { get; set; } = null!;
+        public string NationalId { get; set; } = null!;
+
+        // stay history — all reservations for this guest
+        public IEnumerable<GuestReservationResponse> Reservations { get; set; }
 
         public GuestResponse(Guest guest)
         {
             Id = guest.Id;
             FullName = guest.FullName;
             NationalId = guest.NationalId;
-            RoomId = guest.RoomId.Value;
-            RatePerNight = guest.RatePerNight;
-            CheckInDate = guest.CheckInDate;
-            CheckOutDate = guest.CheckOutDate;
-            NightsStayed = guest.NightsStayed;
-            TotalAmount = guest.TotalAmount;
+
+            Reservations = guest.Reservations.Select(r => new GuestReservationResponse
+            {
+                Id = r.Id,
+                Type = r.Type,
+                Status = r.Status,
+                RoomNumber = r.Room?.RoomNumber,
+                CheckIn = r.CheckIn,
+                CheckOut = r.CheckOut,
+                TotalAmount = r.TotalAmount
+            });
         }
+    }
+
+    public class GuestReservationResponse
+    {
+        public int Id { get; set; }
+        public ReservationType Type { get; set; }
+        public ReservationStatus Status { get; set; }
+        public int? RoomNumber { get; set; }
+        public DateTime CheckIn { get; set; }
+        public DateTime? CheckOut { get; set; }
+        public decimal TotalAmount { get; set; }
+
     }
 }

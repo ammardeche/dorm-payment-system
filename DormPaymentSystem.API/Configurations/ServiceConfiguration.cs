@@ -45,7 +45,9 @@ namespace DormPaymentSystem.API.Configurations
             _service.AddScoped<IReservationService, ReservationService>();
             // dormitory settings
             _service.AddScoped<IDormitorySettingsRepository, DormitorySettingsRepository>();
-
+            // Notification 
+            _service.AddScoped<INotificationRepository, NotificationRepository>();
+            _service.AddScoped<INotificationService, NotificationService>();
             return _service;
         }
     }

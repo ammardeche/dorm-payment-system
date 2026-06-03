@@ -8,6 +8,7 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface ITokenService
     {
-        string GenerateToken(User user, IList<string> roles);
+        string GenerateToken(User user, IList<string> roles, int? studentId = null);
+
     }
 }

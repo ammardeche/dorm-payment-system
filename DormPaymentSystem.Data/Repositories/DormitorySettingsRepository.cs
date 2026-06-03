@@ -13,31 +13,40 @@ namespace DormPaymentSystem.Data.Repositories
     {
         private readonly DormPaymentDbContext _context;
 
-        public DormitorySettingsRepository(DormPaymentDbContext context)
+        public DormitorySettingsRepository(
+            DormPaymentDbContext context)
         {
             _context = context;
         }
 
-        // always returns the latest settings row
-        public async Task<DormitorySettings?> GetCurrentSettingsAsync()
+        public async Task<DormitorySettings?> GetCurrentSettings()
         {
             return await _context.DormitorySettings
-                .OrderByDescending(s => s.EffectiveFrom)
+                .OrderByDescending(x => x.EffectiveFrom)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<DormitorySettings> CreateSettingsAsync(DormitorySettings settings)
+        public async Task<DormitorySettings> CreateSettings(
+            DormitorySettings settings)
         {
             await _context.DormitorySettings.AddAsync(settings);
-            await _context.SaveChangesAsync();
+            await SaveChanges();
+
             return settings;
         }
 
-        public async Task<DormitorySettings> UpdateSettingsAsync(DormitorySettings settings)
+        public async Task<DormitorySettings> UpdateSettings(
+            DormitorySettings settings)
         {
             _context.DormitorySettings.Update(settings);
-            await _context.SaveChangesAsync();
+            await SaveChanges();
+
             return settings;
+        }
+
+        public async Task SaveChanges()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

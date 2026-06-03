@@ -22,7 +22,7 @@ namespace DormPaymentSystem.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Floor", b =>
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.DormitorySettings", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,15 +33,23 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FloorNumber")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("EffectiveFrom")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("TotalRooms")
-                        .HasColumnType("int");
+                    b.Property<decimal>("GuestRatePerNight")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("StudentMonthlyRate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Floors");
+                    b.ToTable("DormitorySettings");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Guest", b =>
@@ -52,12 +60,6 @@ namespace DormPaymentSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CheckInDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("CheckOutDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -66,21 +68,7 @@ namespace DormPaymentSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NightsStayed")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("RatePerNight")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("RoomId");
 
                     b.ToTable("Guests");
                 });
@@ -93,13 +81,8 @@ namespace DormPaymentSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("GuestIdentityId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GuestName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("GuestId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("InvitationDate")
                         .HasColumnType("datetime2");
@@ -113,10 +96,18 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Property<int>("InvitedByStudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("ReservationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GuestId");
 
                     b.HasIndex("InvitedByStudentId");
 
@@ -143,8 +134,15 @@ namespace DormPaymentSystem.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentId")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecipientUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SenderUserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -153,15 +151,11 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("RecipientUserId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("SenderUserId");
 
                     b.ToTable("Notifications");
                 });
@@ -188,13 +182,10 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeletedById")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("GuestId")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -221,10 +212,10 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Property<string>("ReceivedById")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("ReservationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StudentId")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -232,15 +223,66 @@ namespace DormPaymentSystem.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeletedById");
+                    b.HasIndex("ReceivedById");
+
+                    b.HasIndex("ReservationId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CheckIn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CheckOut")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("GuestId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("InvitationId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RateSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("GuestId");
 
-                    b.HasIndex("ReceivedById");
+                    b.HasIndex("InvitationId")
+                        .IsUnique()
+                        .HasFilter("[InvitationId] IS NOT NULL");
+
+                    b.HasIndex("RoomId");
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Room", b =>
@@ -257,7 +299,7 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Property<int>("CurrentOccupancy")
                         .HasColumnType("int");
 
-                    b.Property<int>("FloorId")
+                    b.Property<int>("FloorNumber")
                         .HasColumnType("int");
 
                     b.Property<int?>("RoomNumber")
@@ -267,8 +309,6 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FloorId");
 
                     b.ToTable("Rooms");
                 });
@@ -312,11 +352,21 @@ namespace DormPaymentSystem.Data.Migrations
 
                     b.Property<string>("StudentNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
+
+                    b.HasIndex("StudentNumber")
+                        .IsUnique();
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Students");
                 });
@@ -339,6 +389,12 @@ namespace DormPaymentSystem.Data.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("FcmDeviceToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("FcmTokenUpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -435,6 +491,12 @@ namespace DormPaymentSystem.Data.Migrations
                             Id = "112d03d3-f355-4074-944e-3be9a22984ce",
                             Name = "Receptionist",
                             NormalizedName = "RECEPTIONIST"
+                        },
+                        new
+                        {
+                            Id = "a3f8b2c1-d4e5-4f6a-b7c8-d9e0f1a2b3c4",
+                            Name = "Student",
+                            NormalizedName = "STUDENT"
                         });
                 });
 
@@ -544,99 +606,113 @@ namespace DormPaymentSystem.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Guest", b =>
-                {
-                    b.HasOne("DormPaymentSystem.Core.Entities.Room", "Room")
-                        .WithMany("Guests")
-                        .HasForeignKey("RoomId");
-
-                    b.Navigation("Room");
-                });
-
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Invitation", b =>
                 {
-                    b.HasOne("DormPaymentSystem.Core.Entities.Student", "InvitedByStudent")
-                        .WithMany()
-                        .HasForeignKey("InvitedByStudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("DormPaymentSystem.Core.Entities.Guest", "Guest")
+                        .WithMany("Invitations")
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("DormPaymentSystem.Core.Entities.Room", "Room")
+                    b.HasOne("DormPaymentSystem.Core.Entities.Student", "InvitedByStudent")
                         .WithMany("Invitations")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("InvitedByStudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("DormPaymentSystem.Core.Entities.Room", null)
+                        .WithMany("Invitations")
+                        .HasForeignKey("RoomId");
+
+                    b.Navigation("Guest");
 
                     b.Navigation("InvitedByStudent");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Notification", b =>
                 {
-                    b.HasOne("DormPaymentSystem.Core.Entities.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId");
-
-                    b.HasOne("DormPaymentSystem.Core.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("DormPaymentSystem.Core.Entities.User", "Recipient")
+                        .WithMany("ReceivedNotifications")
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Student");
+                    b.HasOne("DormPaymentSystem.Core.Entities.User", "Sender")
+                        .WithMany("SentNotifications")
+                        .HasForeignKey("SenderUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("User");
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Payment", b =>
                 {
-                    b.HasOne("DormPaymentSystem.Core.Entities.User", "DeletedBy")
-                        .WithMany()
-                        .HasForeignKey("DeletedById");
-
-                    b.HasOne("DormPaymentSystem.Core.Entities.Guest", "Guest")
-                        .WithMany("Payments")
-                        .HasForeignKey("GuestId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("DormPaymentSystem.Core.Entities.User", "ReceivedBy")
                         .WithMany("ReceivedPayments")
                         .HasForeignKey("ReceivedById")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("DormPaymentSystem.Core.Entities.Student", "Student")
+                    b.HasOne("DormPaymentSystem.Core.Entities.Reservation", "Reservation")
                         .WithMany("Payments")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("DeletedBy");
-
-                    b.Navigation("Guest");
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ReceivedBy");
 
-                    b.Navigation("Student");
+                    b.Navigation("Reservation");
                 });
 
-            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Room", b =>
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Reservation", b =>
                 {
-                    b.HasOne("DormPaymentSystem.Core.Entities.Floor", "Floor")
-                        .WithMany("Rooms")
-                        .HasForeignKey("FloorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("DormPaymentSystem.Core.Entities.Guest", "Guest")
+                        .WithMany("Reservations")
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DormPaymentSystem.Core.Entities.Invitation", "Invitation")
+                        .WithOne("Reservation")
+                        .HasForeignKey("DormPaymentSystem.Core.Entities.Reservation", "InvitationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DormPaymentSystem.Core.Entities.Room", "Room")
+                        .WithMany("Reservations")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Floor");
+                    b.HasOne("DormPaymentSystem.Core.Entities.Student", "Student")
+                        .WithMany("Reservations")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Invitation");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Student", b =>
                 {
                     b.HasOne("DormPaymentSystem.Core.Entities.Room", "Room")
                         .WithMany("Students")
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DormPaymentSystem.Core.Entities.User", "User")
+                        .WithOne("Student")
+                        .HasForeignKey("DormPaymentSystem.Core.Entities.Student", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Room");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -690,33 +766,48 @@ namespace DormPaymentSystem.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Floor", b =>
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Guest", b =>
                 {
-                    b.Navigation("Rooms");
+                    b.Navigation("Invitations");
+
+                    b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Guest", b =>
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Invitation", b =>
+                {
+                    b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Reservation", b =>
                 {
                     b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Room", b =>
                 {
-                    b.Navigation("Guests");
-
                     b.Navigation("Invitations");
+
+                    b.Navigation("Reservations");
 
                     b.Navigation("Students");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Student", b =>
                 {
-                    b.Navigation("Payments");
+                    b.Navigation("Invitations");
+
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.User", b =>
                 {
+                    b.Navigation("ReceivedNotifications");
+
                     b.Navigation("ReceivedPayments");
+
+                    b.Navigation("SentNotifications");
+
+                    b.Navigation("Student");
                 });
 #pragma warning restore 612, 618
         }

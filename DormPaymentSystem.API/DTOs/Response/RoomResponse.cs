@@ -9,75 +9,68 @@ namespace DormPaymentSystem.API.DTOs.Response
 {
     public class RoomResponse
     {
-
         public int Id { get; set; }
         public int? RoomNumber { get; set; }
+        public int FloorNumber { get; set; }        // simple int now
         public int Capacity { get; set; }
         public int CurrentOccupancy { get; set; }
         public RoomStatus Status { get; set; }
-        public RoomFloorResponse? Floor { get; set; }
+
+        // active students in this room
         public IEnumerable<RoomStudentResponse> Students { get; set; }
-        public IEnumerable<RoomGuestResponse> Guests { get; set; }
-        public IEnumerable<RoomInvitationResponse> Invitations { get; set; }
+
+        // active reservations (guest or invitation stays)
+        public IEnumerable<RoomReservationResponse> ActiveReservations { get; set; }
 
         public RoomResponse(Room room)
         {
             Id = room.Id;
             RoomNumber = room.RoomNumber;
+            FloorNumber = room.FloorNumber;
             Capacity = room.Capacity;
-
-            // ✅ calculate from actual active students not stored value
             CurrentOccupancy = room.Students.Count(s => s.IsActive);
-
             Status = room.Status;
 
-            Floor = room.Floor != null ? new RoomFloorResponse
-            {
-                FloorNumber = room.Floor.FloorNumber
-            } : null;
-
             Students = room.Students
-                .Where(s => s.IsActive)   // show only active students
+                .Where(s => s.IsActive)
                 .Select(s => new RoomStudentResponse
                 {
-                    FirstName = s.FirstName,
+                    Id = s.Id,
+                    FullName = $"{s.FirstName} {s.LastName}",
                     StudentNumber = s.StudentNumber
                 });
 
-            Guests = room.Guests.Select(g => new RoomGuestResponse
-            {
-                FullName = g.FullName,
-                NationalId = g.NationalId
-            });
-
-            Invitations = room.Invitations.Select(i => new RoomInvitationResponse
-            {
-                GuestName = i.GuestName,
-                GuestIdentityId = i.GuestIdentityId
-            });
+            ActiveReservations = room.Reservations
+                .Where(r => r.Status == ReservationStatus.Active)
+                .Select(r => new RoomReservationResponse
+                {
+                    Id = r.Id,
+                    Type = r.Type,
+                    CheckIn = r.CheckIn,
+                    CheckOut = r.CheckOut,
+                    GuestName = r.Guest?.FullName
+                });
         }
-    }
-
-    public class RoomFloorResponse
-    {
-        public int FloorNumber { get; set; }
     }
 
     public class RoomStudentResponse
     {
-        public string? FirstName { get; set; }
-        public string? StudentNumber { get; set; }
+        public int Id { get; set; }
+        public string FullName { get; set; } = null!;
+        public string StudentNumber { get; set; } = null!;
     }
 
-    public class RoomGuestResponse
+    public class RoomReservationResponse
     {
-        public string? FullName { get; set; }
-        public string? NationalId { get; set; }
-    }
-
-    public class RoomInvitationResponse
-    {
+        public int Id { get; set; }
+        public ReservationType Type { get; set; }
+        public DateTime CheckIn { get; set; }
+        public DateTime? CheckOut { get; set; }
         public string? GuestName { get; set; }
-        public string? GuestIdentityId { get; set; }
     }
+
 }
+
+
+
+

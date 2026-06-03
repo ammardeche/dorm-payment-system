@@ -18,10 +18,13 @@ namespace DormPaymentSystem.API.Controller
     {
 
         private readonly IStudentService _studentService;
+        private readonly IAuthService _authService;
 
-        public StudentController(IStudentService studentService)
+        public StudentController(IStudentService studentService, IAuthService authService)
+
         {
             _studentService = studentService;
+            _authService = authService;
         }
 
         [HttpGet("get-all")]
@@ -47,10 +50,17 @@ namespace DormPaymentSystem.API.Controller
         [HttpPost("create")]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentRequest req)
         {
-            // validate BEFORE calling service
             if (!ModelState.IsValid)
-                return BadRequest(new Response(new AppValidationException("Make sure to fill all required fields.")));
+                return BadRequest(new Response(new AppValidationException("Fill all required fields.")));
 
+            // Step 1 — create login account, get UserId
+            var userId = await _authService.RegisterStudentAccountAsync(
+                req.StudentNumber,
+                req.Password,
+                req.FirstName,
+                req.LastName);
+
+            // Step 2 — create student profile linked to that account
             var student = await _studentService.CreateStudentAsync(
                 req.FirstName,
                 req.LastName,
@@ -58,7 +68,7 @@ namespace DormPaymentSystem.API.Controller
                 req.StudentNumber,
                 req.PhoneNumber,
                 req.RoomId,
-                req.UserId);     // manager passes UserId after creating login account
+                userId);
 
             return Ok(new Response<StudentResponse>(new StudentResponse(student)));
         }

@@ -8,9 +8,17 @@ namespace DormPaymentSystem.Data.Interfaces
 {
     public interface INotificationRepository
     {
-        Task<IEnumerable<Notification>> GetUnreadNotifications();
+        Task<(IEnumerable<Notification> Items, int TotalCount)> GetNotifications(
+            string recipientUserId,
+            bool? isRead = null,
+            int pageIndex = 1,
+            int pageSize = 10);
+
+        Task<Notification?> GetNotificationById(int id);
+        Task<int> GetUnreadCount(string recipientUserId);
+
         Task<Notification> CreateNotification(Notification notification);
-        Task MarkAsRead(int notificationId);
+        Task<Notification> UpdateNotification(Notification notification);
         Task SaveChanges();
     }
 }

@@ -8,8 +8,14 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IDormitorySettingsRepository
     {
-        Task<DormitorySettings?> GetCurrentSettingsAsync();
-        Task<DormitorySettings> CreateSettingsAsync(DormitorySettings settings);
-        Task<DormitorySettings> UpdateSettingsAsync(DormitorySettings settings);
+        Task<DormitorySettings?> GetCurrentSettings();
+
+        Task<DormitorySettings> CreateSettings(
+            DormitorySettings settings);
+
+        Task<DormitorySettings> UpdateSettings(
+            DormitorySettings settings);
+
+        Task SaveChanges();
     }
 }

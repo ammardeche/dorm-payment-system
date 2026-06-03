@@ -17,19 +17,16 @@ namespace DormPaymentSystem.API.DTOs.Response
         public decimal RateSnapshot { get; set; }
         public decimal TotalAmount { get; set; }
 
-        public int RoomId { get; set; }
+        // room
         public ReservationRoomResponse? Room { get; set; }
 
-        public int? StudentId { get; set; }
+        // only one of these three will be set depending on Type
         public ReservationStudentResponse? Student { get; set; }
-
-        public int? GuestId { get; set; }
         public ReservationGuestResponse? Guest { get; set; }
-
-        public int? InvitationId { get; set; }
         public ReservationInvitationResponse? Invitation { get; set; }
 
-        public IEnumerable<ReservationPaymentResponse> Payments { get; set; } = new List<ReservationPaymentResponse>();
+        // payments linked to this reservation
+        public IEnumerable<ReservationPaymentResponse> Payments { get; set; }
 
         public ReservationResponse(Reservation reservation)
         {
@@ -41,38 +38,52 @@ namespace DormPaymentSystem.API.DTOs.Response
             RateSnapshot = reservation.RateSnapshot;
             TotalAmount = reservation.TotalAmount;
 
-            RoomId = reservation.RoomId;
-            Room = reservation.Room != null ? new ReservationRoomResponse
-            {
-                Id = reservation.Room.Id,
-                RoomNumber = reservation.Room.RoomNumber
-            } : null;
+            Room = reservation.Room != null
+                ? new ReservationRoomResponse
+                {
+                    Id = reservation.Room.Id,
+                    RoomNumber = reservation.Room.RoomNumber,
+                    FloorNumber = reservation.Room.FloorNumber
+                }
+                : null;
 
-            // Only ONE of these three is set depending on Type
-            if (reservation.Student != null)
-            {
-                Student = new ReservationStudentResponse(reservation.Student);
-            }
+            Student = reservation.Student != null
+                ? new ReservationStudentResponse
+                {
+                    Id = reservation.Student.Id,
+                    FullName = $"{reservation.Student.FirstName} {reservation.Student.LastName}",
+                    StudentNumber = reservation.Student.StudentNumber
+                }
+                : null;
 
-            if (reservation.Guest != null)
-            {
-                Guest = new ReservationGuestResponse(reservation.Guest);
-            }
+            Guest = reservation.Guest != null
+                ? new ReservationGuestResponse
+                {
+                    Id = reservation.Guest.Id,
+                    FullName = reservation.Guest.FullName,
+                    NationalId = reservation.Guest.NationalId
+                }
+                : null;
 
-            if (reservation.Invitation != null)
-            {
-                Invitation = new ReservationInvitationResponse(reservation.Invitation);
-            }
+            Invitation = reservation.Invitation != null
+                ? new ReservationInvitationResponse
+                {
+                    Id = reservation.Invitation.Id,
+                    InvitationMonth = reservation.Invitation.InvitationMonth,
+                    InvitationYear = reservation.Invitation.InvitationYear,
+                    Status = reservation.Invitation.Status
+                }
+                : null;
 
             Payments = reservation.Payments.Select(p => new ReservationPaymentResponse
             {
                 Id = p.Id,
                 Amount = p.Amount,
                 ReceiptNumber = p.ReceiptNumber,
-                PaymentDate = p.PaymentDate,
-                DueDate = p.DueDate,
                 Status = p.Status,
-                Method = p.Method
+                PaymentMonth = p.PaymentMonth,
+                PaymentYear = p.PaymentYear,
+                DueDate = p.DueDate
             });
         }
     }
@@ -81,62 +92,41 @@ namespace DormPaymentSystem.API.DTOs.Response
     {
         public int Id { get; set; }
         public int? RoomNumber { get; set; }
+        public int FloorNumber { get; set; }
     }
 
     public class ReservationStudentResponse
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string StudentNumber { get; set; }
-
-        public ReservationStudentResponse(Student student)
-        {
-            Id = student.Id;
-            FirstName = student.FirstName;
-            LastName = student.LastName;
-            StudentNumber = student.StudentNumber;
-        }
+        public string FullName { get; set; } = null!;
+        public string StudentNumber { get; set; } = null!;
     }
 
     public class ReservationGuestResponse
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public string NationalId { get; set; }
-        public DateTime CheckInDate { get; set; }
-        public DateTime? CheckOutDate { get; set; }
-
-        public ReservationGuestResponse(Guest guest)
-        {
-            Id = guest.Id;
-            FullName = guest.FullName;
-            NationalId = guest.NationalId;
-
-        }
+        public string FullName { get; set; } = null!;
+        public string NationalId { get; set; } = null!;
     }
 
     public class ReservationInvitationResponse
     {
         public int Id { get; set; }
-        public string GuestName { get; set; }
-        public string GuestIdentityId { get; set; }
-
-        public ReservationInvitationResponse(Invitation invitation)
-        {
-            Id = invitation.Id;
-
-        }
+        public int InvitationMonth { get; set; }
+        public int InvitationYear { get; set; }
+        public InvitationStatus Status { get; set; }
     }
 
     public class ReservationPaymentResponse
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public string ReceiptNumber { get; set; }
-        public DateTime PaymentDate { get; set; }
-        public DateTime DueDate { get; set; }
+        public string ReceiptNumber { get; set; } = null!;
         public PaymentStatus Status { get; set; }
-        public PaymentMethod? Method { get; set; }
+        public int PaymentMonth { get; set; }
+        public int PaymentYear { get; set; }
+        public DateTime DueDate { get; set; }
     }
+
 }
+

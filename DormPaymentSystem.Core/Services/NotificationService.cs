@@ -6,6 +6,8 @@ using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Interfaces;
+using DormPaymentSystem.Data.Repositories;
+using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.Core.Services
 {
@@ -14,81 +16,195 @@ namespace DormPaymentSystem.Core.Services
 
         private readonly INotificationRepository _notificationRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly IRoomRepository _roomRepository;
+
         public NotificationService(
-        INotificationRepository notificationRepository,
-        IStudentRepository studentRepository
-        )
+            INotificationRepository notificationRepository,
+            IStudentRepository studentRepository,
+            IRoomRepository roomRepository)
         {
             _notificationRepository = notificationRepository;
             _studentRepository = studentRepository;
-        }
-        public async Task<IEnumerable<Notification>> GetUnreadNotificationsAsync()
-        {
-            var notifications = await _notificationRepository.GetUnreadNotifications();
-            return notifications;
+            _roomRepository = roomRepository;
         }
 
-        public async Task MarkAsReadAsync(int notificationId)
+        public async Task<(IEnumerable<Notification> Items, int TotalCount)>
+            GetAdminNotificationsAsync(
+                string adminUserId,
+                bool? isRead = null,
+                int pageIndex = 1,
+                int pageSize = 10)
         {
-            await _notificationRepository.MarkAsRead(notificationId);
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
+
+            return await _notificationRepository.GetNotifications(
+                adminUserId, isRead, pageIndex, pageSize);
         }
 
-        // check it for tomorrow
-        public async Task SendDailyPaymentRemindersAsync()
+        public async Task<(IEnumerable<Notification> Items, int TotalCount)>
+            GetStudentNotificationsAsync(
+                string studentUserId,
+                bool? isRead = null,
+                int pageIndex = 1,
+                int pageSize = 10)
         {
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
 
-            // 1. Get all active students
-            var students = await _studentRepository.GetAllStudents(null, true, null);
+            return await _notificationRepository.GetNotifications(
+                studentUserId, isRead, pageIndex, pageSize);
+        }
 
-            // 2. Determine the current month (first day of month)
-            var currentMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+        public async Task SendToStudentAsync(
+            string senderUserId,
+            string recipientUserId,
+            string title,
+            string message,
+            NotificationType type)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new AppValidationException("Title cannot be empty.");
 
-            // 3. Admin user who receives notifications
-            var adminId = "d9e71e86-a983-4ae9-a5c9-0ae39b056b7f"; // replace with real admin ID
+            if (string.IsNullOrWhiteSpace(message))
+                throw new AppValidationException("Message cannot be empty.");
+
+            var notification = new Notification
+            {
+                Title = title,
+                Message = message,
+                Type = type,
+                RecipientUserId = recipientUserId,
+                SenderUserId = senderUserId,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            await _notificationRepository.CreateNotification(notification);
+        }
+
+        public async Task SendToRoomAsync(
+            string senderUserId,
+            int roomId,
+            string title,
+            string message,
+            NotificationType type)
+        {
+            // get all active students in the room
+            var (students, _) = await _studentRepository
+                .GetAllStudents(roomId: roomId, isActive: true);
+
+            if (!students.Any())
+                throw new AppNotFoundException(
+                    $"No active students found in room '{roomId}'.");
+
+            // one notification per student
+            foreach (var student in students)
+            {
+                var notification = new Notification
+                {
+                    Title = title,
+                    Message = message,
+                    Type = type,
+                    RecipientUserId = student.UserId,
+                    SenderUserId = senderUserId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+                await _notificationRepository.CreateNotification(notification);
+            }
+        }
+
+        public async Task SendToAllStudentsAsync(
+            string senderUserId,
+            string title,
+            string message,
+            NotificationType type)
+        {
+            // get all active students — large page size to get all
+            var (students, _) = await _studentRepository
+                .GetAllStudents(isActive: true, pageSize: 1000);
+
+            if (!students.Any())
+                throw new AppNotFoundException("No active students found.");
 
             foreach (var student in students)
             {
-                // 4. Start from the student's enrollment month
-                var month = new DateTime(student.EnrollmentDate.Year, student.EnrollmentDate.Month, 1);
-
-                var unpaidMonths = new List<string>();
-
-                // 5. Loop through each month until current month
-                while (month <= currentMonth)
+                var notification = new Notification
                 {
-                    bool paid = student.Payments.Any(p =>
-                        p.PaymentYear == month.Year &&
-                        p.PaymentMonth == month.Month &&
-                        p.Status == PaymentStatus.Paid);
-
-                    if (!paid)
-                    {
-                        unpaidMonths.Add(month.ToString("MMMM yyyy"));
-                    }
-
-                    month = month.AddMonths(1);
-                }
-
-                // 6. If student has unpaid months → create ONE notification
-                if (unpaidMonths.Any())
-                {
-                    var message =
-                        $"{student.FirstName} {student.LastName} has unpaid months: {string.Join(", ", unpaidMonths)}.";
-
-                    var notification = new Notification
-                    {
-                        Title = "Outstanding Payments",
-                        Message = message,
-                        Type = NotificationType.overDue,
-                        UserId = adminId,
-                        StudentId = student.Id,
-                        CreatedAt = DateTime.UtcNow,
-                        IsRead = false
-                    };
-
-                    await _notificationRepository.CreateNotification(notification);
-                }
+                    Title = title,
+                    Message = message,
+                    Type = type,
+                    RecipientUserId = student.UserId,
+                    SenderUserId = senderUserId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+                await _notificationRepository.CreateNotification(notification);
             }
         }
+
+        // called by background job — no sender, system generated
+        public async Task SendToAdminAsync(
+            string adminUserId,
+            string title,
+            string message,
+            NotificationType type)
+        {
+            var notification = new Notification
+            {
+                Title = title,
+                Message = message,
+                Type = type,
+                RecipientUserId = adminUserId,
+                SenderUserId = null,    // system generated
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            await _notificationRepository.CreateNotification(notification);
+        }
+
+        public async Task MarkAsReadAsync(int notificationId, string userId)
+        {
+            var notification = await _notificationRepository
+                .GetNotificationById(notificationId);
+
+            if (notification == null)
+                throw new AppNotFoundException("Notification not found.");
+
+            // user can only mark their own notifications as read
+            if (notification.RecipientUserId != userId)
+                throw new AppValidationException(
+                    "You can only mark your own notifications as read.");
+
+            if (notification.IsRead) return; // already read, do nothing
+
+            notification.IsRead = true;
+            notification.ReadAt = DateTime.UtcNow;
+
+            await _notificationRepository.UpdateNotification(notification);
+        }
+
+        public async Task MarkAllAsReadAsync(string userId)
+        {
+            var (notifications, _) = await _notificationRepository
+                .GetNotifications(userId, isRead: false, pageSize: 1000);
+
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+                notification.ReadAt = DateTime.UtcNow;
+                await _notificationRepository.UpdateNotification(notification);
+            }
+        }
+
+        public async Task<int> GetUnreadCountAsync(string userId)
+        {
+            return await _notificationRepository.GetUnreadCount(userId);
+        }
     }
+
 }

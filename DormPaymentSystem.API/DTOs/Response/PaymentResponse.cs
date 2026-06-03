@@ -11,7 +11,7 @@ namespace DormPaymentSystem.API.DTOs.Response
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public string ReceiptNumber { get; set; }
+        public string ReceiptNumber { get; set; } = null!;
         public DateTime PaymentDate { get; set; }
         public DateTime DueDate { get; set; }
         public PaymentStatus Status { get; set; }
@@ -19,19 +19,15 @@ namespace DormPaymentSystem.API.DTOs.Response
         public string? Note { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
         public int PaymentMonth { get; set; }
         public int PaymentYear { get; set; }
         public int DaysLate { get; set; }
 
-        public string? ReceivedById { get; set; }
-        public UserResponse? ReceivedBy { get; set; }
+        // who recorded this payment
+        public PaymentReceivedByResponse? ReceivedBy { get; set; }
 
-        public int? StudentId { get; set; }
-        public PaymentStudentResponse? Student { get; set; }
-
-        public int? GuestId { get; set; }
-        public PaymentGuestResponse? Guest { get; set; }
+        // reservation context — who paid and for what
+        public PaymentReservationResponse? Reservation { get; set; }
 
         public PaymentResponse(Payment payment)
         {
@@ -45,61 +41,50 @@ namespace DormPaymentSystem.API.DTOs.Response
             Note = payment.Note;
             CreatedAt = payment.CreatedAt;
             UpdatedAt = payment.UpdatedAt;
-
             PaymentMonth = payment.PaymentMonth;
             PaymentYear = payment.PaymentYear;
             DaysLate = payment.DaysLate;
 
-            ReceivedById = payment.ReceivedById;
             ReceivedBy = payment.ReceivedBy != null
-                ? new UserResponse(payment.ReceivedBy)
+                ? new PaymentReceivedByResponse
+                {
+                    Id = payment.ReceivedBy.Id,
+                    FullName = payment.ReceivedBy.FullName
+                }
                 : null;
 
-            Student = payment.Student != null
-                ? new PaymentStudentResponse(payment.Student)
-                : null;
+            // reservation tells us who paid and what type
+            Reservation = payment.Reservation != null
+                ? new PaymentReservationResponse
+                {
+                    Id = payment.Reservation.Id,
+                    Type = payment.Reservation.Type,
 
-            Guest = payment.Guest != null
-                ? new PaymentGuestResponse(payment.Guest)
+                    // student name if StudentStay
+                    StudentName = payment.Reservation.Student != null
+                        ? $"{payment.Reservation.Student.FirstName} {payment.Reservation.Student.LastName}"
+                        : null,
+                    StudentNumber = payment.Reservation.Student?.StudentNumber,
+
+                    // guest name if GuestStay or InvitationStay
+                    GuestName = payment.Reservation.Guest?.FullName
+                }
                 : null;
         }
     }
 
-    public class PaymentStudentResponse
+    public class PaymentReceivedByResponse
+    {
+        public string Id { get; set; } = null!;
+        public string FullName { get; set; } = null!;
+    }
+
+    public class PaymentReservationResponse
     {
         public int Id { get; set; }
-        public string FullName { get; set; }
-        public int? RoomNumber { get; set; }
-
-        public PaymentStudentResponse(Student student)
-        {
-            Id = student.Id;
-            FullName = $"{student.FirstName} {student.LastName}";
-            RoomNumber = student.Room?.RoomNumber;
-        }
-    }
-
-    public class PaymentGuestResponse
-    {
-        public int Id { get; set; }
-        public string FullName { get; set; }
-
-        public PaymentGuestResponse(Guest guest)
-        {
-            Id = guest.Id;
-            FullName = guest.FullName;
-        }
-    }
-
-    public class UserResponse
-    {
-        public string Id { get; set; }
-        public string FullName { get; set; }
-
-        public UserResponse(User user)
-        {
-            Id = user.Id;
-            FullName = $"{user.FirstName} {user.LastName}";
-        }
+        public ReservationType Type { get; set; }
+        public string? StudentName { get; set; }
+        public string? StudentNumber { get; set; }
+        public string? GuestName { get; set; }
     }
 }

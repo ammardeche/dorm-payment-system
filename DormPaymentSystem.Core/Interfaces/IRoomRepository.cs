@@ -9,17 +9,18 @@ namespace DormPaymentSystem.Data.Repositories
 {
     public interface IRoomRepository
     {
-        Task<IEnumerable<Room>> GetAllRooms(
-            int? floorId,
-            RoomStatus? status
-        );
+        Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRooms(
+            RoomStatus? status = null,
+            int? floorNumber = null,        // int replaces floorId
+            int pageIndex = 1,
+            int pageSize = 10);
+
         Task<Room?> GetRoomById(int id);
         Task<Room> CreateRoom(Room room);
         Task<Room> UpdateRoom(Room room);
         Task<bool> DeleteRoom(Room room);
-
-        Task<bool> RoomNumberExist(int roomNumber);
         Task<bool> RoomExists(int id);
+        Task<bool> RoomNumberExist(int roomNumber);
         Task SaveChanges();
     }
 }

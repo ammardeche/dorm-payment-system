@@ -103,7 +103,7 @@ namespace DormPaymentSystem.Core.Services
                 throw new AppValidationException("Months must be greater than 0.");
 
             // 5. get current pricing
-            var settings = await _settingsRepository.GetCurrentSettingsAsync();
+            var settings = await _settingsRepository.GetCurrentSettings();
             if (settings == null)
                 throw new AppValidationException(
                     "Dormitory pricing is not configured. Contact admin.");
@@ -188,7 +188,7 @@ namespace DormPaymentSystem.Core.Services
                 throw new AppValidationException("Room is full.");
 
             // 5. get pricing
-            var settings = await _settingsRepository.GetCurrentSettingsAsync();
+            var settings = await _settingsRepository.GetCurrentSettings();
             if (settings == null)
                 throw new AppValidationException(
                     "Dormitory pricing is not configured. Contact admin.");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Interfaces;
 using DormPaymentSystem.Data.Repositories;
@@ -13,66 +14,90 @@ namespace DormPaymentSystem.Core.Services
     public class InvitationService : IInvitationService
     {
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IRoomRepository _roomRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly IGuestRepository _guestRepository;
 
         public InvitationService(
             IInvitationRepository invitationRepository,
-            IRoomRepository roomRepository,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            IGuestRepository guestRepository)
         {
             _invitationRepository = invitationRepository;
-            _roomRepository = roomRepository;
             _studentRepository = studentRepository;
+            _guestRepository = guestRepository;
         }
 
-        public async Task<bool> CanRoomInviteThisMonthAsync(int roomId)
+        public async Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitationsAsync(
+            int? studentId = null,
+            int? guestId = null,
+            int? month = null,
+            int? year = null,
+            int pageIndex = 1,
+            int pageSize = 10)
         {
-            if (roomId <= 0)
-                throw new AppValidationException("Room ID must be greater than zero.");
+            if (pageIndex < 1) pageIndex = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (pageSize > 100) pageSize = 100;
 
-            var currentMonth = DateTime.UtcNow.Month;
-            var currentYear = DateTime.UtcNow.Year;
+            return await _invitationRepository.GetInvitations(
+                studentId, guestId, month, year, pageIndex, pageSize);
+        }
 
-            var hasInvitation = await _invitationRepository.RoomHasInvitationThisMonth(roomId, currentMonth, currentYear);
+        public async Task<Invitation?> GetInvitationByIdAsync(int id)
+        {
+            var invitation = await _invitationRepository.GetInvitationById(id);
+            if (invitation == null)
+                throw new AppNotFoundException($"Invitation with id '{id}' not found.");
+            return invitation;
+        }
+
+        public async Task<bool> CanStudentInviteThisMonthAsync(int studentId)
+        {
+            var month = DateTime.UtcNow.Month;
+            var year = DateTime.UtcNow.Year;
+
+            // 1 invitation per student per month — not per room
+            var hasInvitation = await _invitationRepository
+                .StudentHasInvitationThisMonth(studentId, month, year);
+
             return !hasInvitation;
         }
 
-        public async Task<Invitation> CreateInvitationAsync(string guestName, string guestIdentityId, int roomId, int invitedByStudentId)
+        public async Task<Invitation> CreateInvitationAsync(
+            int invitedByStudentId,
+            int guestId)
         {
-            if (string.IsNullOrWhiteSpace(guestName))
-                throw new AppValidationException("Guest name cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(guestIdentityId))
-                throw new AppValidationException("Guest identity ID cannot be null or empty.");
-            if (roomId <= 0)
-                throw new AppValidationException("Room ID must be greater than zero.");
-            if (invitedByStudentId <= 0)
-                throw new AppValidationException("Invited by student ID must be greater than zero.");
+            // 1. validate student exists and is active
+            var student = await _studentRepository.GetStudentById(invitedByStudentId);
+            if (student == null)
+                throw new AppNotFoundException(
+                    $"Student with id '{invitedByStudentId}' not found.");
 
-            // validate room exists
-            var roomExists = await _roomRepository.RoomExists(roomId);
-            if (!roomExists)
-                throw new AppNotFoundException($"Room with id '{roomId}' not found.");
+            if (!student.IsActive)
+                throw new AppValidationException(
+                    "Inactive student cannot create an invitation.");
 
-            // validate student exists
-            var studentExists = await _studentRepository.StudentExists(invitedByStudentId);
-            if (!studentExists)
-                throw new AppNotFoundException($"Student with id '{invitedByStudentId}' not found.");
+            // 2. validate guest exists
+            var guest = await _guestRepository.GetGuestById(guestId);
+            if (guest == null)
+                throw new AppNotFoundException(
+                    $"Guest with id '{guestId}' not found.");
 
-            // check one-per-month rule
-            var canInvite = await CanRoomInviteThisMonthAsync(roomId);
+            // 3. enforce 1 invitation per student per month
+            var canInvite = await CanStudentInviteThisMonthAsync(invitedByStudentId);
             if (!canInvite)
-                throw new AppConflictException("This room has already invited a guest this month.");
+                throw new AppConflictException(
+                    "Student has already used their invitation this month.");
 
+            // 4. create invitation — status is Pending until guest checks in
             var invitation = new Invitation
             {
-                GuestName = guestName,
-                GuestIdentityId = guestIdentityId,
-                RoomId = roomId,
                 InvitedByStudentId = invitedByStudentId,
+                GuestId = guestId,
                 InvitationDate = DateTime.UtcNow,
                 InvitationMonth = DateTime.UtcNow.Month,
-                InvitationYear = DateTime.UtcNow.Year
+                InvitationYear = DateTime.UtcNow.Year,
+                Status = InvitationStatus.Pending
             };
 
             return await _invitationRepository.CreateInvitation(invitation);
@@ -80,27 +105,16 @@ namespace DormPaymentSystem.Core.Services
 
         public async Task<bool> DeleteInvitationAsync(int id)
         {
-            if (id <= 0)
-                throw new AppValidationException("Invitation ID must be greater than zero.");
-
-            var invitations = await _invitationRepository.GetInvitations(id: id);
-            var invitation = invitations.FirstOrDefault();
-
+            var invitation = await _invitationRepository.GetInvitationById(id);
             if (invitation == null)
                 throw new AppNotFoundException($"Invitation with id '{id}' not found.");
 
-            return await _invitationRepository.DeleteInvitation(invitation);
-        }
+            // cannot delete a used invitation — it has a reservation linked
+            if (invitation.Status == InvitationStatus.Used)
+                throw new AppValidationException(
+                    "Cannot delete a used invitation — it has an active reservation.");
 
-        public async Task<IEnumerable<Invitation>> GetInvitationsAsync(int? id = null, int? roomId = null, int? studentId = null, int? month = null, int? year = null)
-        {
-            return await _invitationRepository.GetInvitations(
-                id: id,
-                roomId: roomId,
-                studentId: studentId,
-                month: month,
-                year: year
-            );
+            return await _invitationRepository.DeleteInvitation(invitation);
         }
     }
 }

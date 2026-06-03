@@ -9,48 +9,37 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface IPaymentService
     {
-        // READ
-        Task<IEnumerable<Payment>> GetAllPaymentsAsync(
-            int? studentId = null,
-            int? guestId = null,
+        Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllPaymentsAsync(
+            int? reservationId = null,
             PaymentStatus? status = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
             string? receivedById = null,
-            bool? dueToday = null);
+            bool? dueToday = null,
+            int pageIndex = 1,
+            int pageSize = 10);
 
         Task<Payment?> GetPaymentByIdAsync(int id);
         Task<Payment?> GetPaymentByReceiptNumberAsync(string receiptNumber);
 
-        // WRITE
-        Task<Payment> ProcessPaymentAsync(
-            int? GuestId,
-            int? studentId,
-            decimal amount,
-            int? month,
-            int? year,
+        // mark an existing pending payment as paid
+        Task<Payment> MarkAsPaidAsync(
+            int paymentId,
             PaymentMethod method,
             string receivedByUserId);
 
         Task<Payment> UpdatePaymentAsync(
             int id,
-            decimal amount,
-            int month,
-            int year,
-            PaymentMethod method,
-            PaymentStatus status,
+            decimal? amount,
+            PaymentMethod? method,
+            PaymentStatus? status,
             string? note);
 
         Task<bool> DeletePaymentAsync(int id, string deletedById);
 
-        // REPORTING
         Task<decimal> GetTotalCollectedAsync(DateTime startDate, DateTime endDate);
 
-        // VALIDATION
         Task<bool> PaymentExistsAsync(int id);
-        Task<bool> PaymentExistsForGuest(int guestId);
-
-        Task<bool> HasPaidForMonthAsync(int studentId, int month, int year);
-
+        Task<bool> HasPaidForMonthAsync(int reservationId, int month, int year);
     }
 }

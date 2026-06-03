@@ -9,34 +9,26 @@ namespace DormPaymentSystem.Data.Repositories
 {
     public interface IPaymentRepository
     {
-        // READ — one method with filters
-        Task<IEnumerable<Payment>> GetAllPayments(
-            int? studentId = null,
-            int? guestId = null,
-            PaymentStatus? status = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            string? receivedById = null,
-            bool? dueToday = null);
+        Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllPayments(
+               int? reservationId = null,
+               PaymentStatus? status = null,
+               DateTime? startDate = null,
+               DateTime? endDate = null,
+               string? receivedById = null,
+               bool? dueToday = null,
+               int pageIndex = 1,
+               int pageSize = 10);
 
         Task<Payment?> GetPaymentById(int id);
         Task<Payment?> GetPaymentByReceiptNumber(string receiptNumber);
 
-        // WRITE
         Task<Payment> CreatePayment(Payment payment);
         Task<Payment> UpdatePayment(Payment payment);
-        Task<bool> DeletePayment(Payment payment); // soft delete
+        Task<bool> DeletePayment(Payment payment);
 
-        // CHECK
         Task<bool> PaymentExists(int id);
-        Task<bool> PaymentExistsForGuest(int guestId);
-
-        Task<bool> PaymentExistsForMonth(int studentId, int month, int year);
+        Task<bool> PaymentExistsForMonth(int reservationId, int month, int year);
 
         Task SaveChanges();
-
-
-
-
     }
 }

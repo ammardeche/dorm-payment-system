@@ -7,16 +7,15 @@ using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Queries;
+using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
     [ApiController]
-    [Route("api/payments")]
     public class PaymentController : AdminControllerBase
     {
-
 
         private readonly IPaymentService _paymentService;
 
@@ -25,96 +24,71 @@ namespace DormPaymentSystem.API.Controller
             _paymentService = paymentService;
         }
 
-        // GET: api/payments
-        [HttpGet]
+        [HttpGet("get-all")]
         public async Task<IActionResult> GetAllPayments([FromQuery] PaymentQuery q)
         {
-            var payments = await _paymentService.GetAllPaymentsAsync(
-            studentId: q.StudentId,
-            guestId: q.GuestId,
-            status: q.Status,
-            startDate: q.StartDate,
-            endDate: q.EndDate,
-            receivedById: q.ReceivedById,
-            dueToday: q.DueToday
-            );
-            return Ok(payments.Select(p => new PaymentResponse(p)));
+            var (items, totalCount) = await _paymentService.GetAllPaymentsAsync(
+                q.ReservationId, q.Status, q.StartDate,
+                q.EndDate, q.ReceivedById, q.DueToday,
+                q.PageIndex, q.PageSize);
+
+            var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
+
+            return Ok(new Response<IEnumerable<PaymentResponse>>(
+                items.Select(p => new PaymentResponse(p)),
+                pagination));
         }
 
-        // GET: api/payments/{id}
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetPaymentById(int id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
         {
             var payment = await _paymentService.GetPaymentByIdAsync(id);
-            return Ok(new PaymentResponse(payment));
+            return Ok(new Response<PaymentResponse>(new PaymentResponse(payment)));
         }
 
-        // GET: api/payments/receipt/{receiptNumber}
         [HttpGet("receipt/{receiptNumber}")]
-        public async Task<IActionResult> GetPaymentByReceipt(string receiptNumber)
+        public async Task<IActionResult> GetByReceipt(string receiptNumber)
         {
             var payment = await _paymentService.GetPaymentByReceiptNumberAsync(receiptNumber);
-            return Ok(new PaymentResponse(payment));
+            return Ok(new Response<PaymentResponse>(new PaymentResponse(payment)));
         }
 
-        // POST: api/payments
-        [HttpPost]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest dto)
+        // mark a pending payment as paid
+        [HttpPost("mark-paid/{id}")]
+        public async Task<IActionResult> MarkAsPaid(int id, [FromBody] MarkAsPaidRequest req)
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var payment = await _paymentService.ProcessPaymentAsync(
-                dto.GuestId,
-                dto.StudentId,
-                dto.Amount,
-                dto.Month,
-                dto.Year,
-                dto.Method,
-               receivedByUserId: currentUserId!
-            );
-
-            return CreatedAtAction(nameof(GetPaymentById), new { id = payment.Id }, new PaymentResponse(payment));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var payment = await _paymentService.MarkAsPaidAsync(id, req.Method, userId);
+            return Ok(new Response<PaymentResponse>(new PaymentResponse(payment)));
         }
 
-        // PUT: api/payments/{id}
-        [HttpPut("update/{id:int}")]
-        public async Task<IActionResult> UpdatePayment(int id, [FromBody] UpdatePaymentRequest dto)
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdatePayment(int id, [FromBody] UpdatePaymentRequest req)
         {
-            var updated = await _paymentService.UpdatePaymentAsync(
-                id,
-                dto.Amount,
-                dto.Month,
-                dto.Year,
-                dto.Method,
-                dto.Status,
-                dto.Note
-            );
-
-            return Ok(new PaymentResponse(updated));
+            var payment = await _paymentService.UpdatePaymentAsync(
+                id, req.Amount, req.Method, req.Status, req.Note);
+            return Ok(new Response<PaymentResponse>(new PaymentResponse(payment)));
         }
 
-        // DELETE: api/payments/{id}
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeletePayment(int id, [FromQuery] string deletedById)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeletePayment(int id)
         {
-            var result = await _paymentService.DeletePaymentAsync(id, deletedById);
-            return result ? NoContent() : BadRequest("Unable to delete payment");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _paymentService.DeletePaymentAsync(id, userId);
+            return Ok(new Response<string>("Payment deleted successfully."));
         }
 
-        // GET: api/payments/total?startDate=...&endDate=...
         [HttpGet("total")]
-        public async Task<IActionResult> GetTotalCollected([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetTotal(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
         {
             var total = await _paymentService.GetTotalCollectedAsync(startDate, endDate);
-            return Ok(total);
-        }
-
-        // GET: api/payments/exists/{id}
-        [HttpGet("exists/{id:int}")]
-        public async Task<IActionResult> PaymentExists(int id)
-        {
-            var exists = await _paymentService.PaymentExistsAsync(id);
-            return Ok(exists);
+            return Ok(new Response<decimal>(total));
         }
     }
 
 }
+
+
+
