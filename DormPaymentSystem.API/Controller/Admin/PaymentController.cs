@@ -86,7 +86,11 @@ namespace DormPaymentSystem.API.Controller
             var total = await _paymentService.GetTotalCollectedAsync(startDate, endDate);
             return Ok(new Response<decimal>(total));
         }
+
+
     }
+
+
 
 }
 

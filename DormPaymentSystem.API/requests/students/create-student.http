@@ -1,0 +1,16 @@
+
+###
+# @name create a student Students
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "firstName": "soltane",
+    "lastName": "yacine",
+    "email": "ali.mahmoud@test.com",
+    "studentNumber": "ST3d35555001",
+    "phoneNumber": "123456789",
+    "roomId": 2,
+    "password": "Pass123!"
+}

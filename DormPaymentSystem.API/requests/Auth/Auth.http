@@ -1,0 +1,10 @@
+@host=http://localhost:5001
+
+###
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@dorm.com",
+    "password": "Admin@123"
+}

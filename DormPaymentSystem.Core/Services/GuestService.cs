@@ -110,6 +110,11 @@ namespace DormPaymentSystem.Core.Services
             await _guestRepository.DeleteGuest(guest);
             return true;
         }
+
+        // public Task<Guest> CheckOutGuestAsync(int reservationId)
+        // {
+        //    var guest = _guestRepository
+        // }
     }
 
 }

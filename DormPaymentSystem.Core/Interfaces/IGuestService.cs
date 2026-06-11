@@ -23,6 +23,8 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<Guest> RegisterGuestAsync(string fullName, string nationalId);
 
         Task<Guest> UpdateGuestAsync(int id, string? fullName, string? nationalId);
+
+
         Task<bool> DeleteGuestAsync(int id);
 
     }

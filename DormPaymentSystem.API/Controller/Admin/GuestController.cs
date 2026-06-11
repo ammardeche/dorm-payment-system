@@ -56,6 +56,7 @@ namespace DormPaymentSystem.API.Controller
             return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 
+
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateGuest(int id, [FromBody] UpdateGuestRequest req)
         {

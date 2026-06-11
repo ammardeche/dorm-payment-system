@@ -25,7 +25,7 @@ namespace DormPaymentSystem.Core.Interfaces
             int studentId,
             int roomId,
             DateTime checkIn,
-            int months,               // how many months — 1, 2, 6 etc
+
             string receivedByUserId); // who processed it
 
         // External guest checks in
@@ -47,5 +47,8 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<Reservation> CheckOutAsync(int reservationId);
 
         Task<Reservation?> GetActiveReservationByStudentIdAsync(int studentId);
+
+
+
     }
 }

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DormPaymentSystem.API.Controller.Admin
 {
     [ApiController]
-
     public class DormitorySettingsController : AdminControllerBase
     {
 
@@ -37,7 +36,7 @@ namespace DormPaymentSystem.API.Controller.Admin
 
         [HttpPost("create")]
         public async Task<IActionResult> Create(
-            UpdateDormitorySettingsRequest req)
+            CreateDormitorySettingsRequest req)
         {
             var settings =
                 await _service.CreateSettingsAsync(

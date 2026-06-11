@@ -1,9 +1,13 @@
 using System.Text.Json.Serialization;
 using DormPaymentSystem.API.Configurations;
+using DormPaymentSystem.API.Infrastructure;
 using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Seeders;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,14 @@ builder.Services.AddControllers()
     });
 
 // Services
+// add this with your other services
+builder.Services.AddHangfire(config => config
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddHangfireServer();
 builder.Services.AddOpenApi();
 builder.Services.AddApplicationService();
 builder.Services.AddAuthenticationConfiguration(builder.Configuration);
@@ -35,6 +47,18 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// hangfire dashboard — only admin can see it
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { new HangFireAuthFilter() }
+});
+
+// register the recurring job — runs at midnight on 1st of every month
+RecurringJob.AddOrUpdate<IPaymentGenerationJob>(
+    "generate-monthly-payments",
+    job => job.ExecuteAsync(),
+    Cron.Monthly(1));   // 1st of every month at midnight
 
 // Seed admin
 using (var scope = app.Services.CreateScope())

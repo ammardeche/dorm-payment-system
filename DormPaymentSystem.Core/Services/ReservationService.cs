@@ -73,7 +73,7 @@ namespace DormPaymentSystem.Core.Services
             int studentId,
             int roomId,
             DateTime checkIn,
-            int months,
+
             string receivedByUserId)
         {
             // 1. validate student
@@ -84,7 +84,7 @@ namespace DormPaymentSystem.Core.Services
             if (!student.IsActive)
                 throw new AppValidationException("Cannot create reservation for inactive student.");
 
-            // 2. check student has no active reservation already
+            // 2. check no active reservation already
             var existing = await _reservationRepository
                 .GetActiveReservationByStudentId(studentId);
             if (existing != null)
@@ -98,19 +98,12 @@ namespace DormPaymentSystem.Core.Services
             if (room.CurrentOccupancy >= room.Capacity)
                 throw new AppValidationException("Room is full.");
 
-            // 4. validate months
-            if (months <= 0)
-                throw new AppValidationException("Months must be greater than 0.");
-
-            // 5. get current pricing
+            // 4. get pricing
             var settings = await _settingsRepository.GetCurrentSettings();
             if (settings == null)
-                throw new AppValidationException(
-                    "Dormitory pricing is not configured. Contact admin.");
+                throw new AppValidationException("Dormitory pricing not configured. Contact admin.");
 
-            // 6. create reservation
-            var checkOut = checkIn.AddMonths(months);
-
+            // 5. create reservation — CheckOut is null, we don't know when they leave
             var reservation = new Reservation
             {
                 Type = ReservationType.StudentStay,
@@ -118,39 +111,36 @@ namespace DormPaymentSystem.Core.Services
                 StudentId = studentId,
                 RoomId = roomId,
                 CheckIn = checkIn,
-                CheckOut = checkOut,
-                RateSnapshot = settings.StudentMonthlyRate,  // snapshot price
-                TotalAmount = settings.StudentMonthlyRate * months
+                CheckOut = null,            // unknown — set when student leaves
+                RateSnapshot = settings.StudentMonthlyRate,
+                TotalAmount = 0             // grows each month as payments are added
             };
 
             await _reservationRepository.CreateReservation(reservation);
 
-            // 7. create one payment per month
-            for (int i = 0; i < months; i++)
+            // 6. create ONLY the first month payment
+            var firstPayment = new Payment
             {
-                var paymentDate = checkIn.AddMonths(i);
-                var payment = new Payment
-                {
-                    ReservationId = reservation.Id,
-                    Amount = settings.StudentMonthlyRate,
-                    PaymentMonth = paymentDate.Month,
-                    PaymentYear = paymentDate.Year,
-                    DueDate = new DateTime(paymentDate.Year, paymentDate.Month, 1),
-                    Status = PaymentStatus.Pending,
-                    ReceivedById = receivedByUserId,
-                    ReceiptNumber = GenerateReceiptNumber("STD", studentId, i),
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _paymentRepository.CreatePayment(payment);
-            }
+                ReservationId = reservation.Id,
+                Amount = settings.StudentMonthlyRate,
+                PaymentMonth = checkIn.Month,
+                PaymentYear = checkIn.Year,
+                DueDate = new DateTime(checkIn.Year, checkIn.Month, 1),
+                Status = PaymentStatus.Pending,
+                ReceivedById = receivedByUserId,
+                ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
+                CreatedAt = DateTime.UtcNow
+            };
 
-            // 8. update room occupancy
+            await _paymentRepository.CreatePayment(firstPayment);
+
+            // 7. update room occupancy
             room.CurrentOccupancy += 1;
             if (room.CurrentOccupancy >= room.Capacity)
                 room.Status = RoomStatus.Full;
             await _roomRepository.UpdateRoom(room);
 
-            // 9. update student room
+            // 8. update student room
             student.RoomId = roomId;
             await _studentRepository.UpdateStudent(student);
 
@@ -320,6 +310,8 @@ namespace DormPaymentSystem.Core.Services
             return reservation;
         }
 
+
+
         // ── HELPERS ──────────────────────────────────────────────────
         private static string GenerateReceiptNumber(string prefix, int entityId, int index)
         {
@@ -327,5 +319,7 @@ namespace DormPaymentSystem.Core.Services
             var randomPart = new Random().Next(1000, 9999);
             return $"RCPT-{datePart}-{prefix}{entityId}-{index}-{randomPart}";
         }
+
+
     }
 }

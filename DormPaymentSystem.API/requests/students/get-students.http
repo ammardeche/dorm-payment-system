@@ -1,0 +1,6 @@
+
+###
+# @name Get All Students
+GET {{baseUrl}}/api/admin/student/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}
