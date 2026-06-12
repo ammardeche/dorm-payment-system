@@ -1,0 +1,15 @@
+
+
+
+
+# CREATE GUEST  
+POST {{baseUrl}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "fullName": "John Michael Doe",
+  "nationalId": "A123453389"
+}
+

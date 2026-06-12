@@ -1,0 +1,5 @@
+
+## GET IF ROOM IS AVAILABLE
+POST {{baseUrl}}/api/admin/room/is-available/2
+Content-Type: application/json
+Authorization: Bearer {{token}}

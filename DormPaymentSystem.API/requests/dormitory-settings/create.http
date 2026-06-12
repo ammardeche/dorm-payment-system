@@ -1,0 +1,19 @@
+
+
+
+
+# CREATE DORMITORY SETTINGS  
+POST {{baseUrl}}/api/admin/dormitorysettings/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "guestRatePerNight": 25.50,
+  "studentMonthlyRate": 650.00,
+  "effectiveFrom": "2026-07-01T00:00:00Z"
+}
+
+
+// update the second part dormitory settings 
+

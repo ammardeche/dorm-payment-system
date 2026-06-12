@@ -1,0 +1,9 @@
+
+
+
+
+# CAN STUDENT INVITE
+GET {{baseUrl}}/api/admin/invitation/can-invite/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

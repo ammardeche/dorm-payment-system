@@ -1,0 +1,9 @@
+
+
+
+
+# GET DORMITORY SETTINGS  
+GET {{baseUrl}}/api/admin/dormitorysettings
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

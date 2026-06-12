@@ -1,0 +1,15 @@
+
+
+
+
+# GET ALL GUESTS  
+GET {{baseUrl}}/api/admin/guest/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "fullName": "John Michael Doe",
+  "nationalId": "A123453389"
+}
+

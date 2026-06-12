@@ -1,0 +1,9 @@
+
+
+
+
+# Get All Invitations 
+GET {{baseUrl}}/api/admin/invitation/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

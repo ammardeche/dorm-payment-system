@@ -1,0 +1,5 @@
+
+###  GET ALL RESERVATIONS
+GET {{baseUrl}}/api/admin/reservation/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}

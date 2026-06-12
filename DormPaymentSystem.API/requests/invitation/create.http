@@ -1,0 +1,14 @@
+
+
+
+
+# Create an invitation 
+POST {{baseUrl}}/api/admin/invitation/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "invitedByStudentId": 2,
+  "guestId": 1
+}

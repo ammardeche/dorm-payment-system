@@ -1,0 +1,5 @@
+
+## GET ALL ROOMS
+GET {{baseUrl}}/api/admin/room/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}

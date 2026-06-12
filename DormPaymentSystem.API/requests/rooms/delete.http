@@ -1,0 +1,5 @@
+
+## DELETE ROOM
+DELETE {{baseUrl}}/api/admin/room/delete/1
+Content-Type: application/json
+Authorization: Bearer {{token}}

@@ -1,0 +1,12 @@
+
+###
+## update room information 
+PUT {{baseUrl}}/api/admin/room/update/2
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "roomNumber": 310,
+  "capacity": 2,
+  "status": "Available"
+}

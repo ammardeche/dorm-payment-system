@@ -1,0 +1,5 @@
+ 
+###  CREATE INVITATION  RESERVATION
+POST {{baseUrl}}/api/admin/reservation/invitation
+Content-Type: application/json
+Authorization: Bearer {{token}}

@@ -46,7 +46,7 @@ namespace DormPaymentSystem.API.Controller
             return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 
-        [HttpPost("register")]
+        [HttpPost("create")]
         public async Task<IActionResult> RegisterGuest([FromBody] RegisterGuestRequest req)
         {
             if (!ModelState.IsValid)

@@ -1,0 +1,12 @@
+
+## CREATE ROOM 
+POST {{baseUrl}}/api/admin/room/create 
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "roomNumber": 305,
+  "capacity": 4,
+  "floorNumber": 3
+}

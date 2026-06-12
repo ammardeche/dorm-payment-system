@@ -1,0 +1,5 @@
+
+### Get invitation by id
+GET {{baseUrl}}/api/admin/invitation/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
