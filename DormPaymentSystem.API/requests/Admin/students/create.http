@@ -6,11 +6,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "firstName": "soltane",
-    "lastName": "yacine",
-    "email": "ali.mahmoud@test.com",
-    "studentNumber": "ST3d35555001",
+    "firstName": "zrdad",
+    "lastName": "siddch",
+    "email": "konrad@mail.com",
+    "studentNumber": "s04333333381",
     "phoneNumber": "123456789",
-    "roomId": 2,
+    "roomId": 6,
     "password": "Pass123!"
 }

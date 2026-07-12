@@ -40,7 +40,7 @@ namespace DormPaymentSystem.Data.Repositories
                 query = query.Where(s => s.IsActive == isActive.Value);
 
             if (!string.IsNullOrWhiteSpace(studentNumber))
-                query = query.Where(s => s.StudentNumber == studentNumber);
+                query = query.Where(s => s.StudentNumber.StartsWith(studentNumber));
 
             var totalCount = await query.CountAsync();
 

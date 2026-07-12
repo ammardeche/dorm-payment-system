@@ -1,0 +1,6 @@
+
+
+GET {{baseUrl}}/api/app/myreservation/active
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

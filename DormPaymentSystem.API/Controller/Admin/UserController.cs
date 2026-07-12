@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [ApiController]
+
     public class UserController : AdminControllerBase
     {
         private readonly IUserService _userService;

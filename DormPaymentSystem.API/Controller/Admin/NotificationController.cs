@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [ApiController]
 
     public class NotificationController : AdminControllerBase
     {

@@ -13,10 +13,8 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [ApiController]
     public class GuestController : AdminControllerBase
     {
-
 
         private readonly IGuestService _guestService;
 

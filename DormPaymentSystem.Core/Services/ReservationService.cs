@@ -20,15 +20,19 @@ namespace DormPaymentSystem.Core.Services
         private readonly IInvitationRepository _invitationRepository;
         private readonly IDormitorySettingsRepository _settingsRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IPaymentService _paymentService;
 
         public ReservationService(
+
             IReservationRepository reservationRepository,
             IStudentRepository studentRepository,
             IGuestRepository guestRepository,
             IRoomRepository roomRepository,
             IInvitationRepository invitationRepository,
             IDormitorySettingsRepository settingsRepository,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            IPaymentService paymentService
+            )
         {
             _reservationRepository = reservationRepository;
             _studentRepository = studentRepository;
@@ -37,6 +41,7 @@ namespace DormPaymentSystem.Core.Services
             _invitationRepository = invitationRepository;
             _settingsRepository = settingsRepository;
             _paymentRepository = paymentRepository;
+            _paymentService = paymentService;
         }
 
         public async Task<(IEnumerable<Reservation> Items, int TotalCount)> GetAllReservationsAsync(
@@ -133,6 +138,7 @@ namespace DormPaymentSystem.Core.Services
             };
 
             await _paymentRepository.CreatePayment(firstPayment);
+            await _paymentService.EnsureMonthlyPaymentsAsync(reservationId: reservation.Id);
 
             // 7. update room occupancy
             room.CurrentOccupancy += 1;

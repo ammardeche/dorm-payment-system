@@ -1,5 +1,5 @@
 
 ###  CHECKOUT RESERVATION
-GET {{baseUrl}}/api/admin/reservation/checkout
+POST {{baseUrl}}/api/admin/reservation/checkout/8
 Content-Type: application/json
 Authorization: Bearer {{token}}

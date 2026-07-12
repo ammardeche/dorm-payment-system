@@ -15,3 +15,4 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required] public string ReceivedByUserId { get; set; } = null!;
     }
 }
+

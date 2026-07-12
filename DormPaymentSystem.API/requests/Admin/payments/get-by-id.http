@@ -1,6 +1,4 @@
-
-###
-# @name Get payment by id
+## GET PAYMENT BY ID
 GET {{baseUrl}}/api/admin/payment/2
 Content-Type: application/json
 Authorization: Bearer {{token}}

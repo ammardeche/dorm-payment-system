@@ -12,3 +12,4 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required] public string NewPassword { get; set; } = null!;
     }
 }
+

@@ -13,7 +13,6 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller.Admin
 {
-    [ApiController]
     public class ReservationController : AdminControllerBase
     {
         private readonly IReservationService _reservationService;
@@ -55,7 +54,6 @@ namespace DormPaymentSystem.API.Controller.Admin
                 req.StudentId,
                 req.RoomId,
                 req.CheckIn,
-
                 req.ReceivedByUserId);
 
             return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
@@ -101,15 +99,7 @@ namespace DormPaymentSystem.API.Controller.Admin
             return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
         }
 
-        // // admin calls this at the start of each month
-        // [HttpPost("generate-monthly-payments")]
-        // public async Task<IActionResult> GenerateMonthlyPayments(
-        //     [FromQuery] int month,
-        //     [FromQuery] int year)
-        // {
-        //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        //     await _reservationService.GenerateMonthlyPaymentsAsync(month, year, userId);
-        //     return Ok(new Response<string>($"Payments generated for {month}/{year}."));
-        // }
+
+
     }
 }

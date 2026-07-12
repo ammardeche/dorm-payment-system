@@ -1,0 +1,8 @@
+## reload 
+POST {{baseUrl}}/api/admin/payment/rebuild/9
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "Method": "Card"
+}

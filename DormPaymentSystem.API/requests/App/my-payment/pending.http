@@ -1,0 +1,6 @@
+
+
+GET {{baseUrl}}/api/app/mypayment/pending
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

@@ -1,0 +1,9 @@
+
+
+
+## GET BY RECEPIENT NUMBER
+GET {{baseUrl}}/api/admin/payment/receipt/RCPT-20260604-STD2-0-2560
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+

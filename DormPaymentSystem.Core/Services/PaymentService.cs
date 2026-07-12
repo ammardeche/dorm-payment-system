@@ -17,15 +17,18 @@ namespace DormPaymentSystem.Core.Services
 
         private readonly IPaymentRepository _paymentRepository;
         private readonly IReservationRepository _reservationRepository;
+        private readonly IDormitorySettingsRepository _settingsRepository;
 
         // no longer needs IStudentRepository or IGuestRepository
         // payment only knows its ReservationId
         public PaymentService(
+            IDormitorySettingsRepository settingsRepository,
             IPaymentRepository paymentRepository,
             IReservationRepository reservationRepository)
         {
             _paymentRepository = paymentRepository;
             _reservationRepository = reservationRepository;
+            _settingsRepository = settingsRepository;
         }
 
         public async Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllPaymentsAsync(
@@ -156,6 +159,47 @@ namespace DormPaymentSystem.Core.Services
             return await _paymentRepository.PaymentExistsForMonth(
                 reservationId, month, year);
         }
+
+        public async Task RebuildPaymentsAsync(int reservationId)
+        {
+            await EnsureMonthlyPaymentsAsync(reservationId);
+        }
+        public async Task EnsureMonthlyPaymentsAsync(int reservationId)
+        {
+            var reservation = await _reservationRepository.GetReservationById(reservationId);
+            if (reservation == null) return;
+
+            if (reservation.Type != ReservationType.StudentStay)
+                return;
+
+            var settings = await _settingsRepository.GetCurrentSettings();
+            if (settings == null) return;
+
+            var start = new DateTime(reservation.CheckIn.Year, reservation.CheckIn.Month, 1);
+            var now = DateTime.UtcNow;
+            var end = new DateTime(now.Year, now.Month, 1);
+
+            for (var date = start; date <= end; date = date.AddMonths(1))
+            {
+                var exists = await _paymentRepository
+                    .PaymentExistsForMonth(reservation.Id, date.Month, date.Year);
+
+                if (exists) continue;
+
+                await _paymentRepository.CreatePayment(new Payment
+                {
+                    ReservationId = reservation.Id,
+                    Amount = reservation.RateSnapshot,
+                    PaymentMonth = date.Month,
+                    PaymentYear = date.Year,
+                    DueDate = date,
+                    Status = PaymentStatus.Pending,
+                    ReceiptNumber = $"AUTO-{date:yyyyMM}-{reservation.StudentId}",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
     }
 
 

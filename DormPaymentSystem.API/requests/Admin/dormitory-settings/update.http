@@ -1,0 +1,14 @@
+
+
+
+
+# UPDATE DORMITORY SETTINGS  
+PUT {{baseUrl}}/api/admin/dormitorysettings/update
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "guestRatePerNight": 25.50,
+  "studentMonthlyRate": 650.00
+}

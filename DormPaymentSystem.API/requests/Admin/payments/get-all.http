@@ -1,0 +1,15 @@
+
+## GET ALL PAYMENTS
+GET {{baseUrl}}/api/admin/payment/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+
+## USING QUERY PARAMS
+GET {{baseUrl}}/api/admin/payment/get-all?reservationId=1&status=Paid&startDate=2026-06-01&endDate=2026-06-30&receivedById=user123&dueToday=false&pageIndex=1&pageSize=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+

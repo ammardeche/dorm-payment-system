@@ -1,0 +1,13 @@
+ 
+###  CREATE INVITATION  RESERVATION
+POST {{baseUrl}}/api/admin/reservation/invitation
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+{
+  "invitationId": 2,
+  "roomId":4 ,
+  "checkIn": "2026-06-14T14:00:00Z",
+  "checkOut": "2026-06-15T10:00:00Z"
+}

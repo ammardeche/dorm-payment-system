@@ -1,5 +1,0 @@
-
-###  CREATE STUDENT RESERVATION
-POST {{baseUrl}}/api/admin/reservation/student
-Content-Type: application/json
-Authorization: Bearer {{token}}

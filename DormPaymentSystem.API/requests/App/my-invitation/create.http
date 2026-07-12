@@ -1,0 +1,13 @@
+
+
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+
+{
+    "GuestFullName" : "aziz" , 
+    "GuestNationalId" : "123221144"
+}
+ 

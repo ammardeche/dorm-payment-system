@@ -1,0 +1,9 @@
+
+### student Login
+POST {{baseUrl}}/api/auth/student-login
+Content-Type: application/json
+
+{
+    "StudentNumber": "s098081",
+    "password": "Pass1234!"
+}

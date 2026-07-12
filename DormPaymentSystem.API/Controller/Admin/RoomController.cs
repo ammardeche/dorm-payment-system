@@ -13,7 +13,6 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [ApiController]
 
     public class RoomController : AdminControllerBase
     {

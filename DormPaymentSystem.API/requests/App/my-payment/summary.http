@@ -1,0 +1,6 @@
+
+
+GET {{baseUrl}}/api/app/mypayment/summary
+Content-Type: application/json
+Authorization: Bearer {{token}}
+

@@ -1,0 +1,12 @@
+
+## UPDATE PAYMENT
+PUT {{baseUrl}}/api/admin/payment/update/2
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 650.00,
+  "method": "Card",
+  "status": "Paid",
+  "note": "Payment received at the front desk."
+}

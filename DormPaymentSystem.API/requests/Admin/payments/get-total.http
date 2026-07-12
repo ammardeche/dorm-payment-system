@@ -1,0 +1,9 @@
+
+
+
+## GET TOTAL PAYMENTS
+GET {{baseUrl}}/api/admin//payment/total
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+

@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [ApiController]
     public class PaymentController : AdminControllerBase
     {
 
@@ -85,6 +84,16 @@ namespace DormPaymentSystem.API.Controller
         {
             var total = await _paymentService.GetTotalCollectedAsync(startDate, endDate);
             return Ok(new Response<decimal>(total));
+        }
+
+        [HttpPost("rebuild/{reservationId}")]
+        public async Task<IActionResult> RebuildPayments(int reservationId)
+        {
+            await _paymentService.RebuildPaymentsAsync(reservationId);
+
+            return Ok(new Response<string>(
+                "Payments successfully rebuilt for reservation."
+            ));
         }
 
 

@@ -10,11 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.Admin
 {
-    [ApiController]
     public class DormitorySettingsController : AdminControllerBase
     {
-
-
         private readonly IDormitorySettingsService _service;
 
         public DormitorySettingsController(

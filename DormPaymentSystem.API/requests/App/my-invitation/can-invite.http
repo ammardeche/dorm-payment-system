@@ -1,0 +1,5 @@
+
+
+GET {{baseUrl}}/api/app/myinvitation/can-invite
+Content-Type: application/json
+Authorization: Bearer {{token}}
