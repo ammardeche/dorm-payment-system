@@ -7,6 +7,7 @@ using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
+using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using static DormPaymentSystem.Core.Exceptions.AppException;
@@ -101,6 +102,14 @@ namespace DormPaymentSystem.API.Controller
         {
             await _studentService.DeleteStudentAsync(id);
             return Ok(new Response<string>("Student removed successfully."));
+        }
+
+        [HttpGet("stats")]
+
+        public async Task<IActionResult> GetStudentStats()
+        {
+            var stats = await _studentService.GetStudentStats();
+            return Ok(new Response<StudentStatsResponse>(stats));
         }
     }
 

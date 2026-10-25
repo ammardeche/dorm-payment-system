@@ -1,0 +1,10 @@
+GET {{baseUrl}}/api/admin/student/stats
+Content-Type: application/json
+Authorization: Bearer {{token}}
+{
+  "firstName": "Sophia",
+  "lastName": "Martinez",
+  "email": "sophia.martinez@example.com",
+  "phoneNumber": "+1-555-827-1943",
+  "roomId": 12
+}

@@ -1,0 +1,25 @@
+
+###
+# @name Get All Students
+GET {{baseUrl}}/api/admin/student/get-all
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+
+
+
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "firstName": "mostsafa",
+    "lastName": "egypt",
+    "email": "konrad@mail.com",
+    "studentNumber": "s0565222226rwer445581",
+    "phoneNumber": "123456789",
+    "roomId": 11,
+    "password": "Pass123!"
+}
+

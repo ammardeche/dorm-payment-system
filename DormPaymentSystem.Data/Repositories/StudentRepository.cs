@@ -106,6 +106,25 @@ namespace DormPaymentSystem.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<StudentStatsResponse> GetStudentStats()
+        {
+            var total = await _context.Students.CountAsync();
+            var active = await _context.Students.CountAsync(s => s.IsActive);
+            var inactive = total - active;
+
+            var now = DateTime.UtcNow;
+            var monthStart = new DateTime(now.Year, now.Month, 1);
+            var newThisMonth = await _context.Students.CountAsync(s => s.EnrollmentDate >= monthStart);
+
+            return new StudentStatsResponse
+            {
+                Total = total,
+                Active = active,
+                Inactive = inactive,
+                NewThisMonth = newThisMonth
+            };
+        }
     }
 
 }

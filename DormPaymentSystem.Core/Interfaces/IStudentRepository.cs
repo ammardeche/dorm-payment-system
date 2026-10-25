@@ -26,6 +26,7 @@ namespace DormPaymentSystem.Data.Interfaces
         Task<bool> StudentExists(int id);
         Task<bool> StudentNumberExists(string studentNumber);
 
+        Task<StudentStatsResponse> GetStudentStats();
         Task SaveChanges();
     }
 }

@@ -239,6 +239,10 @@ namespace DormPaymentSystem.Core.Services
             return true;
         }
 
+        public async  Task<StudentStatsResponse> GetStudentStats()
+        {
+            return await _studentRepository.GetStudentStats();
+        }
     }
 
 }

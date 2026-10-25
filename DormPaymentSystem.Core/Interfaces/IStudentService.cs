@@ -38,6 +38,7 @@ namespace DormPaymentSystem.Core.Interfaces
 
         Task<bool> CanStudentLeaveAsync(int studentId);
         Task<bool> DeactivateStudentAsync(int studentId, string? departureNote);
+        Task<StudentStatsResponse> GetStudentStats();
         Task<bool> DeleteStudentAsync(int studentId);
     }
 }
