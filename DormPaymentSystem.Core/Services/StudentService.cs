@@ -16,14 +16,16 @@ namespace DormPaymentSystem.Core.Services
     {
 
         private readonly IStudentRepository _studentRepository;
-        private readonly IRoomRepository _roomRepository;
+        private readonly IReservationService _reservationService;
 
         public StudentService(
             IStudentRepository studentRepository,
-            IRoomRepository roomRepository)
+            IReservationService reservationService
+           )
         {
             _studentRepository = studentRepository;
-            _roomRepository = roomRepository;
+
+            _reservationService = reservationService;
         }
 
         public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(
@@ -63,7 +65,7 @@ namespace DormPaymentSystem.Core.Services
             string email,
             string studentNumber,
             string? phoneNumber,
-            int? roomId,
+
             string userId)          // NEW — link to Identity account
         {
             if (string.IsNullOrWhiteSpace(studentNumber))
@@ -78,20 +80,7 @@ namespace DormPaymentSystem.Core.Services
             if (await _studentRepository.StudentNumberExists(studentNumber))
                 throw new AppValidationException($"Student number '{studentNumber}' already exists.");
 
-            // FIX 1 — unpack tuple correctly
-            if (roomId.HasValue)
-            {
-                var room = await _roomRepository.GetRoomById(roomId.Value);
-                if (room == null)
-                    throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var (studentsInRoom, _) = await _studentRepository.GetAllStudents(
-                    roomId: roomId.Value);
-                var activeCount = studentsInRoom.Count(s => s.IsActive);
-
-                if (activeCount >= room.Capacity)
-                    throw new AppValidationException($"Room '{roomId}' is already full.");
-            }
 
             // FIX 2 — include UserId
             var student = new Student
@@ -103,26 +92,11 @@ namespace DormPaymentSystem.Core.Services
                 PhoneNumber = phoneNumber,
                 EnrollmentDate = DateTime.UtcNow,
                 IsActive = true,
-                RoomId = roomId,
                 UserId = userId
             };
 
             await _studentRepository.CreateStudent(student);
 
-            // update room occupancy after student is added
-            if (roomId.HasValue)
-            {
-                var room = await _roomRepository.GetRoomById(roomId.Value);
-                var (updatedStudents, _) = await _studentRepository.GetAllStudents(
-                    roomId: roomId.Value);
-                var updatedCount = updatedStudents.Count(s => s.IsActive);
-
-                room.Status = updatedCount >= room.Capacity
-                    ? RoomStatus.Full
-                    : RoomStatus.Available;
-
-                await _roomRepository.UpdateRoom(room);
-            }
 
             return student;
         }
@@ -132,8 +106,8 @@ namespace DormPaymentSystem.Core.Services
             string? firstName,
             string? lastName,
             string? email,
-            string? phoneNumber,
-            int? roomId)
+            string? phoneNumber
+           )
         {
             var student = await _studentRepository.GetStudentById(id);
             if (student == null)
@@ -148,21 +122,7 @@ namespace DormPaymentSystem.Core.Services
             if (!string.IsNullOrWhiteSpace(email)) student.Email = email;
             if (!string.IsNullOrWhiteSpace(phoneNumber)) student.PhoneNumber = phoneNumber;
 
-            if (roomId.HasValue && roomId.Value != student.RoomId)
-            {
-                var room = await _roomRepository.GetRoomById(roomId.Value);
-                if (room == null)
-                    throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-                var (studentsInRoom, _) = await _studentRepository.GetAllStudents(
-                    roomId: roomId.Value);
-                var activeCount = studentsInRoom.Count(s => s.IsActive);
-
-                if (activeCount >= room.Capacity)
-                    throw new AppValidationException($"Room '{roomId}' is already full.");
-
-                student.RoomId = roomId.Value;
-            }
 
             await _studentRepository.UpdateStudent(student);
             return student;
@@ -217,6 +177,11 @@ namespace DormPaymentSystem.Core.Services
             if (!canLeave)
                 throw new AppValidationException("Student has unpaid months and cannot leave.");
 
+            var activeReservation = await _reservationService.GetActiveReservationByStudentIdAsync(studentId);
+            if (activeReservation != null)
+                await _reservationService.CheckOutAsync(activeReservation.Id);
+          
+
             student.IsActive = false;
             student.DepartureDate = DateTime.UtcNow;
             student.DepartureNote = departureNote;
@@ -239,7 +204,7 @@ namespace DormPaymentSystem.Core.Services
             return true;
         }
 
-        public async  Task<StudentStatsResponse> GetStudentStats()
+        public async Task<StudentStatsResponse> GetStudentStats()
         {
             return await _studentRepository.GetStudentStats();
         }

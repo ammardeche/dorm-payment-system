@@ -25,7 +25,6 @@ namespace DormPaymentSystem.Core.Interfaces
             string email,
             string studentNumber,
             string? phoneNumber,
-            int? roomId,            // change int → int?
             string userId);
 
         Task<Student> UpdateStudentAsync(
@@ -33,8 +32,8 @@ namespace DormPaymentSystem.Core.Interfaces
             string? firstName,
             string? lastName,
             string? email,
-            string? phoneNumber,
-            int? roomId);
+            string? phoneNumber
+           );
 
         Task<bool> CanStudentLeaveAsync(int studentId);
         Task<bool> DeactivateStudentAsync(int studentId, string? departureNote);

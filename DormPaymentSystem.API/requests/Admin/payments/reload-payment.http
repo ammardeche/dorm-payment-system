@@ -1,5 +1,5 @@
 ## reload 
-POST {{baseUrl}}/api/admin/payment/rebuild/9
+POST {{baseUrl}}/api/admin/payment/rebuild/7
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

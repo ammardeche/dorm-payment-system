@@ -50,11 +50,12 @@ namespace DormPaymentSystem.API.Controller.Admin
             if (!ModelState.IsValid)
                 return BadRequest(new Response(new AppValidationException("Invalid request.")));
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var reservation = await _reservationService.CreateStudentReservationAsync(
                 req.StudentId,
                 req.RoomId,
                 req.CheckIn,
-                req.ReceivedByUserId);
+                userId);
 
             return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
         }

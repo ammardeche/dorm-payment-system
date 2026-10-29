@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
@@ -52,7 +53,7 @@ namespace DormPaymentSystem.API.Controller
         {
             if (!ModelState.IsValid)
                 return BadRequest(new Response(new AppValidationException("Fill all required fields.")));
-
+        
             // Step 1 — create login account, get UserId
             var userId = await _authService.RegisterStudentAccountAsync(
                 req.StudentNumber,
@@ -67,7 +68,7 @@ namespace DormPaymentSystem.API.Controller
                 req.Email,
                 req.StudentNumber,
                 req.PhoneNumber,
-                req.RoomId,
+    
                 userId);
 
             return Ok(new Response<StudentResponse>(new StudentResponse(student)));
@@ -84,8 +85,8 @@ namespace DormPaymentSystem.API.Controller
                 req.FirstName,
                 req.LastName,
                 req.Email,
-                req.PhoneNumber,
-                req.RoomId);
+                req.PhoneNumber
+               );
 
             return Ok(new Response<string>("Student updated successfully."));
         }

@@ -1,6 +1,6 @@
 ###
 # @name deactivate Students
-POST {{baseUrl}}/api/admin/student/deactivate/1
+POST {{baseUrl}}/api/admin/student/deactivate/6
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
