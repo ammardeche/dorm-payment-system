@@ -17,7 +17,7 @@ Authorization: Bearer {{token}}
   "firstName": "Test",
   "lastName": "Student",
   "email": "test.student@mail.com",
-  "studentNumber": "s100000021",
+  "studentNumber": "s100000s021",
   "phoneNumber": "123456789",
   "password": "Pass123!"
 }

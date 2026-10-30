@@ -134,12 +134,15 @@ namespace DormPaymentSystem.Core.Services
             if (student == null)
                 throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
+
             // FIX 4 — go through Reservations → Payments
             // student.Payments no longer exists
             var allPayments = student.Reservations
                 .Where(r => r.Type == ReservationType.StudentStay)
                 .SelectMany(r => r.Payments)
                 .ToList();
+
+            
 
             var current = new DateTime(
                 student.EnrollmentDate.Year,

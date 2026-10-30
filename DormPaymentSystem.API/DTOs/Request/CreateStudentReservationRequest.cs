@@ -11,8 +11,6 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required] public int StudentId { get; set; }
         [Required] public int RoomId { get; set; }
         [Required] public DateTime CheckIn { get; set; }
-        // [Required][Range(1, 12)] public int Months { get; set; } // Optional: Allow 0 for open-ended reservation
-        [Required] public string ReceivedByUserId { get; set; } = null!;
     }
 }
 

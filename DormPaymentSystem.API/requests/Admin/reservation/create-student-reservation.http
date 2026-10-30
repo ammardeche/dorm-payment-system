@@ -5,10 +5,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "StudentId": 17,
+    "StudentId": 18,
     "RoomId": 4,
-    "CheckIn": "2026-02-01T00:00:00",
-    "ReceivedByUserId": 
+    "CheckIn": "2026-02-01T00:00:00"
 }
 
 

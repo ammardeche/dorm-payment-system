@@ -1,5 +1,5 @@
 ## MARK AS PAID
-POST {{baseUrl}}/api/admin/payment/mark-paid/6
+POST {{baseUrl}}/api/admin/payment/mark-paid/
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
