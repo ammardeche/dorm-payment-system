@@ -6,7 +6,7 @@ Authorization: Bearer {{token}}
 
 
 {
-  "roomNumber": 202,
+  "roomNumber": 204,
   "capacity": 2,
   "floorNumber": 2
 }

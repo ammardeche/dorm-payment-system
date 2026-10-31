@@ -1,0 +1,15 @@
+###
+# @name deactivate Students
+POST {{baseUrl}}/api/admin/student/deactivate/19
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+   "DepartureNote": "Moved out"
+
+}
+
+
+POST {{baseUrl}}/api/admin/student/reactivate/19
+Content-Type: application/json
+Authorization: Bearer {{token}}

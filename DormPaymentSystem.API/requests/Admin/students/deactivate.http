@@ -1,9 +1,0 @@
-###
-# @name deactivate Students
-POST {{baseUrl}}/api/admin/student/deactivate/18
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-    "DepartureDate" : "2025-05-01" 
-}

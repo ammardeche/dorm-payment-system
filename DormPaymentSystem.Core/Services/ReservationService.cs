@@ -79,7 +79,7 @@ namespace DormPaymentSystem.Core.Services
             int roomId,
             DateTime checkIn,
 
-            string receivedByUserId)
+            string userId)
         {
             // 1. validate student
             var student = await _studentRepository.GetStudentById(studentId);
@@ -132,7 +132,7 @@ namespace DormPaymentSystem.Core.Services
                 PaymentYear = checkIn.Year,
                 DueDate = new DateTime(checkIn.Year, checkIn.Month, 1),
                 Status = PaymentStatus.Pending,
-                ReceivedById = receivedByUserId,
+                ReceivedById = userId,
                 ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
                 CreatedAt = DateTime.UtcNow
             };
@@ -158,7 +158,7 @@ namespace DormPaymentSystem.Core.Services
             int roomId,
             DateTime checkIn,
             DateTime checkOut,
-            string receivedByUserId)
+            string userId)
         {
             // 1. validate guest
             var guest = await _guestRepository.GetGuestById(guestId);
@@ -216,7 +216,7 @@ namespace DormPaymentSystem.Core.Services
                 PaymentYear = checkIn.Year,
                 DueDate = checkIn,
                 Status = PaymentStatus.Pending,
-                ReceivedById = receivedByUserId,
+                ReceivedById = userId,
                 ReceiptNumber = GenerateReceiptNumber("GST", guestId, 0),
                 CreatedAt = DateTime.UtcNow
             };

@@ -1,5 +1,5 @@
 
 ## GET ALL ROOMS
-GET {{baseUrl}}/api/admin/room/get-all
+GET {{baseUrl}}/api/admin/room/get-all?pageSize=100
 Content-Type: application/json
 Authorization: Bearer {{token}}

@@ -98,6 +98,13 @@ namespace DormPaymentSystem.API.Controller
             return Ok(new Response<string>("Student deactivated successfully."));
         }
 
+        [HttpPost("reactivate/{id}")]
+public async Task<IActionResult> ReactivateStudent(int id)
+{
+    await _studentService.ActivateStudentAsync(id);
+    return Ok(new Response<string>("Student reactivated successfully."));
+}
+
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {

@@ -14,10 +14,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "firstName": "Test",
-  "lastName": "Student",
+  "firstName": "Ammar",
+  "lastName": "Deche",
   "email": "test.student@mail.com",
-  "studentNumber": "s100000s021",
+  "studentNumber": "s098083",
   "phoneNumber": "123456789",
   "password": "Pass123!"
 }

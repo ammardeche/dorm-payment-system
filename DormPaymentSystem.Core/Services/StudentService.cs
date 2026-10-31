@@ -131,40 +131,15 @@ namespace DormPaymentSystem.Core.Services
         public async Task<bool> CanStudentLeaveAsync(int studentId)
         {
             var student = await _studentRepository.GetStudentById(studentId);
-            if (student == null)
-                throw new AppNotFoundException($"Student with id '{studentId}' not found.");
+    if (student == null)
+        throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
+    var hasUnpaidMonths = student.Reservations
+        .Where(r => r.Type == ReservationType.StudentStay)
+        .SelectMany(r => r.Payments)
+        .Any(p => !p.IsDeleted && p.Status != PaymentStatus.Paid);
 
-            // FIX 4 — go through Reservations → Payments
-            // student.Payments no longer exists
-            var allPayments = student.Reservations
-                .Where(r => r.Type == ReservationType.StudentStay)
-                .SelectMany(r => r.Payments)
-                .ToList();
-
-            
-
-            var current = new DateTime(
-                student.EnrollmentDate.Year,
-                student.EnrollmentDate.Month, 1);
-
-            var today = new DateTime(
-                DateTime.UtcNow.Year,
-                DateTime.UtcNow.Month, 1);
-
-            while (current <= today)
-            {
-                var paid = allPayments.Any(p =>
-                    p.PaymentYear == current.Year &&
-                    p.PaymentMonth == current.Month &&
-                    p.Status == PaymentStatus.Paid);
-
-                if (!paid) return false;
-
-                current = current.AddMonths(1);
-            }
-
-            return true;
+    return !hasUnpaidMonths;
         }
 
         public async Task<bool> DeactivateStudentAsync(int studentId, string? departureNote)
@@ -210,6 +185,23 @@ namespace DormPaymentSystem.Core.Services
         public async Task<StudentStatsResponse> GetStudentStats()
         {
             return await _studentRepository.GetStudentStats();
+        }
+
+        public async Task<bool> ActivateStudentAsync(int studentId)
+        {
+           var student = await _studentRepository.GetStudentById(studentId);
+            if (student == null)
+                throw new AppNotFoundException($"Student with id '{studentId}' not found.");
+
+            if (student.IsActive)
+                throw new AppValidationException("Student is already active.");
+
+            student.IsActive = true;
+            student.DepartureDate = null;
+            student.DepartureNote = null;
+
+            await _studentRepository.UpdateStudent(student);
+            return true;
         }
     }
 
