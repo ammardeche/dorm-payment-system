@@ -7,7 +7,7 @@ Authorization: Bearer {{token}}
 {
     "StudentId": 19,
     "RoomId": 15,
-    "CheckIn": "2026-10-30T00:00:00"
+    "CheckIn": "2026-10-31T00:00:00"
 }
 
 

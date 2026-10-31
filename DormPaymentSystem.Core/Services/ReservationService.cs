@@ -21,6 +21,7 @@ namespace DormPaymentSystem.Core.Services
         private readonly IDormitorySettingsRepository _settingsRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentService _paymentService;
+        private readonly IUnitOfWork _unitOfWork;   
 
         public ReservationService(
 
@@ -31,7 +32,8 @@ namespace DormPaymentSystem.Core.Services
             IInvitationRepository invitationRepository,
             IDormitorySettingsRepository settingsRepository,
             IPaymentRepository paymentRepository,
-            IPaymentService paymentService
+            IPaymentService paymentService,
+            IUnitOfWork unitOfWork
             )
         {
             _reservationRepository = reservationRepository;
@@ -42,6 +44,7 @@ namespace DormPaymentSystem.Core.Services
             _settingsRepository = settingsRepository;
             _paymentRepository = paymentRepository;
             _paymentService = paymentService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<(IEnumerable<Reservation> Items, int TotalCount)> GetAllReservationsAsync(
@@ -108,48 +111,58 @@ namespace DormPaymentSystem.Core.Services
             if (settings == null)
                 throw new AppValidationException("Dormitory pricing not configured. Contact admin.");
 
-            // 5. create reservation — CheckOut is null, we don't know when they leave
-            var reservation = new Reservation
+            //  here we need to create a transaction to ensure that all operations are atomic and consistent. If any step fails, the entire operation should be rolled back to maintain data integrity.
+
+            Reservation reservation = null!;
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                Type = ReservationType.StudentStay,
-                Status = ReservationStatus.Active,
-                StudentId = studentId,
-                RoomId = roomId,
-                CheckIn = checkIn,
-                CheckOut = null,            // unknown — set when student leaves
-                RateSnapshot = settings.StudentMonthlyRate,
-                TotalAmount = 0             // grows each month as payments are added
-            };
+                // 5. create reservation — CheckOut is null, we don't know when they leave
+                reservation = new Reservation
+                {
+                    Type = ReservationType.StudentStay,
+                    Status = ReservationStatus.Active,
+                    StudentId = studentId,
+                    RoomId = roomId,
+                    CheckIn = checkIn,
+                    CheckOut = null,            // unknown — set when student leaves
+                    RateSnapshot = settings.StudentMonthlyRate,
+                    TotalAmount = 0             // grows each month as payments are added
+                };
 
-            await _reservationRepository.CreateReservation(reservation);
+                await _reservationRepository.CreateReservation(reservation);
 
-            // 6. create ONLY the first month payment
-            var firstPayment = new Payment
-            {
-                ReservationId = reservation.Id,
-                Amount = settings.StudentMonthlyRate,
-                PaymentMonth = checkIn.Month,
-                PaymentYear = checkIn.Year,
-                DueDate = new DateTime(checkIn.Year, checkIn.Month, 1),
-                Status = PaymentStatus.Pending,
-                ReceivedById = userId,
-                ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
-                CreatedAt = DateTime.UtcNow
-            };
+                // 6. create ONLY the first month payment
+                var firstPayment = new Payment
+                {
+                    ReservationId = reservation.Id,
+                    Amount = settings.StudentMonthlyRate,
+                    PaymentMonth = checkIn.Month,
+                    PaymentYear = checkIn.Year,
+                    DueDate = new DateTime(checkIn.Year, checkIn.Month, 1),
+                    Status = PaymentStatus.Pending,
+                    ReceivedById = userId,
+                    ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
+                    CreatedAt = DateTime.UtcNow
+                };
 
-            await _paymentRepository.CreatePayment(firstPayment);
-            await _paymentService.EnsureMonthlyPaymentsAsync(reservationId: reservation.Id);
 
-            // 7. update room occupancy
-            room.CurrentOccupancy += 1;
-            if (room.CurrentOccupancy >= room.Capacity)
-                room.Status = RoomStatus.Full;
-            await _roomRepository.UpdateRoom(room);
 
-            // 8. update student room
-            student.RoomId = roomId;
-            await _studentRepository.UpdateStudent(student);
+                await _paymentRepository.CreatePayment(firstPayment);
+                throw new Exception("Testing transaction rollback");
+                await _paymentService.EnsureMonthlyPaymentsAsync(reservationId: reservation.Id);
 
+                // 7. update room occupancy
+                room.CurrentOccupancy += 1;
+                if (room.CurrentOccupancy >= room.Capacity)
+                    room.Status = RoomStatus.Full;
+                await _roomRepository.UpdateRoom(room);
+
+                // 8. update student room
+                student.RoomId = roomId;
+                await _studentRepository.UpdateStudent(student);
+            });
+           
             return reservation;
         }
 
@@ -193,7 +206,11 @@ namespace DormPaymentSystem.Core.Services
             var nights = (int)Math.Ceiling((checkOut - checkIn).TotalDays);
             if (nights < 1) nights = 1;
 
-            var reservation = new Reservation
+            Reservation reservation = null!;
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var reservation = new Reservation
             {
                 Type = ReservationType.GuestStay,
                 Status = ReservationStatus.Active,
@@ -226,7 +243,8 @@ namespace DormPaymentSystem.Core.Services
             room.CurrentOccupancy += 1;
             if (room.CurrentOccupancy >= room.Capacity)
                 room.Status = RoomStatus.Full;
-            await _roomRepository.UpdateRoom(room);
+            await _roomRepository.UpdateRoom(room); 
+            });
 
             return reservation;
         }
@@ -257,7 +275,12 @@ namespace DormPaymentSystem.Core.Services
             if (room.CurrentOccupancy >= room.Capacity)
                 throw new AppValidationException("Room is full.");
 
-            // 4. create reservation — always free
+
+            Reservation reservation = null!;    
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                 // 4. create reservation — always free
             var reservation = new Reservation
             {
                 Type = ReservationType.InvitationStay,
@@ -283,7 +306,8 @@ namespace DormPaymentSystem.Core.Services
             if (room.CurrentOccupancy >= room.Capacity)
                 room.Status = RoomStatus.Full;
             await _roomRepository.UpdateRoom(room);
-
+            });
+            
             return reservation;
         }
 

@@ -6,6 +6,7 @@ using DormPaymentSystem.API.Infrastructure;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Core.Services;
+using DormPaymentSystem.Data;
 using DormPaymentSystem.Data.Interfaces;
 using DormPaymentSystem.Data.Repositories;
 
@@ -49,7 +50,9 @@ namespace DormPaymentSystem.API.Configurations
             // Notification 
             _service.AddScoped<INotificationRepository, NotificationRepository>();
             _service.AddScoped<INotificationService, NotificationService>();
+            //  Unit Of Work
 
+            _service.AddScoped<IUnitOfWork, UnitOfWork>();
             // hangfire 
 
             return _service;
