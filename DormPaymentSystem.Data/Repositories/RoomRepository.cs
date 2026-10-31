@@ -97,5 +97,21 @@ namespace DormPaymentSystem.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<RoomStatsResponse> GetRoomStats()
+        {
+            var totalRooms = await _context.Rooms.CountAsync();
+            var availableRooms = await _context.Rooms.CountAsync(r => r.Status == RoomStatus.Available);
+            var fullRooms = await _context.Rooms.CountAsync(r => r.Status == RoomStatus.Full);
+            var freeBeds = await _context.Rooms.Where(r => r.Status != RoomStatus.Maintenance).SumAsync(r => r.Capacity - r.CurrentOccupancy); 
+
+            return new RoomStatsResponse
+            {
+                Total = totalRooms,
+                Available = availableRooms,
+                Full = fullRooms,
+                FreeBeds = freeBeds
+            };
+        }
     }
 }

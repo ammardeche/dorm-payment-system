@@ -127,5 +127,10 @@ namespace DormPaymentSystem.Core.Services
 
             return room.CurrentOccupancy < room.Capacity;
         }
+
+        public async Task<RoomStatsResponse> GetRoomStatsAsync()
+        {
+            return await _roomRepository.GetRoomStats();
+        }
     }
 }

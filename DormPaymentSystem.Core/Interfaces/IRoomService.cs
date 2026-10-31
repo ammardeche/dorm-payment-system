@@ -19,6 +19,7 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<Room> CreateRoomAsync(int roomNumber, int capacity, int floorNumber);
         Task<Room> UpdateRoomAsync(int id, int? roomNumber, int? capacity, RoomStatus? status);
         Task<bool> DeleteRoomAsync(int id);
+        Task<RoomStatsResponse> GetRoomStatsAsync();
         Task<bool> IsRoomAvailableAsync(int roomId);
     }
 }

@@ -21,6 +21,7 @@ namespace DormPaymentSystem.Data.Repositories
         Task<bool> DeleteRoom(Room room);
         Task<bool> RoomExists(int id);
         Task<bool> RoomNumberExist(int roomNumber);
+        Task<RoomStatsResponse> GetRoomStats();
         Task SaveChanges();
     }
 }
