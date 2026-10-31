@@ -53,25 +53,12 @@ namespace DormPaymentSystem.API.Controller
         {
             if (!ModelState.IsValid)
                 return BadRequest(new Response(new AppValidationException("Fill all required fields.")));
-        
-            // Step 1 — create login account, get UserId
-            var userId = await _authService.RegisterStudentAccountAsync(
-                req.StudentNumber,
-                req.Password,
-                req.FirstName,
-                req.LastName);
 
-            // Step 2 — create student profile linked to that account
-            var student = await _studentService.CreateStudentAsync(
-                req.FirstName,
-                req.LastName,
-                req.Email,
-                req.StudentNumber,
-                req.PhoneNumber,
-    
-                userId);
+            var student = await _studentService.CreateStudentWithAccountAsync(
+    req.FirstName, req.LastName, req.Email,
+    req.StudentNumber, req.PhoneNumber, req.Password);
 
-            return Ok(new Response<StudentResponse>(new StudentResponse(student)));
+return Ok(new Response<StudentResponse>(new StudentResponse(student)));
         }
 
         [HttpPut("update/{id}")]

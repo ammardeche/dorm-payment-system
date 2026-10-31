@@ -37,6 +37,8 @@ namespace DormPaymentSystem.Core.Interfaces
 
         Task<bool> CanStudentLeaveAsync(int studentId);
         Task<bool> DeactivateStudentAsync(int studentId, string? departureNote);
+        Task<Student> CreateStudentWithAccountAsync(  string firstName, string lastName, string email,
+    string studentNumber, string? phoneNumber, string password);
         Task<bool> ActivateStudentAsync(int studentId);
         Task<StudentStatsResponse> GetStudentStats();
 

@@ -16,16 +16,22 @@ namespace DormPaymentSystem.Core.Services
     {
 
         private readonly IStudentRepository _studentRepository;
+        private readonly IAuthService _authService;
         private readonly IReservationService _reservationService;
 
+        private readonly IUnitOfWork _unitOfWork;
+
         public StudentService(
+            IAuthService authService,
+            IUnitOfWork unitOfWork,
             IStudentRepository studentRepository,
             IReservationService reservationService
            )
         {
             _studentRepository = studentRepository;
-
+            _unitOfWork = unitOfWork;
             _reservationService = reservationService;
+            _authService = authService;
         }
 
         public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(
@@ -131,15 +137,15 @@ namespace DormPaymentSystem.Core.Services
         public async Task<bool> CanStudentLeaveAsync(int studentId)
         {
             var student = await _studentRepository.GetStudentById(studentId);
-    if (student == null)
-        throw new AppNotFoundException($"Student with id '{studentId}' not found.");
+            if (student == null)
+                throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
-    var hasUnpaidMonths = student.Reservations
-        .Where(r => r.Type == ReservationType.StudentStay)
-        .SelectMany(r => r.Payments)
-        .Any(p => !p.IsDeleted && p.Status != PaymentStatus.Paid);
+            var hasUnpaidMonths = student.Reservations
+                .Where(r => r.Type == ReservationType.StudentStay)
+                .SelectMany(r => r.Payments)
+                .Any(p => !p.IsDeleted && p.Status != PaymentStatus.Paid);
 
-    return !hasUnpaidMonths;
+            return !hasUnpaidMonths;
         }
 
         public async Task<bool> DeactivateStudentAsync(int studentId, string? departureNote)
@@ -158,7 +164,7 @@ namespace DormPaymentSystem.Core.Services
             var activeReservation = await _reservationService.GetActiveReservationByStudentIdAsync(studentId);
             if (activeReservation != null)
                 await _reservationService.CheckOutAsync(activeReservation.Id);
-          
+
 
             student.IsActive = false;
             student.DepartureDate = DateTime.UtcNow;
@@ -189,7 +195,7 @@ namespace DormPaymentSystem.Core.Services
 
         public async Task<bool> ActivateStudentAsync(int studentId)
         {
-           var student = await _studentRepository.GetStudentById(studentId);
+            var student = await _studentRepository.GetStudentById(studentId);
             if (student == null)
                 throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
@@ -202,6 +208,25 @@ namespace DormPaymentSystem.Core.Services
 
             await _studentRepository.UpdateStudent(student);
             return true;
+        }
+
+        public async Task<Student> CreateStudentWithAccountAsync(string firstName, string lastName, string email,
+    string studentNumber, string? phoneNumber, string password)
+        {
+            Student student = null!;
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+      {
+          var userId = await _authService.RegisterStudentAccountAsync(
+              studentNumber, password, firstName, lastName);
+
+          student = await CreateStudentAsync(
+              firstName, lastName, email, studentNumber, phoneNumber, userId);
+      });
+
+            return student;
+
+
         }
     }
 

@@ -149,7 +149,7 @@ namespace DormPaymentSystem.Core.Services
 
 
                 await _paymentRepository.CreatePayment(firstPayment);
-                throw new Exception("Testing transaction rollback");
+                // throw new Exception("Testing transaction rollback");
                 await _paymentService.EnsureMonthlyPaymentsAsync(reservationId: reservation.Id);
 
                 // 7. update room occupancy
