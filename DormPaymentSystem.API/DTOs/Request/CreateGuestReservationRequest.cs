@@ -12,6 +12,5 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required] public int RoomId { get; set; }
         [Required] public DateTime CheckIn { get; set; }
         [Required] public DateTime CheckOut { get; set; }
-        [Required] public string ReceivedByUserId { get; set; } = null!;
     }
 }
