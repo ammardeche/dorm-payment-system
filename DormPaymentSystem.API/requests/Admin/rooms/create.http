@@ -1,24 +1,57 @@
-
-## CREATE ROOM 
-POST {{baseUrl}}/api/admin/room/create 
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-
-{
-  "roomNumber": 204,
-  "capacity": 2,
-  "floorNumber": 2
-}
-
-### SEED ROOMS: 8 floors x 10 rooms (101-110, 201-210, ... 801-810)
-# @loop for 80
+### 1) CREATE room 101 in building 1
+# @name roomB1
 POST {{baseUrl}}/api/admin/room/create
 Content-Type: application/json
 Authorization: Bearer {{token}}
+X-Building-Id: 1
 
-{
-    "RoomNumber": {{ (Math.floor($index / 10) + 1) * 100 + ($index % 10) + 1 }},
-    "FloorNumber": {{ Math.floor($index / 10) + 1 }},
-    "Capacity": 2
-}
+{ "RoomNumber": 101, "FloorNumber": 1, "Capacity": 2 }
+
+### 2) CREATE room 101 in building 2 (same number, different building)
+# @name roomB2
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+{ "RoomNumber": 101, "FloorNumber": 1, "Capacity": 4 }
+
+### 3) LIST building 1 (expect only the capacity-2 room)
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+### 4) LIST building 2 (expect only the capacity-4 room)
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+### 5) LIST building 3 (expect an empty list)
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{token}}
+X-Building-Id: 3
+
+### 6) NO header (expect 400)
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{token}}
+
+### 7) Building you don't belong to (expect 403)
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{token}}
+X-Building-Id: 99
+
+### 8) Cross-building access: update the building 2 room using header 1 (expect 404)
+PUT {{baseUrl}}/api/admin/room/update/{{roomB2.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{ "Capacity": 3 }
+
+### 9) Same update with the correct header (expect 200)
+PUT {{baseUrl}}/api/admin/room/update/{{roomB2.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+{ "Capacity": 3 }

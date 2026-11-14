@@ -17,6 +17,7 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 namespace DormPaymentSystem.API.Controller
 {
 
+     [RequireBuilding]
     public class RoomController : AdminControllerBase
     {
         private readonly IRoomService _roomService;
@@ -54,7 +55,6 @@ namespace DormPaymentSystem.API.Controller
             var available = await _roomService.IsRoomAvailableAsync(id);
             return Ok(new Response<bool>(available));
         }
-        [RequireBuilding]
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest req)
         {

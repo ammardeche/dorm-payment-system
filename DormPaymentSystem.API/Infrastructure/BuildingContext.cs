@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.API.Infrastructure
 {
-    public sealed class BuildingContext
+    public sealed class BuildingContext : ICurrentBuilding
     {
-            public int? BuildingId { get; set; }
-
+        public int? BuildingId {get;set;}
     }
 }

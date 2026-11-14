@@ -1,4 +1,5 @@
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Seeders;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,15 @@ namespace DormPaymentSystem.Data.Data
 {
     public class DormPaymentDbContext : IdentityDbContext<User>
     {
-        public DormPaymentDbContext(DbContextOptions<DormPaymentDbContext> options) : base(options)
+        private readonly ICurrentBuilding _currentBuilding;
+        public DormPaymentDbContext(
+            DbContextOptions<DormPaymentDbContext> options, 
+             ICurrentBuilding currentBuilding
+
+        ) : base(options)
+
         {
+            _currentBuilding = currentBuilding;
         }
 
         public DbSet<Student> Students { get; set; }
@@ -41,6 +49,9 @@ namespace DormPaymentSystem.Data.Data
     .WithMany()
     .HasForeignKey(r => r.BuildingId)
     .OnDelete(DeleteBehavior.Restrict);
+
+    modelBuilder.Entity<Room>().HasQueryFilter(r =>
+    _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
 
             // ─────────────────────────────────────────
             // STUDENT
@@ -182,5 +193,17 @@ namespace DormPaymentSystem.Data.Data
                 .Property(d => d.StudentMonthlyRate)
                 .HasPrecision(18, 2);
         }
+
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken ct = default)
+{
+    if (_currentBuilding.BuildingId is int buildingId)
+    {
+        foreach (var entry in ChangeTracker.Entries<IBuildingScoped>()
+                     .Where(e => e.State == EntityState.Added && e.Entity.BuildingId == 0))
+            entry.Entity.BuildingId = buildingId;
+    }
+    return base.SaveChangesAsync(acceptAllChangesOnSuccess, ct);
+}
     }
 }

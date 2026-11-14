@@ -4,6 +4,7 @@ using DormPaymentSystem.API.Infrastructure;
 using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
+using DormPaymentSystem.Data.Data;
 using DormPaymentSystem.Data.Seeders;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
@@ -49,7 +50,8 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<User>>();
-    await AdminSeeder.SeedAdmin(userManager);
+    var context = services.GetRequiredService<DormPaymentDbContext>();
+    await AdminSeeder.SeedAdmin(userManager , context);
 }
 
 // Dev tools

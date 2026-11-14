@@ -57,6 +57,7 @@ namespace DormPaymentSystem.API.Configurations
 
             // building contect
             _service.AddScoped<BuildingContext>();
+            _service.AddScoped<ICurrentBuilding>(sp => sp.GetRequiredService<BuildingContext>());
 
             return _service;
         }
