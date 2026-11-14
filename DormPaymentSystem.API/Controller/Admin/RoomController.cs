@@ -28,7 +28,7 @@ namespace DormPaymentSystem.API.Controller
         public async Task<IActionResult> GetAllRooms([FromQuery] RoomQuery q)
         {
             var (items, totalCount) = await _roomService.GetAllRoomsAsync(
-                q.Status, q.FloorNumber, q.PageIndex, q.PageSize);
+                q.Status, q.FloorNumber, q.RoomNumber, q.PageIndex, q.PageSize);
 
             var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
 

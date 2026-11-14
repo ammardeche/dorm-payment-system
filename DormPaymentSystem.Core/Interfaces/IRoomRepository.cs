@@ -12,6 +12,7 @@ namespace DormPaymentSystem.Data.Repositories
         Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRooms(
             RoomStatus? status = null,
             int? floorNumber = null,        // int replaces floorId
+            string? roomNumber = null,
             int pageIndex = 1,
             int pageSize = 10);
 

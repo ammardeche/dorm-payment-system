@@ -24,6 +24,7 @@ namespace DormPaymentSystem.Core.Services
         public async Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRoomsAsync(
             RoomStatus? status = null,
             int? floorNumber = null,
+            string? roomNumber = null,
             int pageIndex = 1,
             int pageSize = 10)
         {
@@ -32,7 +33,7 @@ namespace DormPaymentSystem.Core.Services
             if (pageSize > 100) pageSize = 100;
 
             return await _roomRepository.GetAllRooms(
-                status, floorNumber, pageIndex, pageSize);
+                status, floorNumber, roomNumber, pageIndex, pageSize);
         }
 
         public async Task<Room?> GetRoomByIdAsync(int id)

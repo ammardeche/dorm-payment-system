@@ -12,6 +12,7 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRoomsAsync(
             RoomStatus? status = null,
             int? floorNumber = null,
+            string? roomNumber = null,
             int pageIndex = 1,
             int pageSize = 10);
 

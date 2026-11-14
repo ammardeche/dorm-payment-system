@@ -22,6 +22,7 @@ namespace DormPaymentSystem.Data.Repositories
         public async Task<(IEnumerable<Room> Items, int TotalCount)> GetAllRooms(
             RoomStatus? status = null,
             int? floorNumber = null,
+            string? roomNumber = null,
             int pageIndex = 1,
             int pageSize = 10)
         {
@@ -39,6 +40,8 @@ namespace DormPaymentSystem.Data.Repositories
             // filter by FloorNumber int — no join needed
             if (floorNumber.HasValue)
                 query = query.Where(r => r.FloorNumber == floorNumber.Value);
+            if(roomNumber != null)
+                query = query.Where(r => r.RoomNumber.ToString() == roomNumber);
 
             var totalCount = await query.CountAsync();
 

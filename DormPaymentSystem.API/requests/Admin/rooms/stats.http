@@ -1,0 +1,6 @@
+
+###
+## Get room stats
+GET {{baseUrl}}/api/admin/room/stats
+Content-Type: application/json
+Authorization: Bearer {{token}}
