@@ -38,7 +38,6 @@ builder.Services.AddCors(options =>
             .AllowCredentials(); // only if using cookies/auth
     });
 });
-
 var app = builder.Build();
 
 
@@ -70,6 +69,8 @@ app.UseCors("AllowAngular");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<BuildingContextMiddleware>();
 
 app.MapControllers();
 

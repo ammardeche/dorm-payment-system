@@ -22,6 +22,74 @@ namespace DormPaymentSystem.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Building", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Buildings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "DS 1",
+                            Name = "Filon"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "DS 2",
+                            Name = "Laura"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "DS 3",
+                            Name = "Bartek"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "DS 6",
+                            Name = "Mimoza"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Code = "DS 7",
+                            Name = "Proton"
+                        });
+                });
+
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.BuildingMembership", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "BuildingId");
+
+                    b.HasIndex("BuildingId");
+
+                    b.ToTable("BuildingMemberships");
+                });
+
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.DormitorySettings", b =>
                 {
                     b.Property<int>("Id")
@@ -293,6 +361,9 @@ namespace DormPaymentSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
@@ -309,6 +380,8 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuildingId");
 
                     b.ToTable("Rooms");
                 });
@@ -606,6 +679,25 @@ namespace DormPaymentSystem.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.BuildingMembership", b =>
+                {
+                    b.HasOne("DormPaymentSystem.Core.Entities.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DormPaymentSystem.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Building");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Invitation", b =>
                 {
                     b.HasOne("DormPaymentSystem.Core.Entities.Guest", "Guest")
@@ -695,6 +787,17 @@ namespace DormPaymentSystem.Data.Migrations
                     b.Navigation("Room");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("DormPaymentSystem.Core.Entities.Room", b =>
+                {
+                    b.HasOne("DormPaymentSystem.Core.Entities.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Building");
                 });
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Student", b =>

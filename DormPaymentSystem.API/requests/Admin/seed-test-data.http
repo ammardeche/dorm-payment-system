@@ -1,0 +1,49 @@
+{{
+  exports.firstNames = ["Anna","Piotr","Maria","Jan","Katarzyna","Tomasz","Ewa","Michal","Agnieszka","Pawel",
+                        "Zofia","Krzysztof","Magdalena","Lukasz","Natalia","Marek","Julia","Adam","Weronika","Bartosz"];
+  exports.lastNames  = ["Kowalski","Nowak","Wisniewski","Wojcik","Kaminski","Lewandowski","Zielinski","Szymanski","Wozniak","Dabrowski",
+                        "Kozlowski","Jankowski","Mazur","Kwiatkowski","Krawczyk","Piotrowski","Grabowski","Nowakowski","Pawlowski","Michalski"];
+
+  // Position of the room (in the sorted rooms list) for each student.
+  // Pairs share a room -> FULL (capacity 2). Single entries -> HALF FULL.
+  exports.roomPos = [0,0, 1,1, 2,2, 3,3,  4,5,6,7,8,9,10,11,  20,30,40,50];
+}}
+
+### 1) CREATE 20 STUDENTS (s098101 ... s098120). Run ONCE.
+# @loop for 20
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "{{firstNames[$index]}}",
+  "lastName": "{{lastNames[$index]}}",
+  "email": "s0981{{ String($index + 1).padStart(2, '0') }}@student.tu.kielce.pl",
+  "studentNumber": "s0981{{ String($index + 1).padStart(2, '0') }}",
+  "phoneNumber": "{{ 600100100 + $index }}",
+  "password": "Pass123!"
+}
+
+### 2) LOAD THE SEEDED STUDENTS (to get their real ids)
+# @name students
+GET {{baseUrl}}/api/admin/student/get-all?pageSize=100&studentNumber=s0981
+Authorization: Bearer {{token}}
+
+### 3) LOAD ALL ROOMS (to get their real ids)
+# @name rooms
+GET {{baseUrl}}/api/admin/room/get-all?pageSize=100
+Authorization: Bearer {{token}}
+
+### 4) CREATE 20 RESERVATIONS. Run ONCE.
+# @ref students
+# @ref rooms
+# @loop for 20
+POST {{baseUrl}}/api/admin/reservation/student
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "StudentId": {{ students.payload[$index].id }},
+  "RoomId": {{ rooms.payload[roomPos[$index]].id }},
+  "CheckIn": "{{ new Date(Date.now() - ($index % 4) * 30 * 86400000).toLocaleDateString('sv-SE') }}T00:00:00"
+}

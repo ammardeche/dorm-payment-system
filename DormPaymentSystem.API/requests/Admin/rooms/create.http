@@ -10,3 +10,15 @@ Authorization: Bearer {{token}}
   "capacity": 2,
   "floorNumber": 2
 }
+
+### SEED ROOMS: 8 floors x 10 rooms (101-110, 201-210, ... 801-810)
+# @loop for 80
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "RoomNumber": {{ (Math.floor($index / 10) + 1) * 100 + ($index % 10) + 1 }},
+    "FloorNumber": {{ Math.floor($index / 10) + 1 }},
+    "Capacity": 2
+}

@@ -40,8 +40,11 @@ namespace DormPaymentSystem.Data.Repositories
             // filter by FloorNumber int — no join needed
             if (floorNumber.HasValue)
                 query = query.Where(r => r.FloorNumber == floorNumber.Value);
-            if(roomNumber != null)
-                query = query.Where(r => r.RoomNumber.ToString() == roomNumber);
+            if(!string.IsNullOrWhiteSpace(roomNumber))
+            {
+                var term = roomNumber.Trim();
+                query = query.Where(r=> r.RoomNumber.ToString()!.StartsWith(term));
+            }
 
             var totalCount = await query.CountAsync();
 

@@ -19,12 +19,28 @@ namespace DormPaymentSystem.Data.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<DormitorySettings> DormitorySettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Building> Buildings { get; set; }
 
+        public DbSet<BuildingMembership> BuildingMemberships { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             RoleSeeder.SeedRoles(modelBuilder);
+            BuildingSeeder.SeedBuildings(modelBuilder);
+
+            // BUILDINGMEMBERSHIP    
+            modelBuilder.Entity<BuildingMembership>()
+    .HasKey(m => new { m.UserId, m.BuildingId });
+            // ─────────────────────────────────────────
+            // ROOM
+            // ─────────────────────────────────────────
+
+            modelBuilder.Entity<Room>()
+    .HasOne(r => r.Building)
+    .WithMany()
+    .HasForeignKey(r => r.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
 
             // ─────────────────────────────────────────
             // STUDENT

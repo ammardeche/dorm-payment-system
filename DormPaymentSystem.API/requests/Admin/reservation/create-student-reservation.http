@@ -1,13 +1,12 @@
 
+
 ###  CREATE STUDENT RESERVATION
 POST {{baseUrl}}/api/admin/reservation/student
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "StudentId": 19,
-    "RoomId": 15,
-    "CheckIn": "2026-10-31T00:00:00"
+    "StudentId": 1,
+    "RoomId": 1,
+"CheckIn": "{{ new Date().toLocaleDateString('sv-SE') }}T00:00:00"
 }
-
-

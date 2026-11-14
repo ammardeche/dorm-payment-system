@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Infrastructure;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Entities;
@@ -18,10 +20,12 @@ namespace DormPaymentSystem.API.Controller
     public class RoomController : AdminControllerBase
     {
         private readonly IRoomService _roomService;
+        private readonly BuildingContext _buildingContext;
 
-        public RoomController(IRoomService roomService)
+        public RoomController(IRoomService roomService , BuildingContext buildingContext)
         {
             _roomService = roomService;
+            _buildingContext = buildingContext;
         }
 
         [HttpGet("get-all")]
@@ -50,7 +54,7 @@ namespace DormPaymentSystem.API.Controller
             var available = await _roomService.IsRoomAvailableAsync(id);
             return Ok(new Response<bool>(available));
         }
-
+        [RequireBuilding]
         [HttpPost("create")]
         public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequest req)
         {

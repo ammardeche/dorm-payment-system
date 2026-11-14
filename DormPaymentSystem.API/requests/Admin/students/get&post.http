@@ -7,18 +7,16 @@ Authorization: Bearer {{token}}
 
 
 
-
-
 POST {{baseUrl}}/api/admin/student/create
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "firstName": "Ammar",
+  "firstName": "Jo",
   "lastName": "Deche",
-  "email": "test.student@mail.com",
+  "email": "s098083@student.tu.kielce.pl",
   "studentNumber": "s098083",
-  "phoneNumber": "123456789",
+  "phoneNumber": "0660167896",
   "password": "Pass123!"
 }
 

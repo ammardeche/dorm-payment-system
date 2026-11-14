@@ -55,6 +55,9 @@ namespace DormPaymentSystem.API.Configurations
             _service.AddScoped<IUnitOfWork, UnitOfWork>();
             // hangfire 
 
+            // building contect
+            _service.AddScoped<BuildingContext>();
+
             return _service;
         }
     }
