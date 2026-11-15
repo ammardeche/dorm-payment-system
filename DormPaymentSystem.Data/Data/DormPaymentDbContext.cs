@@ -10,7 +10,7 @@ namespace DormPaymentSystem.Data.Data
     {
         private readonly ICurrentBuilding _currentBuilding;
         public DormPaymentDbContext(
-            DbContextOptions<DormPaymentDbContext> options, 
+            DbContextOptions<DormPaymentDbContext> options,
              ICurrentBuilding currentBuilding
 
         ) : base(options)
@@ -50,8 +50,8 @@ namespace DormPaymentSystem.Data.Data
     .HasForeignKey(r => r.BuildingId)
     .OnDelete(DeleteBehavior.Restrict);
 
-    modelBuilder.Entity<Room>().HasQueryFilter(r =>
-    _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
+            modelBuilder.Entity<Room>().HasQueryFilter(r =>
+            _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
 
             // ─────────────────────────────────────────
             // STUDENT
@@ -87,21 +87,21 @@ namespace DormPaymentSystem.Data.Data
     .HasForeignKey(s => s.BuildingId)
     .OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Student>().HasQueryFilter(s =>
-    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+            modelBuilder.Entity<Student>().HasQueryFilter(s =>
+                _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
             // ─────────────────────────────────────────
             // RESERVATION
             // ─────────────────────────────────────────
 
-                modelBuilder.Entity<Reservation>()
-    .HasOne(r => r.Building)
-    .WithMany()
-    .HasForeignKey(r => r.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Reservation>()
+.HasOne(r => r.Building)
+.WithMany()
+.HasForeignKey(r => r.BuildingId)
+.OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Reservation>().HasQueryFilter(r =>
-    _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
-            
+            modelBuilder.Entity<Reservation>().HasQueryFilter(r =>
+                _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
+
             // Reservation → Room
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Room)
@@ -143,14 +143,14 @@ modelBuilder.Entity<Reservation>().HasQueryFilter(r =>
             // PAYMENT
             // ─────────────────────────────────────────
 
-                modelBuilder.Entity<Payment>()
-    .HasOne(s => s.Building)
-    .WithMany()
-    .HasForeignKey(s => s.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Payment>()
+.HasOne(s => s.Building)
+.WithMany()
+.HasForeignKey(s => s.BuildingId)
+.OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Payment>().HasQueryFilter(s =>
-    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+            modelBuilder.Entity<Payment>().HasQueryFilter(s =>
+                _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
 
             // Payment → Reservation
             modelBuilder.Entity<Payment>()
@@ -188,14 +188,14 @@ modelBuilder.Entity<Payment>().HasQueryFilter(s =>
                 .HasForeignKey(i => i.GuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-                modelBuilder.Entity<Invitation>()
-    .HasOne(s => s.Building)
-    .WithMany()
-    .HasForeignKey(s => s.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Invitation>()
+.HasOne(s => s.Building)
+.WithMany()
+.HasForeignKey(s => s.BuildingId)
+.OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Invitation>().HasQueryFilter(s =>
-    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+            modelBuilder.Entity<Invitation>().HasQueryFilter(s =>
+                _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
 
             // ─────────────────────────────────────────
             // NOTIFICATION
@@ -228,27 +228,27 @@ modelBuilder.Entity<Invitation>().HasQueryFilter(s =>
                 .Property(d => d.StudentMonthlyRate)
                 .HasPrecision(18, 2);
 
-                // guests
-                    modelBuilder.Entity<Guest>()
-    .HasOne(s => s.Building)
-    .WithMany()
-    .HasForeignKey(s => s.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+            // guests
+            modelBuilder.Entity<Guest>()
+.HasOne(s => s.Building)
+.WithMany()
+.HasForeignKey(s => s.BuildingId)
+.OnDelete(DeleteBehavior.Restrict);
 
-modelBuilder.Entity<Guest>().HasQueryFilter(s =>
-    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+            modelBuilder.Entity<Guest>().HasQueryFilter(s =>
+                _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
         }
 
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken ct = default)
-{
-    if (_currentBuilding.BuildingId is int buildingId)
-    {
-        foreach (var entry in ChangeTracker.Entries<IBuildingScoped>()
-                     .Where(e => e.State == EntityState.Added && e.Entity.BuildingId == 0))
-            entry.Entity.BuildingId = buildingId;
-    }
-    return base.SaveChangesAsync(acceptAllChangesOnSuccess, ct);
-}
+        {
+            if (_currentBuilding.BuildingId is int buildingId)
+            {
+                foreach (var entry in ChangeTracker.Entries<IBuildingScoped>()
+                             .Where(e => e.State == EntityState.Added && e.Entity.BuildingId == 0))
+                    entry.Entity.BuildingId = buildingId;
+            }
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, ct);
+        }
     }
 }

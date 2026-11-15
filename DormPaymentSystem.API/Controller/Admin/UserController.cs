@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
@@ -8,10 +9,12 @@ using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
 
+    [Authorize(Roles = "Admin")]
     public class UserController : AdminControllerBase
     {
         private readonly IUserService _userService;
@@ -54,6 +57,12 @@ namespace DormPaymentSystem.API.Controller
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if(id == currentUserId)
+            {
+                 throw new AppValidationException("You cannot delete your own account.");
+            }
             await _userService.DeleteUser(id);
             return NoContent();
         }

@@ -1,6 +1,6 @@
 
 ###  Admin Login
-POST {{baseUrl}}/api/auth/login
+POST {{baseUrl}}/api/auth/register-staff
 Content-Type: application/json
 
 {

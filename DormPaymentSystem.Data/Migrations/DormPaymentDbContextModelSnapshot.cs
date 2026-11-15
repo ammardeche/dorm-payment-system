@@ -580,6 +580,12 @@ namespace DormPaymentSystem.Data.Migrations
                     b.HasData(
                         new
                         {
+                            Id = "7c1d9e52-3b8a-4f60-a2d4-5e6f7a8b9c0d",
+                            Name = "Manager",
+                            NormalizedName = "MANAGER"
+                        },
+                        new
+                        {
                             Id = "f86a91e0-a112-4bd3-8530-eafae265ba95",
                             Name = "Admin",
                             NormalizedName = "ADMIN"

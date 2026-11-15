@@ -9,6 +9,6 @@ namespace DormPaymentSystem.API.Controller.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin,Receptionist")]
+    [Authorize(Roles = "Admin,Manager,Receptionist")]
     public abstract class AdminControllerBase : ControllerBase { }
 }

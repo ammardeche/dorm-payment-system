@@ -128,9 +128,8 @@ namespace DormPaymentSystem.Core.Services
                 throw new AppValidationException("Password is required.");
 
             // only Admin and Receptionist allowed here
-            if (role != "Admin" && role != "Receptionist")
-                throw new AppValidationException(
-                    "Role must be Admin or Receptionist.");
+            if (role != "Admin" && role != "Receptionist" && role != "Manager")
+                  throw new AppValidationException("Role must be Admin, Manager or Receptionist.");
 
             var existing = await _userManager.FindByEmailAsync(email);
             if (existing != null)

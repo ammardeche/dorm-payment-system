@@ -12,6 +12,7 @@ namespace DormPaymentSystem.Data.Seeders
         public static void SeedRoles(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = "7c1d9e52-3b8a-4f60-a2d4-5e6f7a8b9c0d", Name = "Manager", NormalizedName = "MANAGER" },
                 new IdentityRole { Id = "f86a91e0-a112-4bd3-8530-eafae265ba95", Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole { Id = "112d03d3-f355-4074-944e-3be9a22984ce", Name = "Receptionist", NormalizedName = "RECEPTIONIST" },
                 new IdentityRole { Id = "a3f8b2c1-d4e5-4f6a-b7c8-d9e0f1a2b3c4", Name = "Student", NormalizedName = "STUDENT" }
