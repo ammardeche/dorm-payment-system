@@ -13,9 +13,9 @@ namespace DormPaymentSystem.Core.Services
     {
 
         private readonly IBuildingMemberShipRepository _repo;
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
         public BuildingMemberShipService(IBuildingMemberShipRepository repo,
-        UserService userService
+        IUserService userService
         )
         {
             _repo = repo;

@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces.Building;
 using DormPaymentSystem.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.Admin
 {
     [Controller]
     [Route("api/user")]
+    [Authorize(Roles = "Admin")]
     public class BuildingController : AdminControllerBase
     {
 

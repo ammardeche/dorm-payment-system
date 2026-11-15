@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.API.Infrastructure;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
+using DormPaymentSystem.Core.Interfaces.Building;
 using DormPaymentSystem.Core.Services;
 using DormPaymentSystem.Data;
 using DormPaymentSystem.Data.Interfaces;
@@ -58,6 +59,11 @@ namespace DormPaymentSystem.API.Configurations
             // building contect
             _service.AddScoped<BuildingContext>();
             _service.AddScoped<ICurrentBuilding>(sp => sp.GetRequiredService<BuildingContext>());
+            // building service and repository
+
+            _service.AddScoped<IBuildingMemberShipRepository, BuildingMemberShipRepository>();
+            _service.AddScoped<IBuildingMemberShipService, BuildingMemberShipService>();
+
 
             return _service;
         }
