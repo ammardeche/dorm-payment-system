@@ -394,6 +394,9 @@ namespace DormPaymentSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("DepartureDate")
                         .HasColumnType("datetime2");
 
@@ -432,6 +435,8 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuildingId");
 
                     b.HasIndex("RoomId");
 
@@ -802,6 +807,12 @@ namespace DormPaymentSystem.Data.Migrations
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Student", b =>
                 {
+                    b.HasOne("DormPaymentSystem.Core.Entities.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("DormPaymentSystem.Core.Entities.Room", "Room")
                         .WithMany("Students")
                         .HasForeignKey("RoomId")
@@ -812,6 +823,8 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasForeignKey("DormPaymentSystem.Core.Entities.Student", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Building");
 
                     b.Navigation("Room");
 

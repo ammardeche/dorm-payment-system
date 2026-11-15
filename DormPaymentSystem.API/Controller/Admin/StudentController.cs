@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Entities;
@@ -15,6 +16,8 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
+
+    [RequireBuilding]
     public class StudentController : AdminControllerBase
     {
 

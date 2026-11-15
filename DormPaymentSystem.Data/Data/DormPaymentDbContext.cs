@@ -81,6 +81,14 @@ namespace DormPaymentSystem.Data.Data
                 .HasForeignKey(s => s.RoomId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<Student>()
+    .HasOne(s => s.Building)
+    .WithMany()
+    .HasForeignKey(s => s.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Student>().HasQueryFilter(s =>
+    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
             // ─────────────────────────────────────────
             // RESERVATION
             // ─────────────────────────────────────────
