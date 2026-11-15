@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.Admin;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
@@ -13,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller
 {
+
+    [RequireBuilding]
     public class PaymentController : AdminControllerBase
     {
 
