@@ -39,16 +39,16 @@ namespace DormPaymentSystem.Data.Data
 
             // BUILDINGMEMBERSHIP    
             modelBuilder.Entity<BuildingMembership>()
-    .HasKey(m => new { m.UserId, m.BuildingId });
+        .HasKey(m => new { m.UserId, m.BuildingId });
             // ─────────────────────────────────────────
             // ROOM
             // ─────────────────────────────────────────
 
             modelBuilder.Entity<Room>()
-    .HasOne(r => r.Building)
-    .WithMany()
-    .HasForeignKey(r => r.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+              .HasOne(r => r.Building)
+             .WithMany()
+               .HasForeignKey(r => r.BuildingId)
+              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Room>().HasQueryFilter(r =>
             _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
@@ -82,10 +82,10 @@ namespace DormPaymentSystem.Data.Data
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Student>()
-    .HasOne(s => s.Building)
-    .WithMany()
-    .HasForeignKey(s => s.BuildingId)
-    .OnDelete(DeleteBehavior.Restrict);
+               .HasOne(s => s.Building)
+               .WithMany()
+             .HasForeignKey(s => s.BuildingId)
+              .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Student>().HasQueryFilter(s =>
                 _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
