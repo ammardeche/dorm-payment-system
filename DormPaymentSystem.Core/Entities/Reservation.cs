@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Enums;
+using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.Core.Entities
 {
-    public class Reservation
+    public class Reservation : IBuildingScoped
     {
         public int Id { get; set; }
         public ReservationType Type { get; set; }
@@ -26,6 +27,7 @@ namespace DormPaymentSystem.Core.Entities
 
         // always set — every stay is in a room
         public int RoomId { get; set; }
+        public int BuildingId {get;set; }
         public Room Room { get; set; } = null!;
 
         // only ONE of these three is set depending on Type
@@ -41,5 +43,7 @@ namespace DormPaymentSystem.Core.Entities
         // navigation
         public ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
+        public Building Building {get;set;} = null!;
+ 
     }
 }

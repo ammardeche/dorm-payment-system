@@ -93,6 +93,15 @@ modelBuilder.Entity<Student>().HasQueryFilter(s =>
             // RESERVATION
             // ─────────────────────────────────────────
 
+                modelBuilder.Entity<Reservation>()
+    .HasOne(r => r.Building)
+    .WithMany()
+    .HasForeignKey(r => r.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Reservation>().HasQueryFilter(r =>
+    _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
+            
             // Reservation → Room
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Room)
@@ -134,6 +143,15 @@ modelBuilder.Entity<Student>().HasQueryFilter(s =>
             // PAYMENT
             // ─────────────────────────────────────────
 
+                modelBuilder.Entity<Payment>()
+    .HasOne(s => s.Building)
+    .WithMany()
+    .HasForeignKey(s => s.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Payment>().HasQueryFilter(s =>
+    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+
             // Payment → Reservation
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.Reservation)
@@ -170,6 +188,15 @@ modelBuilder.Entity<Student>().HasQueryFilter(s =>
                 .HasForeignKey(i => i.GuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+                modelBuilder.Entity<Invitation>()
+    .HasOne(s => s.Building)
+    .WithMany()
+    .HasForeignKey(s => s.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Invitation>().HasQueryFilter(s =>
+    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
+
             // ─────────────────────────────────────────
             // NOTIFICATION
             // ─────────────────────────────────────────
@@ -200,6 +227,16 @@ modelBuilder.Entity<Student>().HasQueryFilter(s =>
             modelBuilder.Entity<DormitorySettings>()
                 .Property(d => d.StudentMonthlyRate)
                 .HasPrecision(18, 2);
+
+                // guests
+                    modelBuilder.Entity<Guest>()
+    .HasOne(s => s.Building)
+    .WithMany()
+    .HasForeignKey(s => s.BuildingId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+modelBuilder.Entity<Guest>().HasQueryFilter(s =>
+    _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
         }
 
 

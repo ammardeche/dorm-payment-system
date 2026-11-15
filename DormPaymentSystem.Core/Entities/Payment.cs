@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Enums;
+using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.Core.Entities
 {
-    public class Payment
+    public class Payment : IBuildingScoped
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
@@ -21,6 +22,7 @@ namespace DormPaymentSystem.Core.Entities
         public int PaymentMonth { get; set; }
         public int PaymentYear { get; set; }
         public int DaysLate { get; set; }
+        public int BuildingId {get;set;}
 
         // who recorded this payment (admin or receptionist)
         public string? ReceivedById { get; set; }
@@ -35,7 +37,7 @@ namespace DormPaymentSystem.Core.Entities
         // to know who paid → payment.Reservation.Student or payment.Reservation.Guest
         public int ReservationId { get; set; }
         public Reservation Reservation { get; set; } = null!;
-
+        public Building Building {get;set;} = null!;
     }
 
 }

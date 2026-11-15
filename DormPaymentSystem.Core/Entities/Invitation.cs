@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Enums;
+using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.Core.Entities
 {
-    public class Invitation
+    public class Invitation : IBuildingScoped
     {
         public int Id { get; set; }
 
@@ -23,11 +24,14 @@ namespace DormPaymentSystem.Core.Entities
 
         // who is invited — Guest record created by receptionist first
         public int GuestId { get; set; }
+        public int BuildingId { get;set; }
         public Guest Guest { get; set; } = null!;
 
         // null until guest physically checks in
         // filled when Reservation(Type=InvitationStay) is created
         public int? ReservationId { get; set; }
         public Reservation? Reservation { get; set; }
+        public Building Building {get;set;} = null!;
+    
     }
 }

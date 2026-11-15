@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
@@ -13,6 +14,8 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller.Admin
 {
+
+    [RequireBuilding]
     public class ReservationController : AdminControllerBase
     {
         private readonly IReservationService _reservationService;
