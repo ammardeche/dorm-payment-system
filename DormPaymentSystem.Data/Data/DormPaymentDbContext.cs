@@ -216,6 +216,16 @@ namespace DormPaymentSystem.Data.Data
                 .HasForeignKey(n => n.SenderUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+
+            modelBuilder.Entity<Notification>()
+              .HasOne(r => r.Building)
+             .WithMany()
+               .HasForeignKey(r => r.BuildingId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Notification>().HasQueryFilter(r =>
+            _currentBuilding.BuildingId == null || r.BuildingId == _currentBuilding.BuildingId);
+
             // ─────────────────────────────────────────
             // DORMITORY SETTINGS
             // ─────────────────────────────────────────
