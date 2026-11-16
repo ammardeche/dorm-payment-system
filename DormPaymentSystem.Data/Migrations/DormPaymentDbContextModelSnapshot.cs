@@ -781,7 +781,7 @@ namespace DormPaymentSystem.Data.Migrations
                     b.HasOne("DormPaymentSystem.Core.Entities.Building", "Building")
                         .WithMany()
                         .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("DormPaymentSystem.Core.Entities.User", "Recipient")
