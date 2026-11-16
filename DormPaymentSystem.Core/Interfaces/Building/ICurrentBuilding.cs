@@ -7,6 +7,6 @@ namespace DormPaymentSystem.Core.Interfaces
 {
     public interface ICurrentBuilding
     {
-        int? BuildingId {get;set;}
+        int? BuildingId { get; set; }
     }
 }

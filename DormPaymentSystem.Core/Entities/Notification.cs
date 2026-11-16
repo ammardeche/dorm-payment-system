@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Enums;
+using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.Core.Entities
 {
-    public class Notification
+    public class Notification : IBuildingScoped
     {
 
         public int Id { get; set; }
@@ -16,6 +17,7 @@ namespace DormPaymentSystem.Core.Entities
         public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReadAt { get; set; }
+        public int BuildingId { get; set; }
 
         // who receives this notification
         public string RecipientUserId { get; set; } = null!;
@@ -24,5 +26,8 @@ namespace DormPaymentSystem.Core.Entities
         // who sent it — null if system generated
         public string? SenderUserId { get; set; }
         public User? Sender { get; set; }
+
+        public Building Building { get; set; } = null!;
+
     }
 }

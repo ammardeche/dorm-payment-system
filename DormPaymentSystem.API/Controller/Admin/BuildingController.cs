@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.Admin
 {
-    [Controller]
-    [Route("api/user")]
+    [Route("api/admin/user")]
     [Authorize(Roles = "Admin")]
     public class BuildingController : AdminControllerBase
     {

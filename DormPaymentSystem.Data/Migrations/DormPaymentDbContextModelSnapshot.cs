@@ -202,6 +202,9 @@ namespace DormPaymentSystem.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -230,6 +233,8 @@ namespace DormPaymentSystem.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BuildingId");
 
                     b.HasIndex("RecipientUserId");
 
@@ -773,6 +778,12 @@ namespace DormPaymentSystem.Data.Migrations
 
             modelBuilder.Entity("DormPaymentSystem.Core.Entities.Notification", b =>
                 {
+                    b.HasOne("DormPaymentSystem.Core.Entities.Building", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DormPaymentSystem.Core.Entities.User", "Recipient")
                         .WithMany("ReceivedNotifications")
                         .HasForeignKey("RecipientUserId")
@@ -783,6 +794,8 @@ namespace DormPaymentSystem.Data.Migrations
                         .WithMany("SentNotifications")
                         .HasForeignKey("SenderUserId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Building");
 
                     b.Navigation("Recipient");
 
