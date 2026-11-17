@@ -1,0 +1,45 @@
+### 1) Login as Anna (building 1)
+POST {{baseUrl}}/api/auth/student-login
+Content-Type: application/json
+
+{ "StudentNumber": "s098203", "password": "Pass123!" }
+
+### 2) Anna creates an invitation (NO building header, on purpose)
+# EXPECT 200
+# Copy the token from request 1 into @annaToken
+@annaToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY0MjQ4MjQ5LTdlZDktNDRjZi1iNmQzLWIxZjM2OWNjMmMwNiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBbm5hIEtvd2Fsc2thIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU3R1ZGVudCIsInN0dWRlbnRJZCI6IjEzIiwiZXhwIjoxODU0ODY2OTY2LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.3uW7CNQQ3_xcJrgBDW9vK86RpzVHuymFCNh4h5KALkE
+
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "Guest One", "GuestNationalId": "11111111111" }
+
+### 3) Anna again, the same month
+# EXPECT 409 "already used their invitation this month"
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "Guest Two", "GuestNationalId": "22222222222" }
+
+### 4) Login as Maria (building 2): s098203, then copy her token into @mariaToken
+@mariaToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImM4NmYwY2M4LTIzZWItNGQzMC05YjkzLWNjMDZkODgyY2UyYSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJNYXJpYSBXaXNuaWV3c2thIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU3R1ZGVudCIsInN0dWRlbnRJZCI6IjE1IiwiZXhwIjoxODU0ODY3MjM1LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.daiqtWinK2XoNzww5bvO_8ziIu2WGPRr4wSiFwaI_8c
+
+
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{mariaToken}}
+
+{ "GuestFullName": "Guest Three", "GuestNationalId": "33333333333" }
+
+### 5) Admin, building 1: only Anna's invitation
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjFlZWZjYjRjLTg2MGYtNDRjZi1iZWQ3LWEwZThkNTQxYmY3ZiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGRvcm0uY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkFkbWluIFVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTg1NDg2NzMwNiwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.ediuby3LmmHfJEn38Xk_c7zmuLkQJi8mN5_cASJRjUE
+GET {{baseUrl}}/api/admin/invitation/get-all
+Authorization: Bearer {{adminToken}}
+X-Building-Id: 1
+
+### 6) Admin, building 2: only Maria's invitation
+GET {{baseUrl}}/api/admin/invitation/get-all
+Authorization: Bearer {{adminToken}}
+X-Building-Id: 2

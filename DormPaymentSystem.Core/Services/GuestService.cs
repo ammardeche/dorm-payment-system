@@ -65,7 +65,7 @@ namespace DormPaymentSystem.Core.Services
             var guest = new Guest
             {
                 FullName = fullName,
-                NationalId = nationalId
+                NationalId = nationalId,
             };
 
             return await _guestRepository.CreateGuest(guest);

@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.App
 {
-    [ApiController]
+
 
     public class MyNotificationsController : AppControllerBase
     {

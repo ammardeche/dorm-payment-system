@@ -63,6 +63,7 @@ namespace DormPaymentSystem.Core.Services
             return !hasInvitation;
         }
 
+
         public async Task<Invitation> CreateInvitationAsync(
             int invitedByStudentId,
             int guestId)
@@ -93,6 +94,7 @@ namespace DormPaymentSystem.Core.Services
             var invitation = new Invitation
             {
                 InvitedByStudentId = invitedByStudentId,
+                BuildingId = student.BuildingId,
                 GuestId = guestId,
                 InvitationDate = DateTime.UtcNow,
                 InvitationMonth = DateTime.UtcNow.Month,

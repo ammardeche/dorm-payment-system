@@ -21,7 +21,8 @@ namespace DormPaymentSystem.Core.Interfaces
 
         Task<Invitation> CreateInvitationAsync(
             int invitedByStudentId,
-            int guestId);            // guest record must exist first
+            int guestId
+            );            // guest record must exist first
 
         Task<bool> DeleteInvitationAsync(int id);
 

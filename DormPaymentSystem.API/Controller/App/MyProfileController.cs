@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.AuthController;
 using DormPaymentSystem.API.DTOs.Request;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.App
 {
+
 
     public class MyProfileController : AppControllerBase
     {

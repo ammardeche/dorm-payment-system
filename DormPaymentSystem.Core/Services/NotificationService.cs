@@ -68,6 +68,11 @@ namespace DormPaymentSystem.Core.Services
             if (string.IsNullOrWhiteSpace(title))
                 throw new AppValidationException("Title cannot be empty.");
 
+            var student = await _studentRepository.GetStudentByUserId(recipientUserId);
+            if (student == null)
+            {
+                throw new AppNotFoundException("Student not found in this building");
+            }
             if (string.IsNullOrWhiteSpace(message))
                 throw new AppValidationException("Message cannot be empty.");
 

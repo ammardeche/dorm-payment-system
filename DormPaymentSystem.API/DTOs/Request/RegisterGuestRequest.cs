@@ -14,5 +14,8 @@ namespace DormPaymentSystem.API.DTOs.Request
 
         [Required]
         public string NationalId { get; set; } = null!;
+        [Required]
+
+        public int BuildingId { get; set; }
     }
 }

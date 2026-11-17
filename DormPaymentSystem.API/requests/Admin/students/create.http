@@ -1,0 +1,44 @@
+### 1) Student in building 1
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{
+  "firstName": "Anna",
+  "lastName": "Kowalska",
+  "email": "s098201@student.tu.kielce.pl",
+  "studentNumber": "s098201",
+  "phoneNumber": "600200201",
+  "password": "Pass123!"
+}
+
+### 2) Second student in building 1
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{
+  "firstName": "Piotr",
+  "lastName": "Nowak",
+  "email": "s098202@student.tu.kielce.pl",
+  "studentNumber": "s098202",
+  "phoneNumber": "600200202",
+  "password": "Pass123!"
+}
+
+### 3) Student in building 2
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+{
+  "firstName": "Maria",
+  "lastName": "Wisniewska",
+  "email": "s098203@student.tu.kielce.pl",
+  "studentNumber": "s098203",
+  "phoneNumber": "600200203",
+  "password": "Pass123!"
+}

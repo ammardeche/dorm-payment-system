@@ -1,0 +1,68 @@
+### 1) Send to all students, building 1     # EXPECT 200
+POST {{baseUrl}}/api/admin/notification/send/all
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{ "Title": "kitchen will be on maintantce", "Message": "Only building 1" }
+
+### 2) Send to all students, building 2     # EXPECT 200
+(same request with X-Building-Id: 2 and Title "Test B2")
+
+### 3) My notifications, header 1            # EXPECT only what the ADMIN received in building 1
+GET {{baseUrl}}/api/admin/notification/my
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+
+
+
+
+
+### 1) Anna (building 1), header 1
+# EXPECT 200
+POST {{baseUrl}}/api/admin/notification/send/student/64248249-7ed9-44cf-b6d3-b1f369cc2c06
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{ "Title": "Test", "Message": "Anna in building 1", "Type": "GeneralAnnouncement" }
+
+
+
+
+### 2) Maria (building 2), but header 1
+# EXPECT 404 "Student not found in this building."
+POST {{baseUrl}}/api/admin/notification/send/student/c86f0cc8-23eb-4d30-9b93-cc06d882ce2a
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{ "Title": "Test", "Message": "Should NOT arrive", "Type": "GeneralAnnouncement" }
+
+### 3) Maria (building 2), header 2
+# EXPECT 200
+POST {{baseUrl}}/api/admin/notification/send/student/c86f0cc8-23eb-4d30-9b93-cc06d882ce2a
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+{ "Title": "Test", "Message": "Maria in building 2", "Type": "GeneralAnnouncement" }
+
+### 4) Anna (building 1), but header 2
+# EXPECT 404
+POST {{baseUrl}}/api/admin/notification/send/student/64248249-7ed9-44cf-b6d3-b1f369cc2c06
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 2
+
+{ "Title": "Test", "Message": "Should NOT arrive", "Type": "GeneralAnnouncement" }
+
+### 5) A user id that does not exist
+# EXPECT 404
+POST {{baseUrl}}/api/admin/notification/send/student/does-not-exist
+Content-Type: application/json
+Authorization: Bearer {{token}}
+X-Building-Id: 1
+
+{ "Title": "Test", "Message": "Nobody", "Type": "GeneralAnnouncement" }

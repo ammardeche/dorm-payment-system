@@ -12,17 +12,23 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 namespace DormPaymentSystem.API.Controller.App
 {
 
+
+
     public class MyInvitationController : AppControllerBase
     {
         private readonly IInvitationService _invitationService;
         private readonly IGuestService _guestService;
+        private readonly IStudentService _studentService;
 
         public MyInvitationController(
             IInvitationService invitationService,
-            IGuestService guestService)
+            IGuestService guestService,
+            IStudentService studentService
+            )
         {
             _invitationService = invitationService;
             _guestService = guestService;
+            _studentService = studentService;
         }
 
         // GET api/app/myinvitation
@@ -71,21 +77,25 @@ namespace DormPaymentSystem.API.Controller.App
         public async Task<IActionResult> CreateInvitation(
             [FromBody] AppCreateInvitationRequest req)
         {
+
             if (!ModelState.IsValid)
                 return BadRequest(new Response(
                     new AppValidationException("Invalid request.")));
 
             var studentId = GetCurrentStudentId();
-
+            var student = await _studentService.GetStudentByIdAsync(studentId);
             // register guest first if not exists
             var guest = await _guestService.RegisterGuestAsync(
                 req.GuestFullName,
-                req.GuestNationalId);
+                req.GuestNationalId,
+                student!.BuildingId
+                );
 
             // create invitation
             var invitation = await _invitationService.CreateInvitationAsync(
                 studentId,
-                guest.Id);
+                guest.Id
+                );
 
             return Ok(new Response<InvitationResponse>(
                 new InvitationResponse(invitation)));

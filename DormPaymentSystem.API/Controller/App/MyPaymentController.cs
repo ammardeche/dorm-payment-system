@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.API.Controller.AuthController;
 using DormPaymentSystem.API.DTOs.Response;
+using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.Core.common;
 using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DormPaymentSystem.API.Controller.App
 {
-    [ApiController]
+
     public class MyPaymentController : AppControllerBase
     {
 

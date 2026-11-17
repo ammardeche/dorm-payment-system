@@ -189,10 +189,10 @@ namespace DormPaymentSystem.Data.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Invitation>()
-.HasOne(s => s.Building)
-.WithMany()
-.HasForeignKey(s => s.BuildingId)
-.OnDelete(DeleteBehavior.Restrict);
+                .HasOne(s => s.Building)
+                .WithMany()
+                .HasForeignKey(s => s.BuildingId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Invitation>().HasQueryFilter(s =>
                 _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
@@ -239,14 +239,7 @@ namespace DormPaymentSystem.Data.Data
                 .HasPrecision(18, 2);
 
             // guests
-            modelBuilder.Entity<Guest>()
-.HasOne(s => s.Building)
-.WithMany()
-.HasForeignKey(s => s.BuildingId)
-.OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Guest>().HasQueryFilter(s =>
-                _currentBuilding.BuildingId == null || s.BuildingId == _currentBuilding.BuildingId);
         }
 
 
