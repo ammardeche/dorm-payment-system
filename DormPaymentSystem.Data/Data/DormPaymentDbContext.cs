@@ -123,6 +123,10 @@ namespace DormPaymentSystem.Data.Data
                 .HasForeignKey(r => r.GuestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Guest>()
+            .HasIndex(g => g.NationalId)
+            .IsUnique();
+
             // Reservation → Invitation (nullable, one to one)
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Invitation)
