@@ -61,7 +61,8 @@ namespace DormPaymentSystem.API.DTOs.Response
                 {
                     Id = reservation.Guest.Id,
                     FullName = reservation.Guest.FullName,
-                    NationalId = reservation.Guest.NationalId
+                    DocumentNumber = reservation.Guest.DocumentNumber,
+                    GuestDocumentType = reservation.Guest.DocumentType
                 }
                 : null;
 
@@ -106,7 +107,8 @@ namespace DormPaymentSystem.API.DTOs.Response
     {
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
-        public string NationalId { get; set; } = null!;
+        public string DocumentNumber { get; set; } = null!;
+        public DocumentType GuestDocumentType { get; set; }
     }
 
     public class ReservationInvitationResponse

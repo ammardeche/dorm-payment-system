@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +19,10 @@ namespace DormPaymentSystem.Data.Repositories
             _context = context;
         }
 
+        // get guests 
         public async Task<(IEnumerable<Guest> Items, int TotalCount)> GetGuests(
-            string? nationalId = null,
+            string? documentNumber = null,
+            DocumentType? documentType = null,
             string? fullName = null,
             int pageIndex = 1,
             int pageSize = 10)
@@ -33,11 +36,14 @@ namespace DormPaymentSystem.Data.Repositories
                     .ThenInclude(r => r.Payments)
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(nationalId))
-                query = query.Where(g => g.NationalId == nationalId);
+            if (!string.IsNullOrWhiteSpace(documentNumber))
+                query = query.Where(g => g.DocumentNumber == documentNumber);
 
             if (!string.IsNullOrWhiteSpace(fullName))
                 query = query.Where(g => g.FullName.Contains(fullName));
+
+            query = query.Where(g => g.DocumentType == documentType);
+
 
             var totalCount = await query.CountAsync();
 
@@ -50,6 +56,7 @@ namespace DormPaymentSystem.Data.Repositories
             return (items, totalCount);
         }
 
+        // get by id 
         public async Task<Guest?> GetGuestById(int id)
         {
             return await _context.Guests
@@ -60,12 +67,14 @@ namespace DormPaymentSystem.Data.Repositories
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public async Task<Guest?> GetGuestByNationalId(string nationalId)
+        // get by document Number
+        public async Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType documentType)
         {
             return await _context.Guests
-                .FirstOrDefaultAsync(g => g.NationalId == nationalId);
+                .FirstOrDefaultAsync(g => g.DocumentNumber == documentNumber && g.DocumentType == documentType);
         }
 
+        // create guest
         public async Task<Guest> CreateGuest(Guest guest)
         {
             await _context.Guests.AddAsync(guest);
@@ -73,6 +82,7 @@ namespace DormPaymentSystem.Data.Repositories
             return guest;
         }
 
+        // update guest
         public async Task<Guest> UpdateGuest(Guest guest)
         {
             _context.Guests.Update(guest);
@@ -80,6 +90,7 @@ namespace DormPaymentSystem.Data.Repositories
             return guest;
         }
 
+        // delete guest
         public async Task<bool> DeleteGuest(Guest guest)
         {
             _context.Guests.Remove(guest);
@@ -87,6 +98,7 @@ namespace DormPaymentSystem.Data.Repositories
             return true;
         }
 
+        // check if the guest exist 
         public async Task<bool> GuestExists(int id)
         {
             return await _context.Guests.AnyAsync(g => g.Id == id);
@@ -96,7 +108,16 @@ namespace DormPaymentSystem.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+
     }
 }
 
 
+
+
+//  we need to fix the guest repository now we added two new properties DocumentNumber documentType 
+/* 
+ - first thing we need to return the guest with their information ( name , docNumber , Doctype )
+
+ */

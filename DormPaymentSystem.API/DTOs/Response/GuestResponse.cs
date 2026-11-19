@@ -12,7 +12,8 @@ namespace DormPaymentSystem.API.DTOs.Response
 
         public int Id { get; set; }
         public string FullName { get; set; } = null!;
-        public string NationalId { get; set; } = null!;
+        public string DocumentNumber { get; set; }
+        public DocumentType GuestDocumentType { get; set; }
 
         // stay history — all reservations for this guest
         public IEnumerable<GuestReservationResponse> Reservations { get; set; }
@@ -21,7 +22,8 @@ namespace DormPaymentSystem.API.DTOs.Response
         {
             Id = guest.Id;
             FullName = guest.FullName;
-            NationalId = guest.NationalId;
+            DocumentNumber = guest.DocumentNumber;
+            GuestDocumentType = guest.DocumentType;
 
             Reservations = guest.Reservations.Select(r => new GuestReservationResponse
             {

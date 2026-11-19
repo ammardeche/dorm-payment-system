@@ -18,17 +18,15 @@ namespace DormPaymentSystem.API.Controller.App
     {
         private readonly IInvitationService _invitationService;
         private readonly IGuestService _guestService;
-        private readonly IStudentService _studentService;
+
 
         public MyInvitationController(
             IInvitationService invitationService,
-            IGuestService guestService,
-            IStudentService studentService
+            IGuestService guestService
             )
         {
             _invitationService = invitationService;
             _guestService = guestService;
-            _studentService = studentService;
         }
 
         // GET api/app/myinvitation
@@ -86,7 +84,9 @@ namespace DormPaymentSystem.API.Controller.App
             // register guest first if not exists
             var guest = await _guestService.RegisterGuestAsync(
                 req.GuestFullName,
-                req.GuestNationalId
+                req.GuestDocumentNumber,
+                req.DocumentType
+
                 );
 
             // create invitation

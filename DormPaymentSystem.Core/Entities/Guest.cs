@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 
 namespace DormPaymentSystem.Core.Entities
@@ -14,7 +15,8 @@ namespace DormPaymentSystem.Core.Entities
         // identity only — no dates, no room, no payment
         // all stay details live on Reservation
         public string FullName { get; set; } = null!;
-        public string NationalId { get; set; } = null!;
+        public string DocumentNumber { get; set; } = null!;
+        public DocumentType DocumentType { get; set; }
 
         // navigation
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

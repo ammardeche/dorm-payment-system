@@ -1,4 +1,5 @@
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Seeders;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -124,7 +125,7 @@ namespace DormPaymentSystem.Data.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Guest>()
-            .HasIndex(g => g.NationalId)
+            .HasIndex(g => new { g.DocumentNumber, g.DocumentType })
             .IsUnique();
 
             // Reservation → Invitation (nullable, one to one)

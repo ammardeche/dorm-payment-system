@@ -14,7 +14,6 @@ using static DormPaymentSystem.Core.Exceptions.AppException;
 
 namespace DormPaymentSystem.API.Controller
 {
-    [RequireBuilding]
     public class GuestController : AdminControllerBase
     {
 
@@ -30,7 +29,7 @@ namespace DormPaymentSystem.API.Controller
         public async Task<IActionResult> GetAllGuests([FromQuery] GuestQuery q)
         {
             var (items, totalCount) = await _guestService.GetAllGuestsAsync(
-                q.NationalId, q.FullName, q.PageIndex, q.PageSize);
+                q.DocumentNumber, q.DocumentType, q.FullName, q.PageIndex, q.PageSize);
 
             var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
 
@@ -52,7 +51,7 @@ namespace DormPaymentSystem.API.Controller
             if (!ModelState.IsValid)
                 return BadRequest(new Response(new AppValidationException("Fill all required fields.")));
 
-            var guest = await _guestService.RegisterGuestAsync(req.FullName, req.NationalId);
+            var guest = await _guestService.RegisterGuestAsync(req.FullName, req.DocumentNumber, req.DocumentType);
             return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 
@@ -60,7 +59,7 @@ namespace DormPaymentSystem.API.Controller
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateGuest(int id, [FromBody] UpdateGuestRequest req)
         {
-            var guest = await _guestService.UpdateGuestAsync(id, req.FullName, req.NationalId);
+            var guest = await _guestService.UpdateGuestAsync(id, req.FullName, req.DocumentNumber, req.DocumentType);
             return Ok(new Response<GuestResponse>(new GuestResponse(guest)));
         }
 

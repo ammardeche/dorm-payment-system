@@ -21,7 +21,8 @@ namespace DormPaymentSystem.Core.Services
         }
 
         public async Task<(IEnumerable<Guest> Items, int TotalCount)> GetAllGuestsAsync(
-            string? nationalId = null,
+            string? documentNumber = null,
+            DocumentType? documentType = null,
             string? fullName = null,
             int pageIndex = 1,
             int pageSize = 10)
@@ -31,7 +32,7 @@ namespace DormPaymentSystem.Core.Services
             if (pageSize > 100) pageSize = 100;
 
             return await _guestRepository.GetGuests(
-                nationalId, fullName, pageIndex, pageSize);
+                documentNumber, documentType, fullName, pageIndex, pageSize);
         }
 
         public async Task<Guest?> GetGuestByIdAsync(int id)
@@ -42,36 +43,39 @@ namespace DormPaymentSystem.Core.Services
             return guest;
         }
 
-        public async Task<Guest?> GetGuestByNationalIdAsync(string nationalId)
+        public async Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType documentType)
         {
-            return await _guestRepository.GetGuestByNationalId(nationalId);
+            return await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
         }
 
-        public async Task<Guest> RegisterGuestAsync(string fullName, string nationalId)
+        public async Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType documentType)
         {
             // validate
             if (string.IsNullOrWhiteSpace(fullName))
                 throw new AppValidationException("Full name cannot be empty.");
 
-            if (string.IsNullOrWhiteSpace(nationalId))
+            if (string.IsNullOrWhiteSpace(documentNumber))
                 throw new AppValidationException("National ID cannot be empty.");
 
+
             // check duplicate national ID
-            var existing = await _guestRepository.GetGuestByNationalId(nationalId);
+            var existing = await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
             if (existing != null)
-                throw new AppConflictException(
-                    $"A guest with national ID '{nationalId}' already exists.");
+            {
+                return existing;
+            }
 
             var guest = new Guest
             {
                 FullName = fullName,
-                NationalId = nationalId,
+                DocumentNumber = documentNumber,
+                DocumentType = DocumentType.Other,
             };
 
             return await _guestRepository.CreateGuest(guest);
         }
 
-        public async Task<Guest> UpdateGuestAsync(int id, string? fullName, string? nationalId)
+        public async Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType documentType)
         {
             var guest = await _guestRepository.GetGuestById(id);
             if (guest == null)
@@ -79,15 +83,15 @@ namespace DormPaymentSystem.Core.Services
 
             if (!string.IsNullOrWhiteSpace(fullName)) guest.FullName = fullName;
 
-            if (!string.IsNullOrWhiteSpace(nationalId))
+            if (!string.IsNullOrWhiteSpace(documentNumber))
             {
-                // make sure new nationalId is not taken by another guest
-                var existing = await _guestRepository.GetGuestByNationalId(nationalId);
+                // make sure new documentNumber is not taken by another guest
+                var existing = await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
                 if (existing != null && existing.Id != id)
                     throw new AppConflictException(
-                        $"National ID '{nationalId}' is already used by another guest.");
+                        $"National ID '{documentNumber}' is already used by another guest.");
 
-                guest.NationalId = nationalId;
+                guest.DocumentNumber = documentNumber;
             }
 
             return await _guestRepository.UpdateGuest(guest);
@@ -110,6 +114,8 @@ namespace DormPaymentSystem.Core.Services
             await _guestRepository.DeleteGuest(guest);
             return true;
         }
+
+
 
         // public Task<Guest> CheckOutGuestAsync(int reservationId)
         // {

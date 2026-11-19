@@ -8,7 +8,7 @@ namespace DormPaymentSystem.API.DTOs.Request
     public class CheckInRequest
     {
         public string FullName { get; set; }
-        public string NationalId { get; set; }
+        public string DocumentNumber { get; set; }
         public int RoomId { get; set; }
         public decimal RatePerNight { get; set; }
         public int? NightsStayed { get; set; }
