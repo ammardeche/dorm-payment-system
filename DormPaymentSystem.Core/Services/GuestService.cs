@@ -43,12 +43,12 @@ namespace DormPaymentSystem.Core.Services
             return guest;
         }
 
-        public async Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType documentType)
+        public async Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType? documentType)
         {
             return await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
         }
 
-        public async Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType documentType)
+        public async Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType? documentType)
         {
             // validate
             if (string.IsNullOrWhiteSpace(fullName))
