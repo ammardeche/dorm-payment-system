@@ -11,7 +11,7 @@ namespace DormPaymentSystem.API.DTOs.Response
     {
         [Required] public string GuestFullName { get; set; } = null!;
         [Required] public string GuestDocumentNumber { get; set; } = null!;
-        public DocumentType DocumentType { get; set; }
+        public DocumentType? DocumentType { get; set; }
     }
 }
 

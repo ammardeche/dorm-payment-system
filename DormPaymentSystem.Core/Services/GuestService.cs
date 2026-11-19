@@ -69,13 +69,13 @@ namespace DormPaymentSystem.Core.Services
             {
                 FullName = fullName,
                 DocumentNumber = documentNumber,
-                DocumentType = DocumentType.Other,
+                DocumentType = documentType,
             };
 
             return await _guestRepository.CreateGuest(guest);
         }
 
-        public async Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType documentType)
+        public async Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType? documentType)
         {
             var guest = await _guestRepository.GetGuestById(id);
             if (guest == null)
@@ -92,6 +92,11 @@ namespace DormPaymentSystem.Core.Services
                         $"National ID '{documentNumber}' is already used by another guest.");
 
                 guest.DocumentNumber = documentNumber;
+            }
+
+            if (documentType.HasValue)
+            {
+                guest.DocumentType = documentType;
             }
 
             return await _guestRepository.UpdateGuest(guest);

@@ -42,7 +42,9 @@ namespace DormPaymentSystem.Data.Repositories
             if (!string.IsNullOrWhiteSpace(fullName))
                 query = query.Where(g => g.FullName.Contains(fullName));
 
-            query = query.Where(g => g.DocumentType == documentType);
+            if (documentType.HasValue)
+                query = query.Where(g => g.DocumentType == documentType);
+
 
 
             var totalCount = await query.CountAsync();
@@ -68,7 +70,7 @@ namespace DormPaymentSystem.Data.Repositories
         }
 
         // get by document Number
-        public async Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType documentType)
+        public async Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType? documentType)
         {
             return await _context.Guests
                 .FirstOrDefaultAsync(g => g.DocumentNumber == documentNumber && g.DocumentType == documentType);

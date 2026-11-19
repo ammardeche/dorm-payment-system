@@ -86,7 +86,6 @@ namespace DormPaymentSystem.API.Controller.App
                 req.GuestFullName,
                 req.GuestDocumentNumber,
                 req.DocumentType
-
                 );
 
             // create invitation

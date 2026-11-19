@@ -24,7 +24,7 @@ namespace DormPaymentSystem.Core.Interfaces
         // just registers guest identity — room/dates/payment handled by ReservationService
         Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType documentType);
 
-        Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType documentType);
+        Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType? documentType);
 
 
         Task<bool> DeleteGuestAsync(int id);

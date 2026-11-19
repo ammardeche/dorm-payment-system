@@ -11,6 +11,6 @@ namespace DormPaymentSystem.API.DTOs.Request
         public string? FullName { get; set; }
         public string? DocumentNumber { get; set; }
 
-        public DocumentType DocumentType { get; set; }
+        public DocumentType? DocumentType { get; set; }
     }
 }
