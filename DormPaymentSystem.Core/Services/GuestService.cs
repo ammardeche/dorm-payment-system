@@ -55,7 +55,7 @@ namespace DormPaymentSystem.Core.Services
                 throw new AppValidationException("Full name cannot be empty.");
 
             if (string.IsNullOrWhiteSpace(documentNumber))
-                throw new AppValidationException("National ID cannot be empty.");
+                throw new AppValidationException("Document Number cannot be empty.");
 
             var number = documentNumber.Trim().ToUpperInvariant();
 
@@ -66,8 +66,8 @@ namespace DormPaymentSystem.Core.Services
 
             var guest = new Guest
             {
-                FullName = fullName,
-                DocumentNumber = documentNumber,
+                FullName = fullName.Trim(),
+                DocumentNumber = number,
                 DocumentType = documentType,
             };
 
