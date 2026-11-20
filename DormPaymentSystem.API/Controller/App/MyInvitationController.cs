@@ -46,8 +46,8 @@ namespace DormPaymentSystem.API.Controller.App
 
             var pagination = new Pagination(pageSize, pageIndex, totalCount);
 
-            return Ok(new Response<IEnumerable<InvitationResponse>>(
-                items.Select(i => new InvitationResponse(i)),
+            return Ok(new Response<IEnumerable<MyInvitationResponse>>(
+                items.Select(i => new MyInvitationResponse(i)),
                 pagination));
         }
 
