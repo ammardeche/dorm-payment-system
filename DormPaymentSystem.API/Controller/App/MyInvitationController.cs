@@ -94,8 +94,8 @@ namespace DormPaymentSystem.API.Controller.App
                 guest.Id
                 );
 
-            return Ok(new Response<InvitationResponse>(
-                new InvitationResponse(invitation)));
+            return Ok(new Response<MyInvitationResponse>(
+                new MyInvitationResponse(invitation, guest)));
         }
     }
 }

@@ -43,12 +43,12 @@ namespace DormPaymentSystem.Core.Services
             return guest;
         }
 
-        public async Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType? documentType)
+        public async Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType documentType)
         {
             return await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
         }
 
-        public async Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType? documentType)
+        public async Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType documentType)
         {
             // validate
             if (string.IsNullOrWhiteSpace(fullName))
@@ -57,7 +57,7 @@ namespace DormPaymentSystem.Core.Services
             if (string.IsNullOrWhiteSpace(documentNumber))
                 throw new AppValidationException("National ID cannot be empty.");
 
-            var number = documentNumber.Trim().ToUpperInvariant();
+            // var number = documentNumber.Trim().ToUpperInvariant();
 
             // check duplicate national ID
             var existing = await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
@@ -67,7 +67,7 @@ namespace DormPaymentSystem.Core.Services
             var guest = new Guest
             {
                 FullName = fullName,
-                DocumentNumber = number,
+                DocumentNumber = documentNumber,
                 DocumentType = documentType,
             };
 
@@ -87,7 +87,7 @@ namespace DormPaymentSystem.Core.Services
             : documentNumber.Trim().ToUpperInvariant();
             var newType = documentType ?? guest.DocumentType;
 
-            if (newNumber != guest.DocumentNumber && newType != guest.DocumentType)
+            if (newNumber != guest.DocumentNumber || newType != guest.DocumentType)
             {
                 var existing = await _guestRepository.GetGuestByDocumentNumber(newNumber, newType);
                 if (existing != null && existing.Id != id)

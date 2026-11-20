@@ -16,7 +16,7 @@ namespace DormPaymentSystem.Core.Entities
         // all stay details live on Reservation
         public string FullName { get; set; } = null!;
         public string DocumentNumber { get; set; } = null!;
-        public DocumentType? DocumentType { get; set; }
+        public DocumentType DocumentType { get; set; }
 
         // navigation
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();

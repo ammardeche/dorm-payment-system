@@ -19,10 +19,10 @@ namespace DormPaymentSystem.Core.Interfaces
                   int pageSize = 10);
 
         Task<Guest?> GetGuestByIdAsync(int id);
-        Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType? documentType);
+        Task<Guest?> GetGuestByDocumentNumberAsync(string documentNumber, DocumentType documentType);
 
         // just registers guest identity — room/dates/payment handled by ReservationService
-        Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType? documentType);
+        Task<Guest> RegisterGuestAsync(string fullName, string documentNumber, DocumentType documentType);
 
         Task<Guest> UpdateGuestAsync(int id, string? fullName, string? documentNumber, DocumentType? documentType);
 
