@@ -37,14 +37,17 @@ namespace DormPaymentSystem.Data.Repositories
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(documentNumber))
-                query = query.Where(g => g.DocumentNumber == documentNumber);
+            {
+                var number = documentNumber.Trim().ToUpperInvariant();
+                query = query.Where(g => g.DocumentNumber.StartsWith(number));
+            }
 
             if (!string.IsNullOrWhiteSpace(fullName))
                 query = query.Where(g => g.FullName.Contains(fullName));
 
-            if (documentType.HasValue)
-                query = query.Where(g => g.DocumentType == documentType);
 
+            if (documentType.HasValue)
+                query = query.Where(g => g.DocumentType == documentType.Value);
 
 
             var totalCount = await query.CountAsync();
