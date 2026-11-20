@@ -83,22 +83,21 @@ namespace DormPaymentSystem.Core.Services
 
             if (!string.IsNullOrWhiteSpace(fullName)) guest.FullName = fullName;
 
-            if (!string.IsNullOrWhiteSpace(documentNumber))
+            var newNumber = string.IsNullOrWhiteSpace(documentNumber)
+            ? guest.DocumentNumber
+            : documentNumber.Trim().ToUpperInvariant();
+            var newType = documentType ?? guest.DocumentType;
+
+            if (newNumber != guest.DocumentNumber && newType != guest.DocumentType)
             {
-                // make sure new documentNumber is not taken by another guest
-                var existing = await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
+                var existing = await _guestRepository.GetGuestByDocumentNumber(newNumber, newType);
                 if (existing != null && existing.Id != id)
                     throw new AppConflictException(
-                        $"National ID '{documentNumber}' is already used by another guest.");
+                        $"Document '{newNumber}' ({newType}) is already used by another guest.");
 
-                guest.DocumentNumber = documentNumber;
+                guest.DocumentNumber = newNumber;
+                guest.DocumentType = newType;
             }
-
-            if (documentType.HasValue)
-            {
-                guest.DocumentType = documentType;
-            }
-
             return await _guestRepository.UpdateGuest(guest);
         }
 
