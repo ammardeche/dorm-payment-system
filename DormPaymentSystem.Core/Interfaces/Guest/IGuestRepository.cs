@@ -18,7 +18,7 @@ namespace DormPaymentSystem.Core.Interfaces
            int pageSize = 10);
 
         Task<Guest?> GetGuestById(int id);
-        Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType? documentType);
+        Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType documentType);
 
         Task<Guest> CreateGuest(Guest guest);
         Task<Guest> UpdateGuest(Guest guest);

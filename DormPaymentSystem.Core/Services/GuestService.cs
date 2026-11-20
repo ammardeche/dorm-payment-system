@@ -57,10 +57,10 @@ namespace DormPaymentSystem.Core.Services
             if (string.IsNullOrWhiteSpace(documentNumber))
                 throw new AppValidationException("National ID cannot be empty.");
 
-            // var number = documentNumber.Trim().ToUpperInvariant();
+            var number = documentNumber.Trim().ToUpperInvariant();
 
             // check duplicate national ID
-            var existing = await _guestRepository.GetGuestByDocumentNumber(documentNumber, documentType);
+            var existing = await _guestRepository.GetGuestByDocumentNumber(number, documentType);
             if (existing != null)
                 return existing;
 

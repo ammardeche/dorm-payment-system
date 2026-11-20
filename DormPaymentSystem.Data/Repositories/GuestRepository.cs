@@ -73,7 +73,7 @@ namespace DormPaymentSystem.Data.Repositories
         }
 
         // get by document Number
-        public async Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType? documentType)
+        public async Task<Guest?> GetGuestByDocumentNumber(string documentNumber, DocumentType documentType)
         {
             return await _context.Guests
                 .FirstOrDefaultAsync(g => g.DocumentNumber == documentNumber && g.DocumentType == documentType);
