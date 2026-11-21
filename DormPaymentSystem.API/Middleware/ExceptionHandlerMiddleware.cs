@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,57 +22,60 @@ namespace DormPaymentSystem.API.Middleware
             _logger = logger;
         }
 
+
         public async Task InvokeAsync(HttpContext context)
         {
-
             try
             {
                 await _next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exception caught {Message}", ex.Message);
-                await HandleExceptionAsync(context, ex); //  THIS WAS MISSING
-            }
-        }
+                var traceId = Activity.Current?.TraceId.ToString()
+                    ?? context.TraceIdentifier;
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
-            int statusCode;
-            string message;
+                var appException = ex as AppException;
+                var statusCode = appException?.StatusCode
+                    ?? StatusCodes.Status500InternalServerError;
 
-            if (exception is AppException appEx)
-            {
-                // All your custom exceptions (NotFound, Conflict, Validation...)
-                // automatically carry their own status code — no switch needed
-                statusCode = appEx.StatusCode;
-                message = appEx.Message;
-            }
-            else
-            {
-                // Anything unexpected (DB crash, null ref, etc.)
-                statusCode = 500;
-                message = "An unexpected error occurred. Please try again later.";
-            }
+                var message = appException?.Message
+                    ?? "An unexpected error occurred. Please try again later.";
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = statusCode;
-
-            var response = new
-            {
-                success = false,
-                statusCode,
-                message
-            };
-
-            await context.Response.WriteAsync(
-                JsonSerializer.Serialize(response, new JsonSerializerOptions
+                if (context.Response.HasStarted)
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                })
-            );
-        }
+                    _logger.LogError(
+                        ex,
+                        "Request failed after the response started. TraceId={TraceId}",
+                        traceId);
 
+                    throw;
+                }
+
+                if (statusCode >= 500)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Request failed. TraceId={TraceId} Method={Method} StatusCode={StatusCode}",
+                        traceId, context.Request.Method, statusCode);
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "Request rejected. TraceId={TraceId} Method={Method} StatusCode={StatusCode} ExceptionType={ExceptionType}",
+                        traceId, context.Request.Method, statusCode, ex.GetType().Name);
+                }
+
+                context.Response.StatusCode = statusCode;
+
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    success = false,
+                    statusCode,
+                    message,
+                    traceId
+                });
+            }
+        }
 
 
     }

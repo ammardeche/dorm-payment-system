@@ -16,15 +16,23 @@ namespace DormPaymentSystem.Core.Services
         private readonly IInvitationRepository _invitationRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IGuestRepository _guestRepository;
+        private readonly IGuestService _guestService;
+
+
+        private readonly IUnitOfWork _unitOfWork;
 
         public InvitationService(
-            IInvitationRepository invitationRepository,
-            IStudentRepository studentRepository,
-            IGuestRepository guestRepository)
+        IGuestService guestService,
+        IInvitationRepository invitationRepository,
+        IStudentRepository studentRepository,
+            IGuestRepository guestRepository,
+            IUnitOfWork unitOfWork
+            )
         {
             _invitationRepository = invitationRepository;
             _studentRepository = studentRepository;
             _guestRepository = guestRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitationsAsync(
@@ -118,5 +126,42 @@ namespace DormPaymentSystem.Core.Services
 
             return await _invitationRepository.DeleteInvitation(invitation);
         }
+
+        public async Task<Invitation> CreateInvitaionWithGuestAsync(int studentId, string fullName, string documentNumber, DocumentType documentType)
+        {
+            // 1. validate student exists and is active
+            var student = await _studentRepository.GetStudentById(studentId);
+            if (student == null)
+                throw new AppNotFoundException(
+                    $"Student with id '{studentId}' not found.");
+
+            if (!student.IsActive)
+                throw new AppValidationException(
+                    "Inactive student cannot create an invitation.");
+            // check if tg
+
+            // 3. enforce 1 invitation per student per month
+            var canInvite = await CanStudentInviteThisMonthAsync(studentId);
+            if (!canInvite)
+                throw new AppConflictException(
+                    "Student has already used their invitation this month.");
+
+            Invitation invitation = null!;
+
+            await _unitOfWork.ExecuteInTransactionAsync(
+                async () =>
+                {
+                    // regisyer guest
+                    var guest = await _guestService.RegisterGuestAsync(fullName, documentNumber, documentType);
+
+                    // create guest
+                    invitation = await CreateInvitationAsync(studentId, guest.Id);
+                });
+
+            return invitation;
+
+        }
+
+
     }
 }

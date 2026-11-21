@@ -1,0 +1,9 @@
+
+###  Admin Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@dorm.com",
+    "password": "Admin@123"
+}

@@ -1,0 +1,111 @@
+# GUEST DOCUMENT TEST  (Anna = s098001, Bob = s098002, both in building 1)
+# Variables: base and token (admin) come from .httpyac.json
+# Paste the two student tokens below (no quotes, no comma).
+
+
+@marekToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImQ0MDg2Y2I0LTUwZjQtNGJhZi05YzgwLTUyNDU0NTA0OGVmMCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIuYUBkb3JtLmxvY2FsIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6Ik1hcmVrIE5vd2FrIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTg1NTEzNTk3OCwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.6qUqv1Ip4YMv0csyYHiwqGUN_Z-7eMzofawAueT_8r8
+@base = http://localhost:5001
+@annaToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6Ijc5MDYxODA4LWM2MjEtNDY4MS05ZjJiLWJkYTI3YWEwZDllNyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6IiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBbm5hIEtvd2Fsc2thIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU3R1ZGVudCIsInN0dWRlbnRJZCI6IjEiLCJleHAiOjE4NTUyODIwNjYsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.t7RvN5Y7MFn8bZT17x2hAZH3qM19Ykn5taYw76x5k14
+
+### 0) Login Anna  -> copy token to @annaToken
+POST {{base}}/api/auth/student-login
+Content-Type: application/json
+
+{ "studentNumber": "s098001", "password": "Pass123!" }
+
+### 0) Login Bob   -> copy token to @bobToken
+POST {{base}}/api/auth/student-login
+Content-Type: application/json
+
+{ "studentNumber": "s098002", "password": "Pass123!" }
+
+### 1) Anna invites John, passport, LOWER CASE
+# EXPECT 200, guestDocument = "*****45", NO guestId, NO full number
+POST {{base}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "John Smith", "GuestDocumentNumber": "ab1234545", "DocumentType": "Passport" }
+
+### 2) Anna again, same month
+# EXPECT 409 (one invitation per month)
+POST {{base}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "Someone Else", "GuestDocumentNumber": "ZZ9999999", "DocumentType": "Passport" }
+
+POST {{base}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "doe Else", "GuestDocumentNumber": "ZZ9999999", "DocumentType": "Passport" }
+
+### 3) Bob invites the SAME person (spaces + upper case)
+# EXPECT 200. In SQL: still 1 row in Guests, number saved as AB1234545
+POST {{base}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{bobToken}}
+
+{ "GuestFullName": "John Smith", "GuestDocumentNumber": "  AB1234545  ", "DocumentType": "Passport" }
+
+### 4) Anna list
+# EXPECT only masked numbers, no guest id
+GET {{base}}/api/app/myinvitation
+Authorization: Bearer {{annaToken}}
+
+### 5) Admin: same number, OTHER type  (admin has no monthly limit)
+# EXPECT 200, a NEW guest (2 rows in Guests)
+# @name g2
+POST {{base}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "fullName": "Other Person", "documentNumber": "ab1234545", "documentType": "NationalIdCard" }
+
+### 6) Admin: same pair as John again
+# EXPECT 200 and the SAME id as John (no new row, no 500)
+POST {{base}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{marekToken}}
+
+{ "fullName": "John Smith", "documentNumber": "AB1234545", "documentType": "Passport" }
+
+### 7) Admin: list, no filters
+# EXPECT 200, 2 guests (no crash)
+GET {{base}}/api/admin/guest/get-all
+Authorization: Bearer {{marekToken}}
+
+### 8) Admin: filter number prefix + type
+# EXPECT only John
+GET {{base}}/api/admin/guest/get-all?documentNumber=ab12&documentType=Passport
+Authorization: Bearer {{marekToken}}
+
+### 9) Admin: filter by number only
+# EXPECT both guests
+GET {{base}}/api/admin/guest/get-all?documentNumber=AB1234545
+Authorization: Bearer {{marekToken}}
+
+### 10) Admin: move "Other Person" to Passport  -> collides with John
+# EXPECT 409
+PUT {{base}}/api/admin/guest/update/{{g2.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "documentType": "Passport" }
+
+### 11) Admin: change only the name of "Other Person"
+# EXPECT 200, number and type unchanged
+PUT {{base}}/api/admin/guest/update/{{g2.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{ "fullName": "Other Person Renamed" }
+
+### 12) Admin: guest without document number
+# EXPECT 400
+POST {{base}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{marekToken}}
+
+{ "fullName": "No Number", "documentNumber": "", "documentType": "Passport" }

@@ -1,57 +1,61 @@
+@marekToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImQ0MDg2Y2I0LTUwZjQtNGJhZi05YzgwLTUyNDU0NTA0OGVmMCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIuYUBkb3JtLmxvY2FsIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6Ik1hcmVrIE5vd2FrIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTg1NTEzNTk3OCwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.6qUqv1Ip4YMv0csyYHiwqGUN_Z-7eMzofawAueT_8r8
+@base = http://localhost:5001
+
+
 ### 1) CREATE room 101 in building 1
 # @name roomB1
-POST {{baseUrl}}/api/admin/room/create
+POST {{base}}/api/admin/room/create
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 1
 
-{ "RoomNumber": 101, "FloorNumber": 1, "Capacity": 2 }
+{ "RoomNumber": 102, "FloorNumber": 1, "Capacity": 2 }
 
 ### 2) CREATE room 101 in building 2 (same number, different building)
 # @name roomB2
-POST {{baseUrl}}/api/admin/room/create
+POST {{base}}/api/admin/room/create
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 2
 
 { "RoomNumber": 101, "FloorNumber": 1, "Capacity": 4 }
 
 ### 3) LIST building 1 (expect only the capacity-2 room)
-GET {{baseUrl}}/api/admin/room/get-all
-Authorization: Bearer {{token}}
+GET {{base}}/api/admin/room/get-all
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 1
 
 ### 4) LIST building 2 (expect only the capacity-4 room)
-GET {{baseUrl}}/api/admin/room/get-all
-Authorization: Bearer {{token}}
+GET {{base}}/api/admin/room/get-all
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 2
 
 ### 5) LIST building 3 (expect an empty list)
-GET {{baseUrl}}/api/admin/room/get-all
-Authorization: Bearer {{token}}
+GET {{base}}/api/admin/room/get-all
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 3
 
 ### 6) NO header (expect 400)
-GET {{baseUrl}}/api/admin/room/get-all
-Authorization: Bearer {{token}}
+GET {{base}}/api/admin/room/get-all
+Authorization: Bearer {{marekToken}}
 
 ### 7) Building you don't belong to (expect 403)
-GET {{baseUrl}}/api/admin/room/get-all
-Authorization: Bearer {{token}}
+GET {{base}}/api/admin/room/get-all
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 99
 
 ### 8) Cross-building access: update the building 2 room using header 1 (expect 404)
-PUT {{baseUrl}}/api/admin/room/update/{{roomB2.payload.id}}
+PUT {{base}}/api/admin/room/update/{{roomB2.payload.id}}
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 1
 
 { "Capacity": 3 }
 
 ### 9) Same update with the correct header (expect 200)
-PUT {{baseUrl}}/api/admin/room/update/{{roomB2.payload.id}}
+PUT {{base}}/api/admin/room/update/{{roomB2.payload.id}}
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{marekToken}}
 X-Building-Id: 2
 
 { "Capacity": 3 }

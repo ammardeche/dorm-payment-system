@@ -80,22 +80,10 @@ namespace DormPaymentSystem.API.Controller.App
                 return BadRequest(new Response(
                     new AppValidationException("Invalid request.")));
 
-            var studentId = GetCurrentStudentId();
-            // register guest first if not exists
-            var guest = await _guestService.RegisterGuestAsync(
-                req.GuestFullName,
-                req.GuestDocumentNumber,
-                req.DocumentType
-                );
-
-            // create invitation
-            var invitation = await _invitationService.CreateInvitationAsync(
-                studentId,
-                guest.Id
-                );
+            // will fix that 
 
             return Ok(new Response<MyInvitationResponse>(
-                new MyInvitationResponse(invitation, guest)));
+                new MyInvitationResponse()));
         }
     }
 }

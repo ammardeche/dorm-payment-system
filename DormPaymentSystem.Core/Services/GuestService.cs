@@ -13,9 +13,10 @@ namespace DormPaymentSystem.Core.Services
     public class GuestService : IGuestService
     {
         private readonly IGuestRepository _guestRepository;
-
         // no longer needs IRoomRepository — room is handled by ReservationService
-        public GuestService(IGuestRepository guestRepository)
+        public GuestService(
+            IInvitationService invitationService,
+            IGuestRepository guestRepository)
         {
             _guestRepository = guestRepository;
         }
@@ -60,9 +61,12 @@ namespace DormPaymentSystem.Core.Services
             var number = documentNumber.Trim().ToUpperInvariant();
 
             // check duplicate national ID
-            var existing = await _guestRepository.GetGuestByDocumentNumber(number, documentType);
-            if (existing != null)
-                return existing;
+            var guestExist = await _guestRepository.GetGuestByDocumentNumber(number, documentType);
+            if (guestExist != null)
+            {
+                return guestExist;
+            }
+
 
             var guest = new Guest
             {
