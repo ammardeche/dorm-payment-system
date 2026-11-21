@@ -127,7 +127,7 @@ namespace DormPaymentSystem.Core.Services
             return await _invitationRepository.DeleteInvitation(invitation);
         }
 
-        public async Task<Invitation> CreateInvitaionWithGuestAsync(int studentId, string fullName, string documentNumber, DocumentType documentType)
+        public async Task<Invitation> CreateInvitationWithGuestAsync(int studentId, string fullName, string documentNumber, DocumentType documentType)
         {
             // 1. validate student exists and is active
             var student = await _studentRepository.GetStudentById(studentId);

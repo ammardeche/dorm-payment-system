@@ -19,7 +19,7 @@ namespace DormPaymentSystem.API.DTOs.Response
         public string GuestDocument { get; set; } = null!;   // *****45
 
         // guest is optional: after create we already have it in the controller
-        public MyInvitationResponse(Invitation invitation, Guest? guest = null)
+        public MyInvitationResponse(Invitation invitation = null!, Guest? guest = null)
         {
             var g = guest ?? invitation.Guest;
 
