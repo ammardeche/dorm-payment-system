@@ -1,0 +1,53 @@
+# STEP 2. Create a manager and a receptionist, and give them building 1.
+# Run the requests in order. Needs {{adminToken}} from 01-login-admin.http.
+
+### 1) Register the manager            # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Marek", "lastName": "Nowak", "email": "manager.a@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 2) Register the receptionist       # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Rita", "lastName": "Test", "email": "receptionist@dorm.com", "password": "Recept@123", "role": "Receptionist" }
+
+### 3) Log in as the manager -> saves {{managerToken}} and {{managerId}}
+# @name loginManager
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager.a@dorm.local", "password": "Manager@123" }
+
+{{
+  const t = response.parsedBody.payload.token;
+  exports.managerToken = t;
+  // the user id is inside the token (nameidentifier claim)
+  const claims = JSON.parse(Buffer.from(t.split('.')[1], 'base64url').toString());
+  exports.managerId = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+}}
+
+### 4) Log in as the receptionist -> saves {{receptionistToken}} and {{receptionistId}}
+# @name loginReceptionist
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "receptionist@dorm.com", "password": "Recept@123" }
+
+{{
+  const t = response.parsedBody.payload.token;
+  exports.receptionistToken = t;
+  const claims = JSON.parse(Buffer.from(t.split('.')[1], 'base64url').toString());
+  exports.receptionistId = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+}}
+
+### 5) Manager gets building 1         # EXPECT 200
+POST {{baseUrl}}/api/admin/user/{{managerId}}/buildings/1
+Authorization: Bearer {{adminToken}}
+
+### 6) Receptionist gets building 1    # EXPECT 200
+POST {{baseUrl}}/api/admin/user/{{receptionistId}}/buildings/1
+Authorization: Bearer {{adminToken}}

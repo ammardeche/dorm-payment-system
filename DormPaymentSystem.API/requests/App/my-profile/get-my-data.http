@@ -1,5 +1,0 @@
-
-
-GET {{baseUrl}}/api/app/myprofile/my-profile
-Content-Type: application/json
-Authorization: Bearer {{token}}

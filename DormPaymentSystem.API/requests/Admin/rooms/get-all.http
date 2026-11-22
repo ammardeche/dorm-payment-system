@@ -2,8 +2,10 @@
 ## GET ALL ROOMS
 GET {{baseUrl}}/api/admin/room/get-all?pageSize=100
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 GET {{baseUrl}}/api/admin/room/get-all?roomNumber=10
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

@@ -1,7 +1,8 @@
 ## reload 
 POST {{baseUrl}}/api/admin/payment/rebuild/7
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 {
     "Method": "Card"

@@ -1,0 +1,10 @@
+### Register a guest (find-or-create by document type + number)
+POST {{baseUrl}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "fullName": "John Michael Doe",
+  "documentNumber": "A123453389",
+  "documentType": "Passport"
+}

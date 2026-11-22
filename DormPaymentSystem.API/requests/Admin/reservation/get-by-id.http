@@ -1,5 +1,0 @@
-
-###  GET RESERVATION BY ID
-GET {{baseUrl}}/api/admin/reservation/2
-Content-Type: application/json
-Authorization: Bearer {{token}}

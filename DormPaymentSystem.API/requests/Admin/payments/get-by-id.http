@@ -1,4 +1,5 @@
 ## GET PAYMENT BY ID
 GET {{baseUrl}}/api/admin/payment/7
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

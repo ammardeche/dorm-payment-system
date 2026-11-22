@@ -1,0 +1,9 @@
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{
+  "GuestFullName": "Aziz",
+  "GuestDocumentNumber": "AB1234545",
+  "DocumentType": "Passport"
+}

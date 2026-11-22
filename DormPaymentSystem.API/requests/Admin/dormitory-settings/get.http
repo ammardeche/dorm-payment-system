@@ -5,5 +5,6 @@
 # GET DORMITORY SETTINGS  
 GET {{baseUrl}}/api/admin/dormitorysettings
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 

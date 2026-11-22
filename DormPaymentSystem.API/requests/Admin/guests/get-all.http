@@ -1,0 +1,3 @@
+### List guests. Filters go in the query string (a GET has no body). All filters are optional.
+GET {{baseUrl}}/api/admin/guest/get-all?documentNumber=A123&documentType=Passport&fullName=John
+Authorization: Bearer {{adminToken}}

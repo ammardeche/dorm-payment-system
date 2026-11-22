@@ -1,0 +1,9 @@
+### Update a guest. Send only what changes.
+PUT {{baseUrl}}/api/admin/guest/update/1
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "fullName": "John M. Doe",
+  "documentType": "NationalIdCard"
+}

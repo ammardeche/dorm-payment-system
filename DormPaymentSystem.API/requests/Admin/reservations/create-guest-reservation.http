@@ -1,0 +1,6 @@
+
+###  CREATE GUEST RESERVATION
+POST {{baseUrl}}/api/admin/reservation/guest
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

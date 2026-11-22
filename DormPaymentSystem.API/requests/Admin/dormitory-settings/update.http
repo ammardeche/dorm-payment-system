@@ -5,7 +5,8 @@
 # UPDATE DORMITORY SETTINGS  
 PUT {{baseUrl}}/api/admin/dormitorysettings/update
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 
 {

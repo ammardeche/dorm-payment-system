@@ -3,7 +3,8 @@
 ## update room information 
 PUT {{baseUrl}}/api/admin/room/update/2
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 {
   "roomNumber": 310,

@@ -3,4 +3,5 @@
 ## Get room by Id
 GET {{baseUrl}}/api/admin/room/2
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

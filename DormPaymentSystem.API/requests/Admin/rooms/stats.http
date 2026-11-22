@@ -3,4 +3,5 @@
 ## Get room stats
 GET {{baseUrl}}/api/admin/room/stats
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

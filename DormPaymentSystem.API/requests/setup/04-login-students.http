@@ -1,0 +1,23 @@
+# STEP 4. Student logins (mobile app). No X-Building-Id here, on purpose.
+# Saves {{annaToken}} and {{bobToken}}. Run after 03-seed-minimal.http.
+
+# @name loginAnna
+POST {{baseUrl}}/api/auth/student-login
+Content-Type: application/json
+
+{ "studentNumber": "s098001", "password": "Pass123!" }
+
+{{
+  exports.annaToken = response.parsedBody.payload.token;
+}}
+
+### Bob
+# @name loginBob
+POST {{baseUrl}}/api/auth/student-login
+Content-Type: application/json
+
+{ "studentNumber": "s098002", "password": "Pass123!" }
+
+{{
+  exports.bobToken = response.parsedBody.payload.token;
+}}

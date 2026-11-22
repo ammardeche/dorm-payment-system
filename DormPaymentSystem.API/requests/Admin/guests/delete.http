@@ -1,0 +1,12 @@
+
+
+
+
+# CREATE GUEST  
+DELETE {{baseUrl}}/api/admin/guest/delete/2
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+
+

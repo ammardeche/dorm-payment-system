@@ -1,0 +1,14 @@
+
+###  GET ALL RESERVATIONS
+GET {{baseUrl}}/api/admin/reservation/get-all
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+GET {{baseUrl}}/api/admin/reservation/get-all?studentId=7
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+GET {{baseUrl}}/api/admin/payment/get-all?reservationId=1
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}

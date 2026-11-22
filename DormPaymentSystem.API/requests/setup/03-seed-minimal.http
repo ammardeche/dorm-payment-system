@@ -1,0 +1,59 @@
+# STEP 3. Minimal data: settings, 2 rooms, 2 students (Anna, Bob), 2 reservations. Building 1.
+# Run ONCE on an empty database, in order. Ids below are 1 and 2 because the database is new.
+# Needs {{adminToken}} from 01-login-admin.http.
+
+### 1) Dormitory settings (reservations need the rate)
+POST {{baseUrl}}/api/admin/dormitorysettings/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "guestRatePerNight": 25.50, "studentMonthlyRate": 650.00, "effectiveFrom": "2026-07-01T00:00:00Z" }
+
+### 2) Room 101
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "roomNumber": 101, "capacity": 2, "floorNumber": 1 }
+
+### 3) Room 102
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "roomNumber": 102, "capacity": 2, "floorNumber": 1 }
+
+### 4) Student Anna
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "firstName": "Anna", "lastName": "Kowalska", "email": "s098001@student.tu.kielce.pl", "studentNumber": "s098001", "password": "Pass123!" }
+
+### 5) Student Bob
+POST {{baseUrl}}/api/admin/student/create
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "firstName": "Bob", "lastName": "Nowak", "email": "s098002@student.tu.kielce.pl", "studentNumber": "s098002", "password": "Pass123!" }
+
+### 6) Anna -> room 101
+POST {{baseUrl}}/api/admin/reservation/student
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "StudentId": 1, "RoomId": 1, "CheckIn": "2026-11-01T00:00:00" }
+
+### 7) Bob -> room 102
+POST {{baseUrl}}/api/admin/reservation/student
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
+
+{ "StudentId": 2, "RoomId": 2, "CheckIn": "2026-11-01T00:00:00" }

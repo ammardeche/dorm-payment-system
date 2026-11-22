@@ -4,6 +4,7 @@
 ## GET TOTAL PAYMENTS
 GET {{baseUrl}}/api/admin//payment/total
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 

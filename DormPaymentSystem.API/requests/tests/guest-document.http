@@ -1,0 +1,86 @@
+# GUEST DOCUMENT TEST
+# Needs: setup 01 to 04 done (adminToken, managerToken, annaToken, bobToken).
+# Admin calls use {{managerToken}} on purpose: it also tests the Manager role.
+# Clean SQL before a new run:
+#   DELETE FROM Invitations; DELETE FROM Guests;
+#   DBCC CHECKIDENT ('Invitations', RESEED, 0); DBCC CHECKIDENT ('Guests', RESEED, 0);
+
+### 1) Anna invites John (lower case)
+# EXPECT 200, guestDocument "*****45", NO guestId, NO full number
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "John Smith", "GuestDocumentNumber": "ab1234545", "DocumentType": "Passport" }
+
+### 2) Anna again, same month
+# EXPECT 409, and NO new row in Guests (the ZZ row must not appear)
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{annaToken}}
+
+{ "GuestFullName": "Someone Else", "GuestDocumentNumber": "ZZ9999999", "DocumentType": "Passport" }
+
+### 3) Bob invites the SAME person (spaces + upper case)
+# EXPECT 200, still 1 guest, number saved as AB1234545
+POST {{baseUrl}}/api/app/myinvitation/create
+Content-Type: application/json
+Authorization: Bearer {{bobToken}}
+
+{ "GuestFullName": "John Smith", "GuestDocumentNumber": "  AB1234545  ", "DocumentType": "Passport" }
+
+### 4) Anna's list
+# EXPECT masked numbers only, no guest id
+GET {{baseUrl}}/api/app/myinvitation
+Authorization: Bearer {{annaToken}}
+
+### 5) Staff: same number, OTHER type
+# EXPECT 200, NEW guest (2 rows)
+# @name g2
+POST {{baseUrl}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+
+{ "fullName": "Other Person", "documentNumber": "ab1234545", "documentType": "NationalIdCard" }
+
+### 6) Staff: same pair as John
+# EXPECT 200, SAME id as John
+POST {{baseUrl}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+
+{ "fullName": "John Smith", "documentNumber": "AB1234545", "documentType": "Passport" }
+
+### 7) List, no filters       # EXPECT 200, 2 guests
+GET {{baseUrl}}/api/admin/guest/get-all
+Authorization: Bearer {{managerToken}}
+
+### 8) Filter prefix + type   # EXPECT only John
+GET {{baseUrl}}/api/admin/guest/get-all?documentNumber=ab12&documentType=Passport
+Authorization: Bearer {{managerToken}}
+
+### 9) Filter number only     # EXPECT both guests
+GET {{baseUrl}}/api/admin/guest/get-all?documentNumber=AB1234545
+Authorization: Bearer {{managerToken}}
+
+### 10) Move "Other Person" to Passport   # EXPECT 409
+# If {{g2...}} is empty, write the id of "Other Person" by hand (look at request 5).
+PUT {{baseUrl}}/api/admin/guest/update/{{g2.res.parsedBody.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+
+{ "documentType": "Passport" }
+
+### 11) Change only the name   # EXPECT 200, number and type unchanged
+PUT {{baseUrl}}/api/admin/guest/update/{{g2.res.parsedBody.payload.id}}
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+
+{ "fullName": "Other Person Renamed" }
+
+### 12) Empty document number  # EXPECT 400
+POST {{baseUrl}}/api/admin/guest/create
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+
+{ "fullName": "No Number", "documentNumber": "", "documentType": "Passport" }

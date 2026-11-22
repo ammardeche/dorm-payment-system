@@ -22,13 +22,14 @@ namespace DormPaymentSystem.Core.Services
         private readonly IUnitOfWork _unitOfWork;
 
         public InvitationService(
-        IGuestService guestService,
         IInvitationRepository invitationRepository,
         IStudentRepository studentRepository,
             IGuestRepository guestRepository,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IGuestService guestService
             )
         {
+            _guestService = guestService;
             _invitationRepository = invitationRepository;
             _studentRepository = studentRepository;
             _guestRepository = guestRepository;

@@ -2,7 +2,8 @@
 ## UPDATE PAYMENT
 PUT {{baseUrl}}/api/admin/payment/update/2
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{adminToken}}
+X-Building-Id: {{buildingId}}
 
 {
   "amount": 650.00,

@@ -15,7 +15,6 @@ namespace DormPaymentSystem.Core.Services
         private readonly IGuestRepository _guestRepository;
         // no longer needs IRoomRepository — room is handled by ReservationService
         public GuestService(
-            IInvitationService invitationService,
             IGuestRepository guestRepository)
         {
             _guestRepository = guestRepository;

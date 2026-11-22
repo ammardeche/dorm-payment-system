@@ -1,0 +1,7 @@
+###
+# @name Get All Students
+GET {{baseUrl}}/api/admin/student/get-all
+Content-Type: application/json
+Authorization: Bearer {{managerToken}}
+X-Building-Id : 1
+

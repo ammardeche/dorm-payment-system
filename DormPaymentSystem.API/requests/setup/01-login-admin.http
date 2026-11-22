@@ -1,0 +1,12 @@
+# STEP 1. Log in as the seeded admin. Run this first, after every database drop.
+# The script after the request saves the token as {{adminToken}} for all other files.
+
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "admin@dorm.com", "password": "Admin@123" }
+
+{{
+  exports.adminToken = response.parsedBody.payload.token;
+}}

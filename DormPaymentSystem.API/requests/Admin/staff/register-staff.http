@@ -1,0 +1,48 @@
+### Create a receptionist (run as Admin)
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Martina",
+  "lastName": "Test",
+  "email": "receptionist@dorm.com",
+  "password": "Recept@123",
+  "role": "Receptionist"
+}
+
+
+### Receptionist login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "receptionist@dorm.com",
+  "password": "Recept@123"
+}
+
+
+@receptionistToken = PASTE_HER_TOKEN_HERE
+
+### 1) Admin asks for the receptionists (uses the normal admin token)
+# EXPECT 200
+GET {{baseUrl}}/api/admin/user/receptionists
+Authorization: Bearer {{adminToken}}
+
+### 2) Receptionist asks for the same thing (uses her token)
+# EXPECT 403 (receptionists are not allowed here)
+GET {{baseUrl}}/api/admin/user/receptionists
+Authorization: Bearer {{adminToken}}
+### Create a manager (run as Admin). After this, give him a building:
+### POST /api/admin/user/{userId}/buildings/{buildingId}  (see setup/02-staff.http)
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "firstName": "Marek",
+  "lastName": "Nowak",
+  "email": "manager.a@dorm.local",
+  "password": "Manager@123",
+  "role": "Manager"
+}
