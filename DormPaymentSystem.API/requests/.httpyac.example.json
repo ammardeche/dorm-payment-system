@@ -1,8 +1,10 @@
 {
   "environments": {
     "$shared": {
-      "baseUrl": "http://localhost:5001",
       "buildingId": "1"
+    },
+    "dev": {
+      "baseUrl": "http://localhost:5001"
     }
   }
 }
