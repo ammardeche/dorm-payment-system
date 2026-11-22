@@ -81,9 +81,8 @@ namespace DormPaymentSystem.API.Controller.App
                     new AppValidationException("Invalid request.")));
 
             var studentId = GetCurrentStudentId();
-            var created = _invitationService.CreateInvitationWithGuestAsync(studentId, req.GuestFullName, req.GuestDocumentNumber, req.DocumentType);
+            var created = await _invitationService.CreateInvitationWithGuestAsync(studentId, req.GuestFullName, req.GuestDocumentNumber, req.DocumentType);
             var invitation = await _invitationService.GetInvitationByIdAsync(created.Id);
-            // will fix that 
 
             return Ok(new Response<MyInvitationResponse>(
                 new MyInvitationResponse(invitation!)));

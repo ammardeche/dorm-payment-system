@@ -138,7 +138,7 @@ namespace DormPaymentSystem.Core.Services
             if (!student.IsActive)
                 throw new AppValidationException(
                     "Inactive student cannot create an invitation.");
-            // check if tg
+
 
             // 3. enforce 1 invitation per student per month
             var canInvite = await CanStudentInviteThisMonthAsync(studentId);
@@ -151,7 +151,7 @@ namespace DormPaymentSystem.Core.Services
             await _unitOfWork.ExecuteInTransactionAsync(
                 async () =>
                 {
-                    // regisyer guest
+                    // register guest
                     var guest = await _guestService.RegisterGuestAsync(fullName, documentNumber, documentType);
 
                     // create guest
