@@ -36,6 +36,15 @@ namespace DormPaymentSystem.Core.Interfaces
             string currentPassword,
             string newPassword);
 
+        Task<User> CreateReceptionistByManagerAsync(
+            string managerId,
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            int buildingId
+        );
+
         // mobile app registers FCM token after login
         Task UpdateFcmTokenAsync(string userId, string fcmToken);
     }

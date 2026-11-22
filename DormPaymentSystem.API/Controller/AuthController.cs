@@ -70,6 +70,24 @@ namespace DormPaymentSystem.API.Controllers
             return Ok(new Response<string>($"Staff account created for {user.FullName}."));
         }
 
+        [HttpPost("register-receptionist")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> RegisterReceptionist(
+           [FromBody] RegisterReceptionistRequet req)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var receptionist = await _authService.CreateReceptionistByManagerAsync(
+                userId,
+                req.FirstName,
+                req.LastName,
+                req.Email,
+                req.Password,
+                req.BuildingId
+            );
+
+            return Ok(new Response<string>($"Staff account created for {receptionist.FullName}."));
+        }
+
         // student changes their own password from mobile app
         [HttpPost("change-password")]
         [Authorize]

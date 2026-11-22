@@ -15,17 +15,24 @@ namespace DormPaymentSystem.Core.Services
 
 
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ITokenService _tokenService;
         private readonly IStudentRepository _studentRepository;
+
+        private readonly IBuildingMemberShipRepository _buildingMemberShipRepository;
 
         public AuthService(
             UserManager<User> userManager,
             ITokenService tokenService,
-            IStudentRepository studentRepository)
+            RoleManager<IdentityRole> roleManager,
+            IBuildingMemberShipRepository buildingMemberShip,
+        IStudentRepository studentRepository)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _studentRepository = studentRepository;
+            _buildingMemberShipRepository = buildingMemberShip;
+            _roleManager = roleManager;
         }
 
         // admin and receptionist login with email
@@ -129,7 +136,7 @@ namespace DormPaymentSystem.Core.Services
 
             // only Admin and Receptionist allowed here
             if (role != "Admin" && role != "Receptionist" && role != "Manager")
-                  throw new AppValidationException("Role must be Admin, Manager or Receptionist.");
+                throw new AppValidationException("Role must be Admin, Manager or Receptionist.");
 
             var existing = await _userManager.FindByEmailAsync(email);
             if (existing != null)
@@ -218,7 +225,60 @@ namespace DormPaymentSystem.Core.Services
             await _userManager.UpdateAsync(user);
         }
 
+        private const string roleReceptionist = "Receptionist";
+
+        // lets create the method that give the access to the manager to create a receptionist
+        public async Task<User> CreateReceptionistByManagerAsync(
+            string managerId,
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            int buildingId
+        )
+        {
+            // first we need to check if the manager exist 
+
+            var manager = await _userManager.FindByIdAsync(managerId);
+
+            if (manager == null)
+                throw new AppNotFoundException($"Manager with this id {managerId} doesn't exist ");
+
+            // check the role if this user hold a manager role 
+
+            if (!await _userManager.IsInRoleAsync(manager, "Manager"))
+            {
+                throw new AppForbiddenException($"{manager.Email} doesn't assigned as a manager");
+            }
+
+            // get the role and save it to use it later 
+
+            // check if this user assigned to the give building
+            // we need to use the memberShip to check if the manager assigned to this building
+            var isMangerAssignedToThisBuilding = await _buildingMemberShipRepository.MemberShipExist(managerId, buildingId);
+            if (!isMangerAssignedToThisBuilding)
+                throw new AppForbiddenException($"{manager.FullName} does not assigned to this building");
+            // we checked the manager ( exist , has a manager role , assigned to the building   ) 
+            var receptionist = await RegisterStaffAsync(
+                firstName,
+                lastName,
+                email,
+                password,
+                roleReceptionist
+            );
+
+            await _buildingMemberShipRepository.AddMemberShip(receptionist.Id, buildingId);
+
+            return receptionist;
+        }
+
 
     }
 
 }
+
+/* 
+
+
+
+ */
