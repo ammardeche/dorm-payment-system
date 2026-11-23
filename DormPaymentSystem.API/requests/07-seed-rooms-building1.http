@@ -1,0 +1,75 @@
+# SEED: 8 rooms in building 1, created by MANAGER 1. Then checks with RECEPTIONIST 1.
+# Needs: setup/06 done (manager1 and reception1 exist). The two logins below make this file self-contained.
+# Run top to bottom, ONCE.
+
+{{
+  // 4 rooms on floor 1, 4 rooms on floor 2. All have capacity 2.
+  exports.rooms = [
+    { n: 101, f: 1 }, { n: 102, f: 1 }, { n: 103, f: 1 }, { n: 104, f: 1 },
+    { n: 201, f: 2 }, { n: 202, f: 2 }, { n: 203, f: 2 }, { n: 204, f: 2 }
+  ];
+}}
+
+### 1) Manager 1 logs in -> saves mgr1Token
+# @name loginManager1
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager1@dorm.local", "password": "Manager@123" }
+
+{{
+  exports.mgr1Token = response.parsedBody.payload.token;
+}}
+
+### 2) Receptionist 1 logs in -> saves rec1Token
+# @name loginReception1
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "reception1@dorm.local", "password": "Recept@123" }
+
+{{
+  exports.rec1Token = response.parsedBody.payload.token;
+}}
+
+### 3) Manager 1 creates 8 rooms in building 1      # EXPECT 200 x8
+# @loop for 8
+@mgr1Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY1YTU0YzA5LTQ0ZjctNDk1MS05NjI1LWY2ZWU3N2ZmYzNmYyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InJlY2VwdGlvbjFAZG9ybS5sb2NhbCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJSZWNlcHRpb24xIFRlc3QiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJSZWNlcHRpb25pc3QiLCJleHAiOjE4NTUzOTMxNjYsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.Dl_3M7Sm6DaVQvGh8RLyhy88279a6wHlx3b65bfWHHA
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{mgr1Token}}
+X-Building-Id: 1
+
+{ "RoomNumber": {{ rooms[$index].n }}, "FloorNumber": {{ rooms[$index].f }}, "Capacity": 2 }
+
+### 4) Same room number again                        # EXPECT an error (duplicate), write down the status
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{mgr1Token}}
+X-Building-Id: 1
+
+{ "RoomNumber": 101, "FloorNumber": 1, "Capacity": 2 }
+
+### 5) Receptionist 1 lists the rooms of building 1  # EXPECT 200, 8 rooms
+@rec1Token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY1YTU0YzA5LTQ0ZjctNDk1MS05NjI1LWY2ZWU3N2ZmYzNmYyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InJlY2VwdGlvbjFAZG9ybS5sb2NhbCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJSZWNlcHRpb24xIFRlc3QiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJSZWNlcHRpb25pc3QiLCJleHAiOjE4NTUzOTMzMzEsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.G3wiuG5E4bm9Pcq0mu4c3NEl96vsVijzKd0oi_RWvjo
+GET {{baseUrl}}/api/admin/room/get-all?pageSize=100
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+### 6) Receptionist 1, building 2                    # EXPECT 403
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+### 7) Manager 1, building 2                         # EXPECT 403
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{mgr1Token}}
+X-Building-Id: 2
+
+### 8) Receptionist 1 tries to CREATE a room         # DECIDE what you expect, then see what happens
+POST {{baseUrl}}/api/admin/room/create
+Content-Type: application/json
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+{ "RoomNumber": 301, "FloorNumber": 3, "Capacity": 2 }

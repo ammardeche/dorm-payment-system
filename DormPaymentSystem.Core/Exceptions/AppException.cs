@@ -36,7 +36,7 @@ namespace DormPaymentSystem.Core.Exceptions
         public class AppForbiddenException : AppException
         {
             public AppForbiddenException(string message)
-                : base(message, 422) { }
+                : base(message, 403) { }
         }
 
         public class PaymentException : AppException

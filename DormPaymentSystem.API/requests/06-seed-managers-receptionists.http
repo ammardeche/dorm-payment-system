@@ -1,0 +1,220 @@
+# SEED: 5 managers (one per building) + 1 receptionist created by each manager.
+# Run ONCE on a fresh database, top to bottom ("Send all" or one by one).
+# Needs: setup/01-login-admin.http first (it saves {{adminToken}}). Building ids 1 to 5 are seeded.
+#
+# Accounts created (all passwords: Manager@123 for managers, Recept@123 for receptionists)
+#   manager1@dorm.local -> building 1      reception1@dorm.local (created BY manager1)
+#   manager2@dorm.local -> building 2      reception2@dorm.local
+#   manager3@dorm.local -> building 3      reception3@dorm.local
+#   manager4@dorm.local -> building 4      reception4@dorm.local
+#   manager5@dorm.local -> building 5      reception5@dorm.local
+# Running it twice gives 409 (email already registered). Drop the database to start again.
+
+################################################################
+# MANAGER 1  ->  building 1
+################################################################
+
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgwNzMyNGI0LTNkYTUtNDlhYy05NTBmLTZmYjNlNzdjYjk0ZCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGRvcm0uY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkFkbWluIFVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTg1NTM3OTYzMCwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.oMKmMoZJKn1QjLPh0QXcJ4m2bicj9NWD_HkBbeIueMY
+@piotrToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjNjMTFkMTIxLTc2MDctNDlkNC05MWE2LTBkNWU1ZTg5YzkzOSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIxQGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUGlvdHIgS293YWxza2kiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxODU1MzkxNDA3LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.lsvWnVMNtRyHTBD6ggxdeXgjzTJ39gaLSdJ7Aw4j0g8
+### 1.1) Admin creates manager 1           # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Piotr", "lastName": "Kowalski", "email": "manager1@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 1.2) Manager 1 logs in -> saves mgr1Token and mgr1Id
+# @name loginManager1
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager1@dorm.local", "password": "Manager@123" }
+
+{{
+  const t = response.parsedBody.payload.token;
+  exports.mgr1Token = t;
+  const claims = JSON.parse(Buffer.from(t.split('.')[1], 'base64url').toString());
+  exports.mgr1Id = claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+}}
+
+### 1.3) Admin gives building 1 to manager 1   # EXPECT 200
+POST {{baseUrl}}/api/admin/user/3c11d121-7607-49d4-91a6-0d5e5e89c939/buildings/1
+Authorization: Bearer {{adminToken}}
+
+### 1.4) Manager 1 creates a receptionist in building 1   # EXPECT 200
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{piotrToken}}
+
+{ "firstName": "Reception1", "lastName": "Test", "email": "reception1@dorm.local", "password": "Recept@123", "buildingId": 1 }
+
+################################################################
+# MANAGER 2  ->  building 2
+################################################################
+
+### 2.1) Admin creates manager 2           # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Maria", "lastName": "Nowak", "email": "manager2@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 2.2) Manager 2 logs in -> saves mgr2Token and mgr2Id
+# @name loginManager2
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+{ "email": "manager2@dorm.local", "password": "Manager@123" }
+
+### 2.3) Admin gives building 2 to manager 2   # EXPECT 200
+POST {{baseUrl}}/api/admin/user/9f10782d-3c8f-4cca-86f2-be0db1682d1b/buildings/2
+Authorization: Bearer {{adminToken}}
+
+### 2.4) Manager 2 creates a receptionist in building 2   # EXPECT 200
+@mariaToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjlmMTA3ODJkLTNjOGYtNGNjYS04NmYyLWJlMGRiMTY4MmQxYiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIyQGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiTWFyaWEgTm93YWsiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxODU1MzkxNzY1LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.zwzJWYU0M0pWlYd4kHmDIWx6Uq4_cncIADu9Tej8pqA
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{mariaToken}}
+
+{ "firstName": "Reception2", "lastName": "Test", "email": "reception2@dorm.local", "password": "Recept@123", "buildingId": 2 }
+
+################################################################
+# MANAGER 3  ->  building 3
+################################################################
+
+### 3.1) Admin creates manager 3           # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Jan", "lastName": "Wisniewski", "email": "manager3@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 3.2) Manager 3 logs in -> saves mgr3Token and mgr3Id
+# @name loginManager3
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager3@dorm.local", "password": "Manager@123" }
+
+
+### 3.3) Admin gives building 3 to manager 3   # EXPECT 200
+POST {{baseUrl}}/api/admin/user/8b9ae7bf-6eec-4dd4-b955-99074043fdc9/buildings/3
+Authorization: Bearer {{adminToken}}
+
+### 3.4) Manager 3 creates a receptionist in building 3   # EXPECT 200
+@janToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjhiOWFlN2JmLTZlZWMtNGRkNC1iOTU1LTk5MDc0MDQzZmRjOSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIzQGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSmFuIFdpc25pZXdza2kiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxODU1MzkxODM4LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.SoALI7DmW5MEi4ThHnvgjyOePCOgZck_0HX9pzwK_w8
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{janToken}}
+
+{ "firstName": "Reception3", "lastName": "Test", "email": "reception3@dorm.local", "password": "Recept@123", "buildingId": 3 }
+
+################################################################
+# MANAGER 4  ->  building 4
+################################################################
+
+### 4.1) Admin creates manager 4           # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Ewa", "lastName": "Wojcik", "email": "manager4@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 4.2) Manager 4 logs in -> saves mgr4Token and mgr4Id
+# @name loginManager4
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager4@dorm.local", "password": "Manager@123" }
+
+
+### 4.3) Admin gives building 4 to manager 4   # EXPECT 200
+POST {{baseUrl}}/api/admin/user/90a5f3cb-8df2-4d30-b14c-89ace2280388/buildings/4
+Authorization: Bearer {{adminToken}}
+
+### 4.4) Manager 4 creates a receptionist in building 4   # EXPECT 200
+@evaToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjkwYTVmM2NiLThkZjItNGQzMC1iMTRjLTg5YWNlMjI4MDM4OCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXI0QGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiRXdhIFdvamNpayIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1hbmFnZXIiLCJleHAiOjE4NTUzOTE5NDcsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.2NHCrAltal2nTYt4HT4h0Qe0L_Sj29kkZtVzzKLf7dY
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{evaToken}}
+
+{ "firstName": "Reception4", "lastName": "Test", "email": "reception4@dorm.local", "password": "Recept@123", "buildingId": 4 }
+
+################################################################
+# MANAGER 5  ->  building 5
+################################################################
+
+### 5.1) Admin creates manager 5           # EXPECT 200
+POST {{baseUrl}}/api/auth/register-staff
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{ "firstName": "Tomasz", "lastName": "Kaminski", "email": "manager5@dorm.local", "password": "Manager@123", "role": "Manager" }
+
+### 5.2) Manager 5 logs in -> saves mgr5Token and mgr5Id
+# @name loginManager5
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "manager5@dorm.local", "password": "Manager@123" }
+
+
+### 5.3) Admin gives building 5 to manager 5   # EXPECT 200
+POST {{baseUrl}}/api/admin/user/2d56a3f1-3e47-40e2-b186-bbef2c2b9464/buildings/5
+Authorization: Bearer {{adminToken}}
+
+### 5.4) Manager 5 creates a receptionist in building 5   # EXPECT 200
+@tomaszToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjJkNTZhM2YxLTNlNDctNDBlMi1iMTg2LWJiZWYyYzJiOTQ2NCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXI1QGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiVG9tYXN6IEthbWluc2tpIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTg1NTM5MjAzOCwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.ncG6Q5hAdBgqybf0piuqY90ZCxQsGMvVaW3IPxNJDgA
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{tomaszToken}}
+
+{ "firstName": "Reception5", "lastName": "Test", "email": "reception5@dorm.local", "password": "Recept@123", "buildingId": 5 }
+
+################################################################
+# CHECKS
+################################################################
+
+### C1) Manager 1 tries to create a receptionist in building 2   # EXPECT 403
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{piotrToken}}
+
+{ "firstName": "Wrong", "lastName": "Building", "email": "wrong.building@dorm.local", "password": "Recept@123", "buildingId": 2 }
+
+### C2) Same email again (manager 1, building 1)   # EXPECT 409
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{piotrToken}}
+
+{ "firstName": "Reception1", "lastName": "Test", "email": "reception1@dorm.local", "password": "Recept@123", "buildingId": 1 }
+
+### C3) Receptionist 1 logs in -> saves rec1Token
+# @name loginReception1
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{ "email": "reception1@dorm.local", "password": "Recept@123" }
+
+{{
+  exports.rec1Token = response.parsedBody.payload.token;
+}}
+
+### C4) Receptionist 1 in building 1   # EXPECT 200
+@rec1Token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY1YTU0YzA5LTQ0ZjctNDk1MS05NjI1LWY2ZWU3N2ZmYzNmYyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InJlY2VwdGlvbjFAZG9ybS5sb2NhbCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJSZWNlcHRpb24xIFRlc3QiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJSZWNlcHRpb25pc3QiLCJleHAiOjE4NTUzOTIxNzAsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.adYv3VJCtubwSMtHnr7ZyueYcN1R8wu-ynk4Cvn-S0A
+GET {{baseUrl}}/api/admin/room/get-all
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+
+### C6) A receptionist cannot create receptionists   # EXPECT 403
+@rec1Token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY1YTU0YzA5LTQ0ZjctNDk1MS05NjI1LWY2ZWU3N2ZmYzNmYyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InJlY2VwdGlvbjFAZG9ybS5sb2NhbCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJSZWNlcHRpb24xIFRlc3QiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJSZWNlcHRpb25pc3QiLCJleHAiOjE4NTUzOTIxNzAsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.adYv3VJCtubwSMtHnr7ZyueYcN1R8wu-ynk4Cvn-S0A
+
+POST {{baseUrl}}/api/auth/register-receptionist
+Content-Type: application/json
+Authorization: Bearer {{rec1Token}}
+
+{ "firstName": "Not", "lastName": "Allowed", "email": "not.allowed@dorm.local", "password": "Recept@123", "buildingId": 1 }
+
+### C7) Admin lists receptionists   # EXPECT 200, receptionist 1 to 5 are there
+GET {{baseUrl}}/api/admin/user/receptionists
+Authorization: Bearer {{adminToken}}

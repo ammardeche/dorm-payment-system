@@ -73,7 +73,7 @@ namespace DormPaymentSystem.API.Controllers
         [HttpPost("register-receptionist")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> RegisterReceptionist(
-           [FromBody] RegisterReceptionistRequet req)
+           [FromBody] RegisterReceptionistRequest req)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var receptionist = await _authService.CreateReceptionistByManagerAsync(

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DormPaymentSystem.API.DTOs.Request
 {
-    public class RegisterReceptionistRequet
+    public class RegisterReceptionistRequest
     {
         [Required] public string FirstName { get; set; } = null!;
         [Required] public string LastName { get; set; } = null!;

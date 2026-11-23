@@ -4,6 +4,7 @@
 POST {{baseUrl}}/api/admin/user/{{managerId}}/buildings/1
 Authorization: Bearer {{adminToken}}
 
+
 ### 2) Same again                          # EXPECT 409 (already in this building)
 POST {{baseUrl}}/api/admin/user/{{managerId}}/buildings/1
 Authorization: Bearer {{adminToken}}

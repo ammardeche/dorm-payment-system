@@ -15,16 +15,16 @@ namespace DormPaymentSystem.Core.Services
 
 
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ITokenService _tokenService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly IBuildingMemberShipRepository _buildingMemberShipRepository;
 
         public AuthService(
-            UserManager<User> userManager,
-            ITokenService tokenService,
-            RoleManager<IdentityRole> roleManager,
+            IUnitOfWork unitOfWork,
+        UserManager<User> userManager,
+        ITokenService tokenService,
             IBuildingMemberShipRepository buildingMemberShip,
         IStudentRepository studentRepository)
         {
@@ -32,7 +32,7 @@ namespace DormPaymentSystem.Core.Services
             _tokenService = tokenService;
             _studentRepository = studentRepository;
             _buildingMemberShipRepository = buildingMemberShip;
-            _roleManager = roleManager;
+            _unitOfWork = unitOfWork;
         }
 
         // admin and receptionist login with email
@@ -259,18 +259,27 @@ namespace DormPaymentSystem.Core.Services
             if (!isMangerAssignedToThisBuilding)
                 throw new AppForbiddenException($"{manager.FullName} does not assigned to this building");
             // we checked the manager ( exist , has a manager role , assigned to the building   ) 
-            var receptionist = await RegisterStaffAsync(
-                firstName,
-                lastName,
-                email,
-                password,
-                roleReceptionist
-            );
 
-            await _buildingMemberShipRepository.AddMemberShip(receptionist.Id, buildingId);
+            User receptionist = null!;
+            await _unitOfWork.ExecuteInTransactionAsync(
+                async () =>
+                {
+                    receptionist = await RegisterStaffAsync(
+                     firstName,
+                     lastName,
+                     email,
+                     password,
+                     roleReceptionist
+                 );
+
+                    await _buildingMemberShipRepository.AddMemberShip(receptionist.Id, buildingId);
+
+                }
+            );
 
             return receptionist;
         }
+
 
 
     }

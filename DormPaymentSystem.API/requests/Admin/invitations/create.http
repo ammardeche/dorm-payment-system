@@ -1,15 +1,14 @@
 
 
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgwNzMyNGI0LTNkYTUtNDlhYy05NTBmLTZmYjNlNzdjYjk0ZCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGRvcm0uY29tIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZSI6IkFkbWluIFVzZXIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTg1NTM3OTYzMCwiaXNzIjoiRG9ybVBheW1lbnRTeXN0ZW1BUEkiLCJhdWQiOiJEb3JtUGF5bWVudFN5c3RlbUNsaWVudHMifQ.oMKmMoZJKn1QjLPh0QXcJ4m2bicj9NWD_HkBbeIueMY
 
 
 # Create an invitation 
 POST {{baseUrl}}/api/admin/invitation/create
 Content-Type: application/json
 Authorization: Bearer {{adminToken}}
-X-Building-Id: {{buildingId}}
-
-
+X-Building-Id: 1
 {
   "invitedByStudentId": 2,
-  "guestId": 1
+  "guestId": 2
 }
