@@ -249,60 +249,6 @@ namespace DormPaymentSystem.Core.Services
             return reservation;
         }
 
-        public async Task<Reservation> CreateInvitationReservationAsync(
-            int invitationId,
-            int roomId,
-            DateTime checkIn,
-            DateTime checkOut)
-        {
-            // 1. validate invitation
-            var invitation = await _invitationRepository.GetInvitationById(invitationId);
-            if (invitation == null)
-                throw new AppNotFoundException($"Invitation with id '{invitationId}' not found.");
-
-            if (invitation.Status != InvitationStatus.Pending)
-                throw new AppValidationException("Invitation has already been used or expired.");
-
-            // 2. validate dates
-            if (checkOut <= checkIn)
-                throw new AppValidationException("Check-out must be after check-in.");
-
-            // 3. validate room
-            var room = await _roomRepository.GetRoomById(roomId);
-            if (room == null)
-                throw new AppNotFoundException($"Room with id '{roomId}' not found.");
-
-
-
-            Reservation reservation = null!;
-
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                // 4. create reservation — always free
-                reservation = new Reservation
-                {
-                    Type = ReservationType.InvitationStay,
-                    Status = ReservationStatus.Active,
-                    GuestId = invitation.GuestId,    // guest linked via invitation
-                    InvitationId = invitationId,
-                    RoomId = roomId,
-                    CheckIn = checkIn,
-                    CheckOut = checkOut,
-                    RateSnapshot = 0,                // free
-                    TotalAmount = 0                  // no payment created
-                };
-
-                await _reservationRepository.CreateReservation(reservation);
-
-                // 5. mark invitation as used
-                invitation.Status = InvitationStatus.Used;
-                invitation.ReservationId = reservation.Id;
-                await _invitationRepository.UpdateInvitation(invitation);
-            });
-
-            return reservation;
-        }
-
         public async Task<Reservation> CheckOutAsync(int reservationId)
         {
             var reservation = await _reservationRepository.GetReservationById(reservationId);
@@ -312,22 +258,28 @@ namespace DormPaymentSystem.Core.Services
             if (reservation.Status != ReservationStatus.Active)
                 throw new AppValidationException("Reservation is not active.");
 
-            // set checkout
-            reservation.Status = ReservationStatus.CheckedOut;
-            reservation.CheckOut = DateTime.UtcNow;
+            await _unitOfWork.ExecuteInTransactionAsync(
+                async () =>
+                {
+                    // set checkout
+                    reservation.Status = ReservationStatus.CheckedOut;
+                    reservation.CheckOut = DateTime.UtcNow;
+                    await _reservationRepository.UpdateReservation(reservation);
 
-            await _reservationRepository.UpdateReservation(reservation);
-
-            // update room occupancy
-            var room = await _roomRepository.GetRoomById(reservation.RoomId);
-            if (room != null)
-            {
-                room.CurrentOccupancy = Math.Max(0, room.CurrentOccupancy - 1);
-                room.Status = room.CurrentOccupancy < room.Capacity
-                    ? RoomStatus.Available
-                    : RoomStatus.Full;
-                await _roomRepository.UpdateRoom(room);
-            }
+                    if (reservation.Type != ReservationType.InvitationStay)
+                    {
+                        var room = await _roomRepository.GetRoomById(reservation.RoomId);
+                        if (room != null)
+                        {
+                            room.CurrentOccupancy = Math.Max(0, room.CurrentOccupancy - 1);
+                            room.Status = room.CurrentOccupancy < room.Capacity
+                                ? RoomStatus.Available
+                                : RoomStatus.Full;
+                            await _roomRepository.UpdateRoom(room);
+                        }
+                    }
+                }
+            );
 
             return reservation;
         }

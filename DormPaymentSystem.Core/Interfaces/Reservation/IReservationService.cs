@@ -36,12 +36,6 @@ namespace DormPaymentSystem.Core.Interfaces
             DateTime checkOut,
             string receivedByUserId);
 
-        // Student invites a friend — free
-        Task<Reservation> CreateInvitationReservationAsync(
-            int invitationId,
-            int roomId,
-            DateTime checkIn,
-            DateTime checkOut);
 
         Task<Invitation> ApproveInvitationAsync(int invitationId);
 

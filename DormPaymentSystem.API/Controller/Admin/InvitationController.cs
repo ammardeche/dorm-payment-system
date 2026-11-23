@@ -8,6 +8,7 @@ using DormPaymentSystem.API.DTOs.Response;
 using DormPaymentSystem.API.Middleware;
 using DormPaymentSystem.API.Queries;
 using DormPaymentSystem.Core.common;
+using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using static DormPaymentSystem.Core.Exceptions.AppException;
@@ -21,9 +22,13 @@ namespace DormPaymentSystem.API.Controller
 
 
         private readonly IInvitationService _invitationService;
+        private readonly IReservationService _reservationService;
 
-        public InvitationController(IInvitationService invitationService)
+        public InvitationController(
+            IReservationService reservationService,
+            IInvitationService invitationService)
         {
+            _reservationService = reservationService;
             _invitationService = invitationService;
         }
 
@@ -73,6 +78,19 @@ namespace DormPaymentSystem.API.Controller
             await _invitationService.DeleteInvitationAsync(id);
             return Ok(new Response<string>("Invitation deleted successfully."));
         }
+        [HttpPost("approve/{id}")]
+
+        public async Task<IActionResult> ApproveInvitation(int id)
+        {
+
+            var invitatiotn = await _reservationService.ApproveInvitationAsync(id);
+
+
+
+            return Ok(new Response<InvitationResponse>(new InvitationResponse(invitatiotn!)));
+
+        }
+
     }
 
 

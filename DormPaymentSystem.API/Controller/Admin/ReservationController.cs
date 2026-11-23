@@ -82,30 +82,12 @@ namespace DormPaymentSystem.API.Controller.Admin
             return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
         }
 
-        [HttpPost("invitation")]
-        public async Task<IActionResult> CreateInvitationReservation(
-            [FromBody] CreateInvitationReservationRequest req)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(new Response(new AppValidationException("Invalid request.")));
-
-            var reservation = await _reservationService.CreateInvitationReservationAsync(
-                req.InvitationId,
-                req.RoomId,
-                req.CheckIn,
-                req.CheckOut);
-
-            return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
-        }
-
         [HttpPost("checkout/{id}")]
         public async Task<IActionResult> CheckOut(int id)
         {
             var reservation = await _reservationService.CheckOutAsync(id);
             return Ok(new Response<ReservationResponse>(new ReservationResponse(reservation)));
         }
-
-
 
     }
 }

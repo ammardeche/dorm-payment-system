@@ -111,7 +111,7 @@ namespace DormPaymentSystem.Core.Services
 
             // block delete if guest has active reservations
             var hasActiveReservation = guest.Reservations
-                .Any(r => r.Status == Core.Enums.ReservationStatus.Active);
+                .Any(r => r.Status == ReservationStatus.Active);
 
             if (hasActiveReservation)
                 throw new AppValidationException(
