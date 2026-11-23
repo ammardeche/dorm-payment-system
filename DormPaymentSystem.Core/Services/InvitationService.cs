@@ -162,7 +162,5 @@ namespace DormPaymentSystem.Core.Services
             return invitation;
 
         }
-
-
     }
 }

@@ -21,7 +21,7 @@ namespace DormPaymentSystem.Core.Services
         private readonly IDormitorySettingsRepository _settingsRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentService _paymentService;
-        private readonly IUnitOfWork _unitOfWork;   
+        private readonly IUnitOfWork _unitOfWork;
 
         public ReservationService(
 
@@ -162,7 +162,7 @@ namespace DormPaymentSystem.Core.Services
                 student.RoomId = roomId;
                 await _studentRepository.UpdateStudent(student);
             });
-           
+
             return reservation;
         }
 
@@ -210,40 +210,40 @@ namespace DormPaymentSystem.Core.Services
 
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var reservation = new Reservation
-            {
-                Type = ReservationType.GuestStay,
-                Status = ReservationStatus.Active,
-                GuestId = guestId,
-                RoomId = roomId,
-                CheckIn = checkIn,
-                CheckOut = checkOut,
-                RateSnapshot = settings.GuestRatePerNight,
-                TotalAmount = settings.GuestRatePerNight * nights
-            };
+                reservation = new Reservation
+                {
+                    Type = ReservationType.GuestStay,
+                    Status = ReservationStatus.Active,
+                    GuestId = guestId,
+                    RoomId = roomId,
+                    CheckIn = checkIn,
+                    CheckOut = checkOut,
+                    RateSnapshot = settings.GuestRatePerNight,
+                    TotalAmount = settings.GuestRatePerNight * nights
+                };
 
-            await _reservationRepository.CreateReservation(reservation);
+                await _reservationRepository.CreateReservation(reservation);
 
-            // 7. create single payment for full stay
-            var payment = new Payment
-            {
-                ReservationId = reservation.Id,
-                Amount = reservation.TotalAmount,
-                PaymentMonth = checkIn.Month,
-                PaymentYear = checkIn.Year,
-                DueDate = checkIn,
-                Status = PaymentStatus.Pending,
-                ReceivedById = userId,
-                ReceiptNumber = GenerateReceiptNumber("GST", guestId, 0),
-                CreatedAt = DateTime.UtcNow
-            };
-            await _paymentRepository.CreatePayment(payment);
+                // 7. create single payment for full stay
+                var payment = new Payment
+                {
+                    ReservationId = reservation.Id,
+                    Amount = reservation.TotalAmount,
+                    PaymentMonth = checkIn.Month,
+                    PaymentYear = checkIn.Year,
+                    DueDate = checkIn,
+                    Status = PaymentStatus.Pending,
+                    ReceivedById = userId,
+                    ReceiptNumber = GenerateReceiptNumber("GST", guestId, 0),
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _paymentRepository.CreatePayment(payment);
 
-            // 8. update room occupancy
-            room.CurrentOccupancy += 1;
-            if (room.CurrentOccupancy >= room.Capacity)
-                room.Status = RoomStatus.Full;
-            await _roomRepository.UpdateRoom(room); 
+                // 8. update room occupancy
+                room.CurrentOccupancy += 1;
+                if (room.CurrentOccupancy >= room.Capacity)
+                    room.Status = RoomStatus.Full;
+                await _roomRepository.UpdateRoom(room);
             });
 
             return reservation;
@@ -272,42 +272,34 @@ namespace DormPaymentSystem.Core.Services
             if (room == null)
                 throw new AppNotFoundException($"Room with id '{roomId}' not found.");
 
-            if (room.CurrentOccupancy >= room.Capacity)
-                throw new AppValidationException("Room is full.");
 
 
-            Reservation reservation = null!;    
+            Reservation reservation = null!;
 
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                 // 4. create reservation — always free
-            var reservation = new Reservation
-            {
-                Type = ReservationType.InvitationStay,
-                Status = ReservationStatus.Active,
-                GuestId = invitation.GuestId,    // guest linked via invitation
-                InvitationId = invitationId,
-                RoomId = roomId,
-                CheckIn = checkIn,
-                CheckOut = checkOut,
-                RateSnapshot = 0,                // free
-                TotalAmount = 0                  // no payment created
-            };
+                // 4. create reservation — always free
+                reservation = new Reservation
+                {
+                    Type = ReservationType.InvitationStay,
+                    Status = ReservationStatus.Active,
+                    GuestId = invitation.GuestId,    // guest linked via invitation
+                    InvitationId = invitationId,
+                    RoomId = roomId,
+                    CheckIn = checkIn,
+                    CheckOut = checkOut,
+                    RateSnapshot = 0,                // free
+                    TotalAmount = 0                  // no payment created
+                };
 
-            await _reservationRepository.CreateReservation(reservation);
+                await _reservationRepository.CreateReservation(reservation);
 
-            // 5. mark invitation as used
-            invitation.Status = InvitationStatus.Used;
-            invitation.ReservationId = reservation.Id;
-            await _invitationRepository.UpdateInvitation(invitation);
-
-            // 6. update room occupancy
-            room.CurrentOccupancy += 1;
-            if (room.CurrentOccupancy >= room.Capacity)
-                room.Status = RoomStatus.Full;
-            await _roomRepository.UpdateRoom(room);
+                // 5. mark invitation as used
+                invitation.Status = InvitationStatus.Used;
+                invitation.ReservationId = reservation.Id;
+                await _invitationRepository.UpdateInvitation(invitation);
             });
-            
+
             return reservation;
         }
 
@@ -341,6 +333,65 @@ namespace DormPaymentSystem.Core.Services
         }
 
 
+
+        public async Task<Invitation> ApproveInvitationAsync(int invitationId)
+        {
+
+            // check the invitation
+            var invitation = await _invitationRepository.GetInvitationById(invitationId);
+
+            if (invitation == null)
+                throw new AppNotFoundException("invitaiotn does not exist ");
+
+            // check the invitaion status 
+
+            if (invitation.Status != InvitationStatus.Pending)
+                throw new AppConflictException("invitaiton should be pending");
+
+            // check if the student is active 
+            var student = await _studentRepository.GetStudentById(invitation.InvitedByStudentId);
+            if (student == null)
+                throw new AppNotFoundException("student does not exist");
+            if (!student.IsActive)
+                throw new AppValidationException("student no longer is active ");
+
+            var inviterReservation = await GetActiveReservationByStudentIdAsync(student.Id);
+            if (inviterReservation == null)
+            {
+                throw new AppConflictException("The student has no active reservation, so there is no room for the guest.");
+            }
+
+            var checkIn = DateTime.UtcNow;
+            var checkOut = checkIn.AddDays(1);
+
+            Reservation reservation = null!;
+
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                reservation = new Reservation
+                {
+                    Type = ReservationType.InvitationStay,
+                    Status = ReservationStatus.Active,
+                    GuestId = invitation.GuestId,
+                    InvitationId = invitation.Id,
+                    RoomId = inviterReservation.RoomId,
+                    CheckIn = checkIn,
+                    CheckOut = checkOut,
+                    RateSnapshot = 0,
+                    TotalAmount = 0
+                };
+
+                await _reservationRepository.CreateReservation(reservation);
+
+                invitation.Status = InvitationStatus.Used;
+                invitation.ReservationId = reservation.Id;
+                await _invitationRepository.UpdateInvitation(invitation);
+            });
+
+            return invitation;
+
+        }
 
         // ── HELPERS ──────────────────────────────────────────────────
         private static string GenerateReceiptNumber(string prefix, int entityId, int index)

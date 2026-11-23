@@ -43,6 +43,8 @@ namespace DormPaymentSystem.Core.Interfaces
             DateTime checkIn,
             DateTime checkOut);
 
+        Task<Invitation> ApproveInvitationAsync(int invitationId);
+
         // Guest or invited friend checks out
         Task<Reservation> CheckOutAsync(int reservationId);
 

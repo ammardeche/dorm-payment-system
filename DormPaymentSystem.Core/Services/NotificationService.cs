@@ -17,8 +17,10 @@ namespace DormPaymentSystem.Core.Services
         private readonly INotificationRepository _notificationRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IRoomRepository _roomRepository;
+        private readonly IReservationRepository _reservationRepository;
 
         public NotificationService(
+            IReservationRepository reservationRepository,
             INotificationRepository notificationRepository,
             IStudentRepository studentRepository,
             IRoomRepository roomRepository)
@@ -26,6 +28,7 @@ namespace DormPaymentSystem.Core.Services
             _notificationRepository = notificationRepository;
             _studentRepository = studentRepository;
             _roomRepository = roomRepository;
+            _reservationRepository = reservationRepository;
         }
 
         public async Task<(IEnumerable<Notification> Items, int TotalCount)>
@@ -75,7 +78,13 @@ namespace DormPaymentSystem.Core.Services
             }
             if (string.IsNullOrWhiteSpace(message))
                 throw new AppValidationException("Message cannot be empty.");
+            // check if student active
 
+            var activeReservation = await _reservationRepository.GetActiveReservationByStudentId(student.Id);
+            if (activeReservation == null)
+            {
+                throw new AppConflictException($"Student has no active reservation.");
+            }
             var notification = new Notification
             {
                 Title = title,

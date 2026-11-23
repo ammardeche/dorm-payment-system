@@ -1,7 +1,10 @@
+@piotrToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjNjMTFkMTIxLTc2MDctNDlkNC05MWE2LTBkNWU1ZTg5YzkzOSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6Im1hbmFnZXIxQGRvcm0ubG9jYWwiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUGlvdHIgS293YWxza2kiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxODU1MzkxNDA3LCJpc3MiOiJEb3JtUGF5bWVudFN5c3RlbUFQSSIsImF1ZCI6IkRvcm1QYXltZW50U3lzdGVtQ2xpZW50cyJ9.lsvWnVMNtRyHTBD6ggxdeXgjzTJ39gaLSdJ7Aw4j0g8
+@rec1Token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjY1YTU0YzA5LTQ0ZjctNDk1MS05NjI1LWY2ZWU3N2ZmYzNmYyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6InJlY2VwdGlvbjFAZG9ybS5sb2NhbCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJSZWNlcHRpb24xIFRlc3QiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJSZWNlcHRpb25pc3QiLCJleHAiOjE4NTUzOTIxNzAsImlzcyI6IkRvcm1QYXltZW50U3lzdGVtQVBJIiwiYXVkIjoiRG9ybVBheW1lbnRTeXN0ZW1DbGllbnRzIn0.adYv3VJCtubwSMtHnr7ZyueYcN1R8wu-ynk4Cvn-S0A
+
 ### 1) Send to all students, building 1     # EXPECT 200
 POST {{baseUrl}}/api/admin/notification/send/all
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{piotrToken}}
 X-Building-Id: 1
 
 { "Title": "kitchen will be on maintantce", "Message": "Only building 1" }
@@ -14,55 +17,22 @@ GET {{baseUrl}}/api/admin/notification/my
 Authorization: Bearer {{adminToken}}
 X-Building-Id: 2
 
-
-
-
-
-
 ### 1) Anna (building 1), header 1
 # EXPECT 200
-POST {{baseUrl}}/api/admin/notification/send/student/64248249-7ed9-44cf-b6d3-b1f369cc2c06
+### 1) Send notification to Anna      # EXPECT 200
+POST {{baseUrl}}/api/admin/notification/send/student/9f7fca73-8cd3-4b25-9da3-c973fc7245fc
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{piotrToken}}
 X-Building-Id: 1
 
-{ "Title": "Test", "Message": "Anna in building 1", "Type": "GeneralAnnouncement" }
-
-
-
-
-### 2) Maria (building 2), but header 1
-# EXPECT 404 "Student not found in this building."
-POST {{baseUrl}}/api/admin/notification/send/student/c86f0cc8-23eb-4d30-9b93-cc06d882ce2a
-Content-Type: application/json
-Authorization: Bearer {{adminToken}}
-X-Building-Id: 1
-
-{ "Title": "Test", "Message": "Should NOT arrive", "Type": "GeneralAnnouncement" }
+{ "Title": "anna please come to the office ", "Message": "Anna u need to come to the office", "Type": "GeneralAnnouncement" }
 
 ### 3) Maria (building 2), header 2
 # EXPECT 200
-POST {{baseUrl}}/api/admin/notification/send/student/c86f0cc8-23eb-4d30-9b93-cc06d882ce2a
+POST {{baseUrl}}/api/admin/notification/send/student/c0bd2910-6cf7-4c7a-820c-2c3e18074b28
 Content-Type: application/json
-Authorization: Bearer {{adminToken}}
-X-Building-Id: 2
-
-{ "Title": "Test", "Message": "Maria in building 2", "Type": "GeneralAnnouncement" }
-
-### 4) Anna (building 1), but header 2
-# EXPECT 404
-POST {{baseUrl}}/api/admin/notification/send/student/64248249-7ed9-44cf-b6d3-b1f369cc2c06
-Content-Type: application/json
-Authorization: Bearer {{adminToken}}
-X-Building-Id: 2
-
-{ "Title": "Test", "Message": "Should NOT arrive", "Type": "GeneralAnnouncement" }
-
-### 5) A user id that does not exist
-# EXPECT 404
-POST {{baseUrl}}/api/admin/notification/send/student/does-not-exist
-Content-Type: application/json
-Authorization: Bearer {{adminToken}}
+Authorization: Bearer {{piotrToken}}
 X-Building-Id: 1
 
-{ "Title": "Test", "Message": "Nobody", "Type": "GeneralAnnouncement" }
+{ "Title": "oliwia", "Message": "oliwia came today okey", "Type": "GeneralAnnouncement" }
+
