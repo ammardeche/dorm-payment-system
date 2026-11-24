@@ -13,7 +13,8 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitationsAsync(
            int? studentId = null,
            int? guestId = null,
-           int? month = null,
+           InvitationStatus? invitationStatus = null,
+        int? month = null,
            int? year = null,
            int pageIndex = 1,
            int pageSize = 10);

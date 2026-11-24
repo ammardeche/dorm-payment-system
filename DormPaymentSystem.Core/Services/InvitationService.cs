@@ -39,6 +39,7 @@ namespace DormPaymentSystem.Core.Services
         public async Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitationsAsync(
             int? studentId = null,
             int? guestId = null,
+            InvitationStatus? invitationStatus = null,
             int? month = null,
             int? year = null,
             int pageIndex = 1,
@@ -49,7 +50,7 @@ namespace DormPaymentSystem.Core.Services
             if (pageSize > 100) pageSize = 100;
 
             return await _invitationRepository.GetInvitations(
-                studentId, guestId, month, year, pageIndex, pageSize);
+                studentId, guestId, invitationStatus, month, year, pageIndex, pageSize);
         }
 
         public async Task<Invitation?> GetInvitationByIdAsync(int id)

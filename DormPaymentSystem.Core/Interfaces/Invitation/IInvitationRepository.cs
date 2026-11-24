@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 
 namespace DormPaymentSystem.Core.Interfaces
 {
@@ -11,7 +12,8 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitations(
            int? studentId = null,
            int? guestId = null,
-           int? month = null,
+           InvitationStatus? invitationStatus = null,
+            int? month = null,
            int? year = null,
            int pageIndex = 1,
            int pageSize = 10);

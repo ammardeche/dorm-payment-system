@@ -16,7 +16,5 @@ namespace DormPaymentSystem.API.DTOs.Request
         [Required]
         public string DocumentNumber { get; set; } = null!;
         public DocumentType DocumentType { get; set; }
-        [Required]
-        public int BuildingId { get; set; }
     }
 }

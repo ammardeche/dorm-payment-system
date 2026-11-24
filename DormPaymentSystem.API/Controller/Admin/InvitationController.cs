@@ -36,7 +36,7 @@ namespace DormPaymentSystem.API.Controller
         public async Task<IActionResult> GetAll([FromQuery] InvitationQuery q)
         {
             var (items, totalCount) = await _invitationService.GetInvitationsAsync(
-                q.StudentId, q.GuestId, q.Month, q.Year, q.PageIndex, q.PageSize);
+                q.StudentId, q.GuestId, q.InvitationStatus, q.Month, q.Year, q.PageIndex, q.PageSize);
 
             var pagination = new Pagination(q.PageSize, q.PageIndex, totalCount);
 

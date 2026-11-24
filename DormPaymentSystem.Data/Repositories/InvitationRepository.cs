@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
+using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
 using DormPaymentSystem.Data.Data;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace DormPaymentSystem.Data.Repositories
         public async Task<(IEnumerable<Invitation> Items, int TotalCount)> GetInvitations(
             int? studentId = null,
             int? guestId = null,
+            InvitationStatus? invitationStatus = null,
             int? month = null,
             int? year = null,
             int pageIndex = 1,
@@ -38,6 +40,8 @@ namespace DormPaymentSystem.Data.Repositories
 
             if (guestId.HasValue)
                 query = query.Where(i => i.GuestId == guestId.Value);
+            if (invitationStatus.HasValue)
+                query = query.Where(i => i.Status == invitationStatus.Value);
 
             if (month.HasValue)
                 query = query.Where(i => i.InvitationMonth == month.Value);
