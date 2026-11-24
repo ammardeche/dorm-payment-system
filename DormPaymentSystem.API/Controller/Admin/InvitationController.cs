@@ -65,11 +65,12 @@ namespace DormPaymentSystem.API.Controller
             if (!ModelState.IsValid)
                 return BadRequest(new Response(new AppValidationException("Invalid request.")));
 
-            var invitation = await _invitationService.CreateInvitationAsync(
-                req.InvitedByStudentId,
-                req.GuestId);
+            var created = await _invitationService.CreateInvitationWithGuestAsync(
+                req.InvitedByStudentId, req.GuestFullName, req.GuestDocumentNumber, req.DocumentType);
 
-            return Ok(new Response<InvitationResponse>(new InvitationResponse(invitation)));
+            var invitation = await _invitationService.GetInvitationByIdAsync(created.Id);
+
+            return Ok(new Response<InvitationResponse>(new InvitationResponse(invitation!)));
         }
 
         [HttpDelete("delete/{id}")]
