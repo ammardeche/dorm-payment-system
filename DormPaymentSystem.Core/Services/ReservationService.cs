@@ -293,12 +293,12 @@ namespace DormPaymentSystem.Core.Services
             var invitation = await _invitationRepository.GetInvitationById(invitationId);
 
             if (invitation == null)
-                throw new AppNotFoundException("invitaiotn does not exist ");
+                throw new AppNotFoundException("invitation does not exist ");
 
             // check the invitaion status 
 
             if (invitation.Status != InvitationStatus.Pending)
-                throw new AppConflictException("invitaiton should be pending");
+                throw new AppConflictException("invitation should be pending");
 
             // check if the student is active 
             var student = await _studentRepository.GetStudentById(invitation.InvitedByStudentId);
