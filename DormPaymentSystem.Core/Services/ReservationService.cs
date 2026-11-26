@@ -261,8 +261,12 @@ namespace DormPaymentSystem.Core.Services
 
             if (reservation.Type == ReservationType.StudentStay && reservation.StudentId.HasValue)
             {
-                await _paymentRepository.HasUnpaidPayment(reservation.StudentId.Value);
+                if (await _paymentRepository.HasUnpaidPayment(reservation.StudentId.Value))
+                {
+                    throw new AppValidationException("student has unpaid months");
+                }
             }
+
 
             await _unitOfWork.ExecuteInTransactionAsync(
                 async () =>
