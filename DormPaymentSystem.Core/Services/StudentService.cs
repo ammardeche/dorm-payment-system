@@ -18,10 +18,12 @@ namespace DormPaymentSystem.Core.Services
         private readonly IStudentRepository _studentRepository;
         private readonly IAuthService _authService;
         private readonly IReservationService _reservationService;
+        private readonly IPaymentRepository _paymentRepository;
 
         private readonly IUnitOfWork _unitOfWork;
 
         public StudentService(
+            IPaymentRepository paymentRepository,
             IAuthService authService,
             IUnitOfWork unitOfWork,
             IStudentRepository studentRepository,
@@ -32,6 +34,7 @@ namespace DormPaymentSystem.Core.Services
             _unitOfWork = unitOfWork;
             _reservationService = reservationService;
             _authService = authService;
+            _paymentRepository = paymentRepository;
         }
 
         public async Task<(IEnumerable<Student> Items, int TotalCount)> GetAllStudentsAsync(
@@ -140,10 +143,7 @@ namespace DormPaymentSystem.Core.Services
             if (student == null)
                 throw new AppNotFoundException($"Student with id '{studentId}' not found.");
 
-            var hasUnpaidMonths = student.Reservations
-                .Where(r => r.Type == ReservationType.StudentStay)
-                .SelectMany(r => r.Payments)
-                .Any(p => !p.IsDeleted && p.Status != PaymentStatus.Paid);
+            var hasUnpaidMonths = await _paymentRepository.HasUnpaidPayment(studentId);
 
             return !hasUnpaidMonths;
         }

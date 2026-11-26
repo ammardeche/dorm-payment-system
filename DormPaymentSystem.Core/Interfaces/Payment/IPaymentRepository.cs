@@ -25,7 +25,7 @@ namespace DormPaymentSystem.Data.Repositories
         Task<Payment> CreatePayment(Payment payment);
         Task<Payment> UpdatePayment(Payment payment);
         Task<bool> DeletePayment(Payment payment);
-
+        Task<bool> HasUnpaidPayment(int studentId);
         Task<bool> PaymentExists(int id);
         Task<bool> PaymentExistsForMonth(int reservationId, int month, int year);
 

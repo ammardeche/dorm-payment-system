@@ -8,7 +8,23 @@ Authorization: Bearer {{piotrToken}}
 X-Building-Id :1 
 
 {
-    "StudentId": 2,
-    "RoomId": 3,
+    "StudentId": 4,
+    "RoomId": 4,
     "CheckIn": "{{ new Date().toLocaleDateString('sv-SE') }}T00:00:00"
 }
+
+### TEST 1: check-in on the 12th of this month (first month -> due on the check-in day)
+POST {{baseUrl}}/api/admin/reservation/student
+Content-Type: application/json
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+{ "StudentId": 1, "RoomId": 2, "CheckIn": "2026-11-12T00:00:00" }
+
+### TEST 2: check-in in October (two months of payments: Oct and Nov)
+POST {{baseUrl}}/api/admin/reservation/student
+Content-Type: application/json
+Authorization: Bearer {{rec1Token}}
+X-Building-Id: 1
+
+{ "StudentId": 3, "RoomId": 3, "CheckIn": "2026-10-10T00:00:00" }

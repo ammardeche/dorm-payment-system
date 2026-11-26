@@ -12,7 +12,6 @@ namespace DormPaymentSystem.Data.Repositories
     public class PaymentRepository : IPaymentRepository
     {
         private readonly DormPaymentDbContext _context;
-
         public PaymentRepository(DormPaymentDbContext context)
         {
             _context = context;
@@ -132,6 +131,16 @@ namespace DormPaymentSystem.Data.Repositories
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> HasUnpaidPayment(int studentId)
+        {
+            return await _context.Payments.AnyAsync(
+
+                 p => p.Reservation.StudentId == studentId &&
+                 p.Reservation.Type == ReservationType.StudentStay &&
+                 !p.IsDeleted && p.Status != PaymentStatus.Paid
+             );
         }
     }
 }

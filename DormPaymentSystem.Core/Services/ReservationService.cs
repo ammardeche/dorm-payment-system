@@ -258,9 +258,15 @@ namespace DormPaymentSystem.Core.Services
             if (reservation.Status != ReservationStatus.Active)
                 throw new AppValidationException("Reservation is not active.");
 
+
             await _unitOfWork.ExecuteInTransactionAsync(
                 async () =>
                 {
+
+                    if (reservation.Type == ReservationType.StudentStay && reservation.StudentId.HasValue)
+                    {
+                        var hasUnpaid = _paymentRepository.HasUnpaidPayment(reservation.StudentId.Value);
+                    }
                     // set checkout
                     reservation.Status = ReservationStatus.CheckedOut;
                     reservation.CheckOut = DateTime.UtcNow;
