@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
+using DormPaymentSystem.Core.Rules;
 using DormPaymentSystem.Data.Interfaces;
 using DormPaymentSystem.Data.Repositories;
 using static DormPaymentSystem.Core.Exceptions.AppException;
@@ -189,10 +190,10 @@ namespace DormPaymentSystem.Core.Services
                 await _paymentRepository.CreatePayment(new Payment
                 {
                     ReservationId = reservation.Id,
-                    Amount = reservation.RateSnapshot,
+                    Amount = PaymentRules.CalculateMonthAmount(reservation.CheckIn, reservation.RateSnapshot, date.Year, date.Month),
                     PaymentMonth = date.Month,
                     PaymentYear = date.Year,
-                    DueDate = date,
+                    DueDate = PaymentRules.CalculateDueDate(date.Year, date.Month),
                     Status = PaymentStatus.Pending,
                     ReceiptNumber = $"AUTO-{date:yyyyMM}-{reservation.StudentId}",
                     CreatedAt = DateTime.UtcNow

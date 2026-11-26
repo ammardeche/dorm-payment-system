@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DormPaymentSystem.Core.Entities;
 using DormPaymentSystem.Core.Enums;
 using DormPaymentSystem.Core.Interfaces;
+using DormPaymentSystem.Core.Rules;
 using DormPaymentSystem.Data.Interfaces;
 using DormPaymentSystem.Data.Repositories;
 using static DormPaymentSystem.Core.Exceptions.AppException;
@@ -81,7 +82,6 @@ namespace DormPaymentSystem.Core.Services
             int studentId,
             int roomId,
             DateTime checkIn,
-
             string userId)
         {
             // 1. validate student
@@ -136,10 +136,10 @@ namespace DormPaymentSystem.Core.Services
                 var firstPayment = new Payment
                 {
                     ReservationId = reservation.Id,
-                    Amount = settings.StudentMonthlyRate,
+                    Amount = PaymentRules.CalculateMonthAmount(checkIn, settings.StudentMonthlyRate, checkIn.Year, checkIn.Month),
                     PaymentMonth = checkIn.Month,
                     PaymentYear = checkIn.Year,
-                    DueDate = new DateTime(checkIn.Year, checkIn.Month, 1),
+                    DueDate = PaymentRules.CalculateDueDate(checkIn.Year, checkIn.Month),
                     Status = PaymentStatus.Pending,
                     ReceivedById = userId,
                     ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
