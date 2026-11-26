@@ -193,7 +193,7 @@ namespace DormPaymentSystem.Core.Services
                     Amount = PaymentRules.CalculateMonthAmount(reservation.CheckIn, reservation.RateSnapshot, date.Year, date.Month),
                     PaymentMonth = date.Month,
                     PaymentYear = date.Year,
-                    DueDate = PaymentRules.CalculateDueDate(date.Year, date.Month),
+                    DueDate = PaymentRules.CalculateDueDate(reservation.CheckIn, date.Year, date.Month),
                     Status = PaymentStatus.Pending,
                     ReceiptNumber = $"AUTO-{date:yyyyMM}-{reservation.StudentId}",
                     CreatedAt = DateTime.UtcNow

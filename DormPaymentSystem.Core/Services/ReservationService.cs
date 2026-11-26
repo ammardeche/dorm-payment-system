@@ -139,7 +139,7 @@ namespace DormPaymentSystem.Core.Services
                     Amount = PaymentRules.CalculateMonthAmount(checkIn, settings.StudentMonthlyRate, checkIn.Year, checkIn.Month),
                     PaymentMonth = checkIn.Month,
                     PaymentYear = checkIn.Year,
-                    DueDate = PaymentRules.CalculateDueDate(checkIn.Year, checkIn.Month),
+                    DueDate = PaymentRules.CalculateDueDate(checkIn.Date, checkIn.Year, checkIn.Month),
                     Status = PaymentStatus.Pending,
                     ReceivedById = userId,
                     ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),

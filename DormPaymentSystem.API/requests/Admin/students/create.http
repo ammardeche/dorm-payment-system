@@ -9,10 +9,10 @@ Authorization: Bearer {{rec1Token}}
 X-Building-Id: 1
 
 {
-  "FirstName": "emilia",
+  "FirstName": "Youcef",
   "LastName": "Test",
-  "Email": "emilia.b1@dorm.local",
-  "StudentNumber": "s025858",
+  "Email": "youcef.test@student.com",
+  "StudentNumber": "s025845",
   "PhoneNumber": "500100100",
   "Password": "Student@123"
 }

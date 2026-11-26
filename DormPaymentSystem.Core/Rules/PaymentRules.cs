@@ -9,9 +9,19 @@ namespace DormPaymentSystem.Core.Rules
     {
 
 
-        public static DateTime CalculateDueDate(int year, int month)
+        public static DateTime CalculateDueDate(DateTime checkIn, int year, int month)
         {
-            return new DateTime(year, month, 15);
+            var dueDate = new DateTime(year, month, 15);
+
+            
+
+            if (checkIn.Year == year && checkIn.Month == month)
+            {
+                return checkIn.Date;
+            }
+
+            return dueDate;
+
         }
 
 
