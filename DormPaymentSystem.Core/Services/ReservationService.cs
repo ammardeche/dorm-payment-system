@@ -143,7 +143,8 @@ namespace DormPaymentSystem.Core.Services
                     Status = PaymentStatus.Pending,
                     ReceivedById = userId,
                     ReceiptNumber = GenerateReceiptNumber("STD", studentId, 0),
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    BuildingId = reservation.BuildingId
                 };
 
 

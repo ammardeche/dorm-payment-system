@@ -196,7 +196,8 @@ namespace DormPaymentSystem.Core.Services
                     DueDate = PaymentRules.CalculateDueDate(reservation.CheckIn, date.Year, date.Month),
                     Status = PaymentStatus.Pending,
                     ReceiptNumber = $"AUTO-{date:yyyyMM}-{reservation.StudentId}",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    BuildingId = reservation.BuildingId
                 });
             }
         }

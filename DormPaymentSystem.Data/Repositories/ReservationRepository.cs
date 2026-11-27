@@ -120,6 +120,18 @@ namespace DormPaymentSystem.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Reservation>> GetAllActiveStudentReservations()
+        {
+            // return all active student reservation
+
+            return await _context.Reservations.IgnoreQueryFilters().Where(p => 
+                p.Status == ReservationStatus.Active && 
+                p.Type == ReservationType.StudentStay 
+            ).ToListAsync();
+        }
+
     }
 
 }
+

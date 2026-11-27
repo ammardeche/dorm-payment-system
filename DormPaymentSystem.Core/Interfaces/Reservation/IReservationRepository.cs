@@ -25,7 +25,10 @@ namespace DormPaymentSystem.Core.Interfaces
         Task<Reservation> CreateReservation(Reservation reservation);
         Task<Reservation> UpdateReservation(Reservation reservation);
 
+        Task<List<Reservation>> GetAllActiveStudentReservations();
+
         Task<bool> HasActiveReservationForRoom(int roomId);
+
         Task SaveChanges();
     }
 }
