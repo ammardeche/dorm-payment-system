@@ -41,7 +41,7 @@ namespace DormPaymentSystem.Core.Interfaces
 
         Task<bool> PaymentExistsAsync(int id);
         Task<bool> HasPaidForMonthAsync(int reservationId, int month, int year);
-
+        Task<int> MarkOverduePaymentsAsync();
         Task RebuildPaymentsAsync(int reservationId);
         Task EnsureMonthlyPaymentsAsync(int reservationId);
     }

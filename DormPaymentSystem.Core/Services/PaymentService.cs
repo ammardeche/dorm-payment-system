@@ -201,6 +201,27 @@ namespace DormPaymentSystem.Core.Services
             }
         }
 
+        public async Task<int> MarkOverduePaymentsAsync()
+        {
+
+
+            // set the today value 
+            var today = DateTime.UtcNow.Date;
+            // pass the today value to the overdue method to get the overdue payment
+            var overduePayments = await _paymentRepository.GetOverduePayments(today);
+            // set for each payment a status and daysleft
+
+            foreach (var payment in overduePayments)
+            {
+                payment.Status = PaymentStatus.Overdue;
+                payment.DaysLate = (today - payment.DueDate).Days;
+            }
+            await _paymentRepository.SaveChanges();
+
+
+            return overduePayments.Count();
+
+        }
     }
 
 

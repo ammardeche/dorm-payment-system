@@ -142,5 +142,12 @@ namespace DormPaymentSystem.Data.Repositories
                  !p.IsDeleted && p.Status != PaymentStatus.Paid
              );
         }
+
+        public async Task<List<Payment>> GetOverduePayments(DateTime today)
+        {
+            return await _context.Payments.Where(
+            p => (p.Status == PaymentStatus.Pending || p.Status == PaymentStatus.Overdue) && p.DueDate < today && !p.IsDeleted)
+            .ToListAsync();
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace DormPaymentSystem.Data.Repositories
         Task<bool> HasUnpaidPayment(int studentId);
         Task<bool> PaymentExists(int id);
         Task<bool> PaymentExistsForMonth(int reservationId, int month, int year);
-
+        Task<List<Payment>> GetOverduePayments(DateTime today);
         Task SaveChanges();
     }
 }

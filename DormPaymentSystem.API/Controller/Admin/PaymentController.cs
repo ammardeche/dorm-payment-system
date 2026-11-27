@@ -99,6 +99,16 @@ namespace DormPaymentSystem.API.Controller
             ));
         }
 
+        [HttpPost("mark-overdue")]
+
+        public async Task<IActionResult> OverDuePayment()
+        {
+            var overduePayment = await _paymentService.MarkOverduePaymentAsync();
+
+            return Ok(new Response<int>(overduePayment));
+        }
+
+
 
     }
 
