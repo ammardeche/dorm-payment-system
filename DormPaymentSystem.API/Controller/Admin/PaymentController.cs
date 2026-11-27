@@ -103,7 +103,7 @@ namespace DormPaymentSystem.API.Controller
 
         public async Task<IActionResult> OverDuePayment()
         {
-            var overduePayment = await _paymentService.MarkOverduePaymentAsync();
+            var overduePayment = await _paymentService.MarkOverduePaymentsAsync();
 
             return Ok(new Response<int>(overduePayment));
         }
